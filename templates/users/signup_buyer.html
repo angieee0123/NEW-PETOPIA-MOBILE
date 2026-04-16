@@ -1,0 +1,711 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Petopia • Sign Up</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<link href="https://cdn.jsdelivr.net/npm/remixicon@4.3.0/fonts/remixicon.css" rel="stylesheet">
+<style>
+:root {
+  --bg: #f6f8ff;
+  --panel: rgba(255,255,255,.6);
+  --panel-strong: rgba(255,255,255,.9);
+  --text: #0b0f1a;
+  --muted: #5b6378;
+  --accent: #7cf4d1;
+  --accent-2: #8bb6ff;
+  --ring: rgba(139,182,255,0.45);
+  --error: #ff6b6b;
+  --shadow: 0 20px 60px rgba(16,24,40,.15);
+}
+* { box-sizing: border-box; }
+html, body { height: 100%; margin:0; font-family: Inter, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial; color: var(--text); background: var(--bg); overflow-x: hidden; overflow-y: hidden; }
+
+.wrap { display: grid; grid-template-columns: 1.1fr .9fr; min-height: 100vh; overflow: hidden; }
+@media (max-width: 980px) { .wrap { grid-template-columns: 1fr; } .hero { display: none; } }
+
+.hero { display: grid; place-items: center; padding: 6vmin; }
+.hero-inner { max-width: 640px; text-align: left; }
+.brand { display: inline-flex; align-items: center; gap: .6rem; padding: .5rem .9rem; border-radius: 999px; background: var(--panel); backdrop-filter: blur(10px); border: 1px solid var(--panel-strong); box-shadow: var(--shadow); }
+.logo { width: 28px; height: 28px; display: grid; place-items: center; border-radius: 8px; background: linear-gradient(135deg, var(--accent), var(--accent-2)); color: #051014; font-weight: 800; }
+h1 { margin: 16px 0 10px; font-size: clamp(36px, 5.2vw, 56px); line-height: 1.02; }
+p.lede { margin: 0; color: var(--muted); font-size: clamp(14px, 1.6vw, 16px); }
+
+.panel-wrap { display: grid; place-items: center; padding: 2vmin 2vmin; overflow: visible; }
+.panel { width: min(600px, 95vw); overflow-y: visible; padding: 28px; border-radius: 22px; background: var(--panel); border: 1px solid var(--panel-strong); box-shadow: var(--shadow); backdrop-filter: blur(18px); }
+.panel header { display:flex; justify-content: space-between; align-items:center; margin-bottom: 20px; flex-wrap: wrap; gap:20px; }
+.panel header h2 { margin: 0; font-size: 26px; }
+
+form { margin-top: 5px; display: grid; gap: 5px; }
+.field { display: grid; gap: 8px; }
+label { font-size: 14px; color: var(--muted); }
+.control { position: relative; }
+.control input, .control select, .control textarea {
+  width: 100%; padding: 12px 44px 12px 14px; border-radius: 14px; border: 1px solid var(--panel-strong);
+  background: rgba(255,255,255,.7); color: var(--text); font-size: 15px; outline: none;
+}
+.control textarea { min-height: 88px; resize: vertical; padding-top:10px; padding-bottom:10px; }
+.control input:focus, .control select:focus, .control textarea:focus { border-color: var(--accent-2); box-shadow: 0 0 0 2px var(--ring); }
+.control i { position: absolute; right: 12px; top: 50%; transform: translateY(-50%); color: var(--muted); }
+
+.btn { width: 100%; padding: 14px 16px; border: 0; border-radius: 16px; font-weight: 700; cursor: pointer; background: linear-gradient(135deg, var(--accent), var(--accent-2)); color: #051014; box-shadow: 0 12px 30px rgba(139,182,255,.25); transition: transform .2s; }
+.btn:hover { transform: translateY(-2px); }
+.btn-outline { background: transparent; border: 2px solid var(--accent-2); color: var(--accent-2); box-shadow: none; transition: border-color .2s, color .2s; }
+.btn-outline:hover { border-color: var(--accent); color: var(--accent); }
+.btn-row { display:flex; gap:10px; margin-top:6px; flex-wrap: wrap; }
+
+.two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+@media (max-width:720px) { .two-col { grid-template-columns: 1fr; } }
+
+.small-muted { font-size:12px; color:var(--muted); margin-top:6px; }
+.meta { margin-top: 12px; text-align: center; font-size: 14px; color: var(--muted); }
+.link { color: var(--accent-2); font-weight: 600; text-decoration: none; }
+.link:hover { text-decoration: underline; }
+
+#flash-messages .flash {
+  padding: 12px 16px;
+  border-radius: 12px;
+  margin-bottom: 16px;
+  font-size: 14px;
+  font-weight: 500;
+  animation: fadeIn 0.3s ease;
+}
+#flash-messages .flash.success { background: #d4edda; color: #155724; border: 1px solid #c3e6cb; }
+#flash-messages .flash.error { background: #f8d7da; color: #721c24; border: 1px solid #f5c6cb; }
+@keyframes fadeIn { from { opacity: 0; transform: translateY(-5px); } to { opacity: 1; transform: translateY(0); } }
+
+/* Aurora background blobs */
+.aurora { position: fixed; inset: 0; filter: blur(60px); pointer-events: none; overflow: hidden; }
+.blob { position: absolute; width: 60vmax; height: 60vmax; border-radius: 50%; mix-blend-mode: screen; opacity: .55; animation: float 18s ease-in-out infinite; }
+.blob.a { background: radial-gradient(circle at 30% 30%, var(--accent), transparent 60%); left: -20vmax; top: -10vmax; }
+.blob.b { background: radial-gradient(circle at 70% 30%, var(--accent-2), transparent 60%); right: -15vmax; top: -5vmax; animation-delay: 4s; }
+.blob.c { background: radial-gradient(circle at 50% 70%, #f39cff, transparent 60%); left: 10vmax; bottom: -20vmax; animation-delay: 8s; }
+@keyframes float { 0%,100% { transform: translate3d(0,0,0) scale(1);} 50% { transform: translate3d(0,-4%,0) scale(1.05);} }
+
+a.back-home {
+  position: fixed; top: 16px; left: 16px; z-index: 99; background: var(--panel); padding: 5px 12px;
+  border-radius: 999px; text-decoration: none; color: var(--text); font-weight: 600; box-shadow: var(--shadow);
+  border: 1px solid var(--panel-strong); display: inline-flex; align-items: center; gap: 6px; font-size: 13px;
+}
+a.back-home i { font-size: 15px; }
+</style>
+</head>
+<body>
+<a href="{{ url_for('home') }}" class="back-home">
+  <i class="ri-arrow-left-line"></i> Back to Home
+</a>
+
+<div class="aurora">
+  <div class="blob a"></div>
+  <div class="blob b"></div>
+  <div class="blob c"></div>
+</div>
+
+<main class="wrap">
+  <section class="hero">
+    <div class="hero-inner">
+      <div class="brand">
+        <span class="logo">🐾</span>
+        <strong>Petopia</strong>
+        <span style="color:var(--muted)">Pet Shop Essentials</span>
+      </div>
+      <h1>Sign Up as Buyer</h1>
+      <p class="lede">Find everything your pet needs and enjoy exclusive deals by joining as a buyer.</p>
+    </div>
+  </section>
+
+  <section class="panel-wrap">
+    <div class="panel">
+      <header><h2>Create Your Petopia Account</h2></header>
+
+      <!-- Flash → JS Alerts (same behavior as login) -->
+      {% set __msgs = get_flashed_messages() %}
+      {% if __msgs %}
+        <meta id="flashMsgs" data-msgs='{{ __msgs|tojson }}'>
+        <script>
+          (function(){
+            var el = document.getElementById('flashMsgs');
+            if(!el) return;
+            var payload = el.dataset.msgs || '[]';
+            document.addEventListener('DOMContentLoaded', function(){
+              try{
+                var msgs = JSON.parse(payload);
+                if(Array.isArray(msgs) && msgs.length){
+                  msgs.forEach(function(m){ 
+                    setTimeout(function(){ 
+                      showCustomAlert('info', 'Notification', m); 
+                    }, 200); 
+                  });
+                }
+              }catch(e){}
+            });
+          })();
+        </script>
+      {% endif %}
+
+      <form id="buyerForm" method="POST" action="/signup_buyer" enctype="multipart/form-data">
+        <input type="hidden" name="role" value="buyer" />
+        <div class="two-col">
+          <div class="field">
+            <label>Full Name</label>
+            <div class="control"><input id="buyerFullname" name="fullname" type="text" placeholder="Juan dela Cruz" required><i class="ri-user-line"></i></div>
+          </div>
+          <div class="field">
+            <label>Email</label>
+            <div class="control"><input id="buyerEmail" name="email" type="email" placeholder="you@example.com" required><i class="ri-mail-line"></i></div>
+          </div>
+        </div>
+        <div class="two-col">
+          <div class="field">
+            <label>Password</label>
+            <div class="control"><input id="buyerPassword" name="password" type="password" placeholder="••••••••" minlength="8" required><i class="ri-lock-2-line"></i></div>
+          </div>
+          <div class="field">
+            <label>Confirm Password</label>
+            <div class="control"><input id="buyerConfirm" name="confirm" type="password" placeholder="••••••••" minlength="8" required><i class="ri-lock-2-line"></i></div>
+          </div>
+        </div>
+        <div class="two-col">
+          <div class="field">
+            <label>Phone Number</label>
+            <div class="control"><input id="buyerPhone" name="phone" type="text" placeholder="09XXXXXXXXX" required><i class="ri-phone-line"></i></div>
+          </div>
+          <div class="field">
+            <label>Date of Birth</label>
+            <div class="control"><input name="dob" type="date"></div>
+          </div>
+        </div>
+        <div class="two-col">
+          <div class="field">
+            <label>Gender</label>
+            <div class="control">
+              <select name="gender">
+                <option value="">Rather not say</option>
+                <option>Male</option>
+                <option>Female</option>
+              </select>
+            </div>
+          </div>
+          <div class="field">
+            <div class="control">
+              <div class="field"><label>Complete Address</label><div class="control"><input id="buyerAddressInput" name="address" type="text" placeholder="Street, Barangay, City, Province, ZIP" required readonly style="cursor:pointer;"></div></div>             
+            </div>
+          </div>
+        </div>
+        <div class="field">
+          <label>Profile Photo (optional)</label>
+          <div class="control"><input name="profile_photo" type="file" accept="image/*"></div>
+        </div>
+
+        <div class="field">
+          <div class="control" style="display: flex; align-items: center; gap: 12px; min-height: 32px;">
+            <input type="checkbox" name="agreement" id="buyerAgreement" style="margin:0; width:18px; height:18px; flex-shrink:0;" required>
+            <label for="buyerAgreement" style="font-size:14px; color:var(--muted); line-height:1.5; cursor:pointer;">
+              I agree to <a href="#" class="link show-terms">Petopia's Terms and Conditions</a>
+            </label>
+          </div>
+        </div>
+
+        <div class="btn-row">
+          <button class="btn btn-outline" type="button" id="backBtn">Back</button>
+          <button class="btn" type="submit">Sign Up</button>
+        </div>
+
+        <div class="small-muted" style="margin-top:2px;">
+          After submitting, please check your email for a verification code to confirm your account.
+        </div>
+        <div class="meta">
+          Already have an account? <a class="link" href="{{ url_for('login') }}">Login</a>
+        </div>
+      </form>
+    </div>
+  </section>
+</main>
+
+<!-- Address Modal -->
+<div id="addrModal" style="display:none; position:fixed; inset:0; z-index:9999; background:rgba(11,15,26,0.32); backdrop-filter: blur(2px); align-items:center; justify-content:center;">
+  <div style="background:var(--panel-strong); width:min(720px,95vw); max-height:85vh; overflow:auto; border-radius:18px; box-shadow:var(--shadow); border:1px solid var(--panel-strong);">
+    <div style="display:flex; justify-content:space-between; align-items:center; padding:16px 18px; border-bottom:1px solid rgba(11,15,26,.12);">
+      <h3 style="margin:0; font-size:18px;">Select Complete Address</h3>
+      <button id="addrCloseBtn" class="btn btn-outline" type="button" style="width:auto; padding:8px 12px; border-radius:10px;">Close</button>
+    </div>
+    <div style="padding:16px 18px; display:grid; gap:12px;">
+      <div class="two-col">
+        <div class="field">
+          <label>Country</label>
+          <div class="control">
+            <select id="am_country">
+              <option value="Philippines" selected>Philippines</option>
+            </select>
+          </div>
+        </div>
+        <div class="field">
+          <label>Region</label>
+          <div class="control">
+            <select id="am_region">
+              <option value="" disabled selected>Loading regions…</option>
+            </select>
+          </div>
+        </div>
+      </div>
+      <div class="two-col">
+        <div class="field">
+          <label>City / Municipality</label>
+          <div class="control">
+            <select id="am_city" disabled>
+              <option value="" disabled selected>Select city</option>
+            </select>
+          </div>
+        </div>
+        <div class="field">
+          <label>Barangay</label>
+          <div class="control">
+            <select id="am_barangay" disabled>
+              <option value="" disabled selected>Select barangay</option>
+            </select>
+          </div>
+        </div>
+      </div>
+      <div class="two-col">
+        <div class="field">
+          <label>ZIP Code</label>
+          <div class="control"><input id="am_zip" type="text" inputmode="numeric" placeholder="e.g., 1000"></div>
+        </div>
+        <div class="field">
+          <label>House No.</label>
+          <div class="control"><input id="am_house" type="text" placeholder="e.g., Blk 12 Lot 3"></div>
+        </div>
+      </div>
+      <div class="two-col">
+        <div class="field">
+          <label>Street</label>
+          <div class="control"><input id="am_street" type="text" placeholder="e.g., Mabini St."></div>
+        </div>
+        <div class="field">
+          <label>Landmark (optional)</label>
+          <div class="control"><input id="am_landmark" type="text" placeholder="Near ..."></div>
+        </div>
+      </div>
+      <div class="btn-row" style="justify-content:flex-end;">
+        <button id="am_cancel" type="button" class="btn btn-outline" style="width:auto;">Cancel</button>
+        <button id="am_save" type="button" class="btn" style="width:auto;">Use this address</button>
+      </div>
+    </div>
+  </div>
+  <div></div>
+  <!-- spacer to center on some browsers -->
+  <div></div>
+  <div></div>
+  <div></div>
+  <div></div>
+</div>
+
+<!-- Terms Modal -->
+<div id="termsModal" style="display:none; position:fixed; z-index:9999; left:0; top:0; width:100vw; height:100vh; background:rgba(11,15,26,0.32); backdrop-filter:blur(2px); align-items:center; justify-content:center;">
+  <div style="background:var(--panel-strong); max-width:480px; width:90vw; margin:auto; border-radius:18px; box-shadow:var(--shadow); padding:32px 24px 20px 24px; position:relative;">
+    <button id="closeTerms" style="position:absolute; top:12px; right:12px; background:none; border:none; font-size:22px; color:var(--muted); cursor:pointer;">&times;</button>
+    <h2 style="margin-top:0; font-size:22px;">Petopia Terms and Conditions</h2>
+<div style="max-height:48vh; overflow-y:auto; font-size:14px; color:var(--text); margin-bottom:18px;">
+  <h3>1. Account Responsibilities</h3>
+  <p>By creating a Petopia account, you agree to provide accurate personal information and to keep your login credentials secure. You are responsible for all activities that occur under your account.</p>
+  <h3>2. Purchasing and Payments</h3>
+  <p>Buyers must ensure that payment and delivery information is correct. Orders are binding once confirmed. Unauthorized or fraudulent payments are strictly prohibited.</p>
+  <h3>3. Delivery and Shipping</h3>
+  <p>Petopia and sellers will make reasonable efforts to deliver your orders on time. Buyers must provide accurate shipping details. Delays caused by incorrect information are not Petopia’s responsibility.</p>
+  <h3>4. Returns and Refunds</h3>
+  <p>Return requests must follow Petopia’s return policy. Items should be returned in their original condition. Refunds are processed after inspection of returned items.</p>
+
+  <h3>5. Prohibited Activities</h3>
+  <p>Buyers may not engage in illegal activity, fraud, harassment, or misuse of the platform. Petopia may suspend or terminate accounts for violations.</p>
+
+  <h3>6. Intellectual Property</h3>
+  <p>All content, logos, and materials on Petopia are the property of Petopia or its licensors. Unauthorized use is prohibited.</p>
+
+  <h3>7. Privacy</h3>
+  <p>Petopia collects and uses personal information according to its Privacy Policy. By using the site, you consent to these practices.</p>
+
+  <h3>8. Liability</h3>
+  <p>Petopia is not responsible for damages arising from transactions between buyers and sellers. Buyers transact at their own risk and are expected to follow platform guidelines.</p>
+
+  <h3>9. Updates</h3>
+  <p>Petopia may update these Terms and Conditions at any time. Continued use of the platform constitutes acceptance of any updates.</p>
+
+  <p>By checking the box and submitting, you agree to abide by Petopia’s Terms and Conditions.</p>
+</div>
+
+  </div>
+</div>
+
+<script>
+// Custom alert function to replace browser alert dialogs
+function showCustomAlert(type, title, message, onOkCallback) {
+  const div = document.createElement('div');
+  div.id = 'customAlertModal';
+  div.style = 'position:fixed;top:0;left:0;width:100vw;height:100vh;z-index:9999;background:rgba(0,0,0,.25);backdrop-filter:blur(2px);display:flex;align-items:center;justify-content:center;';
+  
+  // Determine icon and colors based on type
+  let icon = 'ri-information-line';
+  let iconBg = 'rgba(139,182,255,.15)';
+  let iconColor = 'var(--accent-2)';
+  let titleColor = '#23272f';
+  
+  if (type === 'error') {
+    icon = 'ri-error-warning-line';
+    iconBg = 'rgba(255,107,107,.15)';
+    iconColor = 'var(--error)';
+  } else if (type === 'success') {
+    icon = 'ri-checkbox-circle-line';
+    iconBg = 'rgba(74,222,128,.15)';
+    iconColor = '#4ade80';
+  }
+  
+  div.innerHTML = `
+    <div style="background:var(--panel-strong);border-radius:18px;max-width:500px;width:90vw;box-shadow:var(--shadow);position:relative;overflow:hidden;">
+      <div style="padding:32px;text-align:center;">
+        <div style="width:64px;height:64px;border-radius:50%;background:${iconBg};display:flex;align-items:center;justify-content:center;margin:0 auto 20px;border:2px solid ${iconColor};">
+          <i class="${icon}" style="font-size:2rem;color:${iconColor};"></i>
+        </div>
+        <h3 style="font-size:1.5rem;font-weight:800;color:${titleColor};margin-bottom:12px;">${title}</h3>
+        <p style="color:var(--muted);font-weight:600;font-size:1rem;line-height:1.6;margin-bottom:24px;">${message}</p>
+        <button id="alertOk" style="padding:12px 32px;border-radius:10px;background:linear-gradient(135deg, var(--accent), var(--accent-2));color:#051014;font-weight:700;border:none;cursor:pointer;font-size:1rem;box-shadow:0 8px 26px rgba(139,182,255,.08);transition:all .2s ease;">OK</button>
+      </div>
+    </div>
+  `;
+  document.body.appendChild(div);
+  
+  const closeHandler = function() {
+    div.remove();
+    if (onOkCallback) {
+      onOkCallback();
+    }
+  };
+  
+  document.getElementById('alertOk').addEventListener('click', closeHandler);
+  
+  div.addEventListener('click', function(e) {
+    if (e.target === div) closeHandler();
+  });
+  
+  const escapeHandler = function(e) {
+    if (e.key === 'Escape') {
+      closeHandler();
+      document.removeEventListener('keydown', escapeHandler);
+    }
+  };
+  document.addEventListener('keydown', escapeHandler);
+}
+
+// TERMS MODAL
+document.querySelectorAll(".show-terms").forEach(function (link) {
+  link.addEventListener("click", function (e) {
+    e.preventDefault();
+    document.getElementById("termsModal").style.display = "flex";
+  });
+});
+document.getElementById("closeTerms").onclick = function (e) {
+  e.preventDefault();
+  document.getElementById("termsModal").style.display = "none";
+};
+
+// REAL-TIME VALIDATION
+function markField(field, valid) {
+  if (!field) return;
+  field.style.borderColor = valid ? "green" : "var(--error)";
+}
+
+window.addEventListener("DOMContentLoaded", function () {
+  const emailField = document.getElementById("buyerEmail");
+  const phoneField = document.getElementById("buyerPhone");
+  const pwField = document.getElementById("buyerPassword");
+  const cfField = document.getElementById("buyerConfirm");
+  const dobField = document.querySelector("input[name='dob']");
+  const strongPwPattern = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[^\w\s]).{8,}$/;
+
+  function isStrongPassword(value) {
+    return strongPwPattern.test(value);
+  }
+
+  // Email
+  if (emailField) {
+    emailField.addEventListener("input", function () {
+      const pattern =  /^[^\s@]+@(gmail|yahoo)\.com$/i;
+      markField(emailField, pattern.test(emailField.value));
+    });
+  }
+
+  // Password + Confirm
+  function checkPassword() {
+    markField(pwField, isStrongPassword(pwField.value));
+    if (pwField.value !== cfField.value || cfField.value.length === 0) {
+      markField(cfField, false);
+    } else {
+      markField(cfField, true);
+    }
+  }
+  if (pwField && cfField) {
+    pwField.addEventListener("input", checkPassword);
+    cfField.addEventListener("input", checkPassword);
+  }
+
+  // Phone
+  if (phoneField) {
+    phoneField.addEventListener("input", function () {
+      markField(phoneField, /^09\d{9}$/.test(phoneField.value));
+    });
+  }
+
+  // Birthdate (real-time)
+  if (dobField) {
+    dobField.addEventListener("change", function () {
+      if (!dobField.value) {
+        markField(dobField, false);
+        return;
+      }
+      const today = new Date();
+      const birthDate = new Date(dobField.value);
+      let age = today.getFullYear() - birthDate.getFullYear();
+      const m = today.getMonth() - birthDate.getMonth();
+      if (m < 0 || (m === 0 && today.getDate() < birthDate.getDate())) {
+        age--;
+      }
+      markField(dobField, age >= 18);
+    });
+  }
+});
+
+// FORM SUBMIT VALIDATION
+document.getElementById("buyerForm").addEventListener("submit", function (e) {
+  const email = document.getElementById("buyerEmail");
+  const phone = document.getElementById("buyerPhone");
+  const pw = document.getElementById("buyerPassword");
+  const confirm = document.getElementById("buyerConfirm");
+  const dob = document.querySelector("input[name='dob']");
+
+  // Email validation
+  const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  if (!emailPattern.test(email.value)) {
+    e.preventDefault();
+    showCustomAlert('error', 'Invalid Email', 'Please enter a valid email address.');
+    return;
+  }
+
+  // Phone validation
+  const phonePattern = /^09\d{9}$/;
+  if (!phonePattern.test(phone.value)) {
+    e.preventDefault();
+    showCustomAlert('error', 'Invalid Phone Number', 'Please enter a valid phone number (e.g., 09123456789).');
+    return;
+  }
+
+  // Password strength
+  if (!strongPwPattern.test(pw.value)) {
+    e.preventDefault();
+    showCustomAlert('error', 'Weak Password', 'Password must be at least 8 characters and include uppercase, lowercase, number, and special character.');
+    return;
+  }
+
+  // Password match
+  if (pw.value !== confirm.value) {
+    e.preventDefault();
+    showCustomAlert('error', 'Password Mismatch', 'Passwords do not match.');
+    return;
+  }
+
+  // Birthdate
+  if (!dob.value) {
+    e.preventDefault();
+    showCustomAlert('error', 'Missing Information', 'Please select your birthdate.');
+    return;
+  }
+  const today = new Date();
+  const birthDate = new Date(dob.value);
+  let age = today.getFullYear() - birthDate.getFullYear();
+  const m = today.getMonth() - birthDate.getMonth();
+  if (m < 0 || (m === 0 && today.getDate() < birthDate.getDate())) {
+    age--;
+  }
+  if (age < 18) {
+    e.preventDefault();
+    showCustomAlert('error', 'Age Requirement', 'You must be at least 18 years old to sign up.');
+    return;
+  }
+  
+});
+</script>
+
+<script>
+    document.getElementById("backBtn").addEventListener("click", function() {
+        window.location.href = "{{ url_for('signup_role_selection') }}";
+    });
+</script>
+
+<script>
+// Address Modal Logic with full PH dataset
+(function(){
+  var addrInput = document.getElementById('buyerAddressInput');
+  var modal = document.getElementById('addrModal');
+  if(!addrInput || !modal) return;
+
+  var selCountry = document.getElementById('am_country');
+  var selRegion = document.getElementById('am_region');
+  var selCity = document.getElementById('am_city');
+  var selBrgy = document.getElementById('am_barangay');
+  var inZip = document.getElementById('am_zip');
+  var inHouse = document.getElementById('am_house');
+  var inStreet = document.getElementById('am_street');
+  var inLandmark = document.getElementById('am_landmark');
+  var btnSave = document.getElementById('am_save');
+  var btnCancel = document.getElementById('am_cancel');
+  var btnClose = document.getElementById('addrCloseBtn');
+
+  var PH_JSON_URL = "{{ url_for('static', filename='js/philippine_provinces_cities_municipalities_and_barangays_2019v2.json') }}";
+  var PH_RAW = null;
+  var PH_READY = false;
+  var PH_REGIONS = [];
+  var REGION_TO_CITIES = new Map();
+  var REGION_CITY_TO_BRGYS = new Map();
+
+  function safeTitle(s){ return String(s||'').trim(); }
+
+  function buildDerivedMaps(){
+    PH_REGIONS.length = 0; REGION_TO_CITIES.clear(); REGION_CITY_TO_BRGYS.clear();
+    var regionEntries = Object.entries(PH_RAW||{});
+    for(var i=0;i<regionEntries.length;i++){
+      var regionCode = regionEntries[i][0];
+      var regionObj = regionEntries[i][1];
+      var regionName = safeTitle((regionObj&&regionObj.region_name)||regionCode);
+      PH_REGIONS.push(regionName);
+      var cityList = [];
+      var seen = new Set();
+      var provinces = (regionObj&&regionObj.province_list)||{};
+      Object.keys(provinces).forEach(function(provName){
+        var provObj = provinces[provName]||{};
+        var muniList = provObj.municipality_list||{};
+        Object.keys(muniList).forEach(function(muniName){
+          var muni = safeTitle(muniName);
+          var prov = safeTitle(provName);
+          var value = encodeURIComponent(muni)+'||'+encodeURIComponent(prov);
+          if(!seen.has(value)){
+            seen.add(value);
+            var label = muni+' — '+prov;
+            cityList.push({ value:value, label:label, muni:muni, prov:prov });
+          }
+          var brgys = Array.isArray(muniList[muniName].barangay_list) ? muniList[muniName].barangay_list.map(safeTitle) : [];
+          REGION_CITY_TO_BRGYS.set(regionName+'||'+value, brgys);
+        });
+      });
+      cityList.sort(function(a,b){ return a.muni.localeCompare(b.muni) || a.prov.localeCompare(b.prov); });
+      REGION_TO_CITIES.set(regionName, cityList);
+    }
+    PH_READY = true;
+  }
+
+  function populateRegions(){
+    if(!selRegion) return;
+    if(!PH_READY){ selRegion.innerHTML = '<option value="" disabled selected>Loading regions…</option>'; return; }
+    selRegion.innerHTML = '<option value="" disabled selected>Select region</option>' + PH_REGIONS.map(function(r){ return '<option value="'+r+'">'+r+'</option>'; }).join('');
+  }
+  function populateCities(region){
+    if(!selCity || !selBrgy) return;
+    if(!PH_READY || !region){
+      selCity.disabled = true; selCity.innerHTML = '<option value="" disabled selected>Select city</option>';
+      selBrgy.disabled = true; selBrgy.innerHTML = '<option value="" disabled selected>Select barangay</option>';
+      return;
+    }
+    var cities = REGION_TO_CITIES.get(region)||[];
+    selCity.disabled = cities.length===0;
+    selCity.innerHTML = '<option value="" disabled selected>Select city</option>' + cities.map(function(c){ return '<option value="'+c.value+'">'+c.label+'</option>'; }).join('');
+    selBrgy.disabled = true; selBrgy.innerHTML = '<option value="" disabled selected>Select barangay</option>';
+  }
+  function populateBarangays(region, cityValue){
+    if(!selBrgy) return;
+    if(!PH_READY || !(region && cityValue)){
+      selBrgy.disabled = true; selBrgy.innerHTML = '<option value="" disabled selected>Select barangay</option>';
+      return;
+    }
+    var key = region+'||'+cityValue;
+    var brgys = REGION_CITY_TO_BRGYS.get(key)||[];
+    selBrgy.disabled = brgys.length===0;
+    selBrgy.innerHTML = '<option value="" disabled selected>Select barangay</option>' + brgys.map(function(b){ return '<option value="'+b+'">'+b+'</option>'; }).join('');
+  }
+
+  function composeFullAddress(){
+    var country = (selCountry&&selCountry.value||'').trim();
+    var region = (selRegion&&selRegion.value||'').trim();
+    var cityVal = (selCity&&selCity.value||'').trim();
+    var barangay = (selBrgy&&selBrgy.value||'').trim();
+    var house = (inHouse&&inHouse.value||'').trim();
+    var street = (inStreet&&inStreet.value||'').trim();
+    var zip = (inZip&&inZip.value||'').trim();
+    var landmark = (inLandmark&&inLandmark.value||'').trim();
+    var parts = [];
+    var line1 = [house, street].filter(Boolean).join(' ');
+    if(line1) parts.push(line1);
+    if(barangay) parts.push(barangay);
+    var cityOut = '';
+    if(cityVal){ var muniEnc = cityVal.split('||')[0]||''; cityOut = decodeURIComponent(muniEnc); }
+    if(cityOut) parts.push(cityOut);
+    if(region) parts.push(region);
+    if(zip) parts.push(zip);
+    if(country) parts.push(country);
+    var full = parts.join(', ');
+    if(landmark) full += ' (Landmark: '+landmark+')';
+    return full;
+  }
+
+  function resetModal(){
+    if(inZip) inZip.value = '';
+    if(inHouse) inHouse.value = '';
+    if(inStreet) inStreet.value = '';
+    if(inLandmark) inLandmark.value = '';
+    if(selCountry) selCountry.value = 'Philippines';
+    if(selRegion) selRegion.value = '';
+    populateCities('');
+  }
+
+  function openModal(){ modal.style.display = 'flex'; }
+  function closeModal(){ modal.style.display = 'none'; }
+
+  async function ensurePhData(){
+    if(PH_READY) return;
+    try{
+      var res = await fetch(PH_JSON_URL, { cache: 'no-store' });
+      if(!res.ok) throw new Error('Failed to load PH data');
+      PH_RAW = await res.json();
+      buildDerivedMaps();
+      populateRegions();
+    }catch(e){ console.error(e); showCustomAlert('error', 'Loading Error', 'Failed to load Philippine address data. Please try again.'); }
+  }
+
+  // Event bindings
+  addrInput.addEventListener('click', function(){ ensurePhData().then(function(){ resetModal(); openModal(); }); });
+  btnClose && btnClose.addEventListener('click', closeModal);
+  btnCancel && btnCancel.addEventListener('click', closeModal);
+  modal.addEventListener('click', function(e){ if(e.target===modal) closeModal(); });
+  selRegion.addEventListener('change', function(){ populateCities(this.value); selCity.value=''; selBrgy.value=''; });
+  selCity.addEventListener('change', function(){ var r = selRegion.value; populateBarangays(r, this.value); selBrgy.value=''; });
+  btnSave.addEventListener('click', function(){
+    var region = (selRegion&&selRegion.value||'').trim();
+    var city = (selCity&&selCity.value||'').trim();
+    var barangay = (selBrgy&&selBrgy.value||'').trim();
+    var house = (inHouse&&inHouse.value||'').trim();
+    var street = (inStreet&&inStreet.value||'').trim();
+    if(!region || !city || !barangay || (!house && !street)){
+      showCustomAlert('error', 'Incomplete Address', 'Please complete region, city/municipality, barangay, and street/house no.');
+      return;
+    }
+    var full = composeFullAddress();
+    addrInput.value = full;
+    closeModal();
+  });
+
+  // Initial paint (shows loading until ensurePhData fills)
+  populateRegions();
+})();
+</script>
+
+</body>
+</html>

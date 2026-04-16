@@ -1,0 +1,700 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Petopia • Seller Promotions</title>
+
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+
+  <style>
+    :root{
+      --bg: #f6f8ff;
+      --panel: rgba(255,255,255,.60);
+      --panel-strong: rgba(255,255,255,.95);
+      --text: #0b0f1a;
+      --muted: #5b6378;
+      --accent: #7cf4d1;
+      --accent-2: #8bb6ff;
+      --glass-shadow: 0 10px 30px rgba(16,24,40,.08);
+      --card-radius: 12px;
+      --gap: 18px;
+      --sidebar-w: 260px;
+      --warning:#ffb86b;
+      --success:#4ade80;
+      --error:#ef4444;
+    }
+    *{box-sizing:border-box}
+    body{ margin:0; font-family:"Inter",system-ui,-apple-system,"Segoe UI",Roboto,"Helvetica Neue",Arial; background:var(--bg); color:var(--text); min-height:100vh; display:flex; }
+    .sidebar{ width:var(--sidebar-w); position:fixed; top:0; left:0; bottom:0; padding:22px 18px; background:var(--panel-strong); backdrop-filter:blur(10px); box-shadow:var(--glass-shadow); display:flex; flex-direction:column; gap:14px; z-index:50; }
+    .brand{ display:flex; align-items:center; gap:10px; margin-bottom:6px; }
+    .brand .logo{ width:44px; height:44px; border-radius:10px; background:linear-gradient(135deg,var(--accent),var(--accent-2)); display:flex; align-items:center; justify-content:center; color:#051014; font-weight:800; font-size:1.05rem; }
+    .brand .title{ font-weight:800; color:#23272f; font-size:1.05rem; }
+    nav.side-nav{ display:flex; flex-direction:column; gap:6px; margin-top:8px; padding-top:6px; }
+    nav.side-nav a{ display:flex; gap:12px; align-items:center; padding:10px 12px; border-radius:10px; color:var(--text); text-decoration:none; font-weight:600; transition:all .16s ease; }
+    nav.side-nav a i{ width:20px; text-align:center; color:#5b6378; }
+    nav.side-nav a:hover, nav.side-nav a.active{ background:linear-gradient(135deg,var(--accent),var(--accent-2)); color:#051014; }
+    .sidebar .spacer{ flex:1 }
+    .sidebar .small{ font-size:0.85rem; color:var(--muted); text-align:center; padding:6px 8px; }
+
+    .main{ margin-left:calc(var(--sidebar-w) + 20px); padding:26px; flex:1; display:flex; flex-direction:column; gap:var(--gap); }
+    header.topbar{ display:flex; justify-content:space-between; align-items:center; gap:12px; background:var(--panel); padding:12px 16px; border-radius:12px; box-shadow:var(--glass-shadow); }
+    .search{ display:flex; align-items:center; gap:8px; flex:1; max-width:560px; }
+    .search input{ flex:1; padding:10px 12px; border-radius:10px; border:1px solid rgba(11,15,26,.06); background:#fff; }
+    .icon-btn{ border:none; background:#fff; border:1px solid rgba(11,15,26,.08); font-weight:700; padding:8px 12px; border-radius:8px; cursor:pointer; }
+
+    .grid-2{ display:grid; grid-template-columns:1.2fr 1fr; gap:var(--gap); }
+    .panel{ background:var(--panel-strong); border-radius:12px; padding:16px; box-shadow:var(--glass-shadow); }
+    .panel h4{ margin:0 0 12px 0; font-size:1.05rem; color:#23272f; }
+    .muted{ color:var(--muted); font-weight:600; }
+    .table-wrap{ width:100%; overflow:auto; border-radius:10px; background:#fff; border:1px solid #e5e8f0; }
+    table.clean{ width:100%; border-collapse:separate; border-spacing:0; font-size:0.95rem; }
+    table.clean thead th{ position:sticky; top:0; text-align:left; padding:10px; background:#f8faff; font-weight:700; border-bottom:1px solid #e5e8f0; z-index:1; }
+    table.clean tbody td{ padding:10px; border-bottom:1px solid #eef1f7; }
+    table.clean tbody tr:hover td{ background:rgba(139,182,255,.06); }
+    .badge{ display:inline-block; padding:4px 10px; border-radius:999px; font-weight:800; font-size:.78rem; }
+    .b-active{ background:rgba(124,244,209,.2); color:var(--success); }
+    .b-upcoming{ background:rgba(139,182,255,.2); color:var(--accent-2); }
+    .b-expired{ background:rgba(239,68,68,.15); color:#ef4444; }
+
+    .actions{ display:flex; gap:8px; flex-wrap:wrap; }
+    .btn{ padding:8px 12px; border-radius:8px; border:none; font-weight:700; cursor:pointer; }
+    .btn-primary{ background:linear-gradient(135deg,var(--accent),var(--accent-2)); color:#051014; }
+    .btn-secondary{ background:#fff; border:1px solid rgba(11,15,26,.1); color:#23272f; }
+    .btn-danger{ background:#ef4444; color:#fff; }
+
+    .modal{ display:none; position:fixed; inset:0; background:rgba(0,0,0,0.4); justify-content:center; align-items:center; z-index:1000; }
+    .modal .content{ background:#fff; width:780px; max-width:96%; border-radius:14px; overflow:auto; max-height:92vh; box-shadow:0 10px 40px rgba(16,24,40,.22); }
+    .modal .head{ padding:14px 16px; display:flex; justify-content:space-between; align-items:center; border-bottom:1px solid #e5e8f0; }
+    .modal .body{ padding:16px; }
+    .form-grid{ display:grid; grid-template-columns:1fr 1fr; gap:12px; }
+    .form-group{ display:flex; flex-direction:column; gap:6px; }
+    .form-group label{ font-weight:700; color:#23272f; }
+    .form-group input, .form-group select, .form-group textarea{ padding:10px 12px; border-radius:10px; border:1px solid rgba(11,15,26,.12); background:#fff; }
+    .form-group input:focus, .form-group select:focus, .form-group textarea:focus{ outline:none; box-shadow:0 0 0 3px rgba(139,182,255,.28); border-color: rgba(139,182,255,.6); }
+    .hint{ font-size:.85rem; color:var(--muted); font-weight:600; }
+    .actions .btn{ box-shadow:0 6px 18px rgba(139,182,255,.08); }
+    /* Cards view */
+    .view-toggle{ display:flex; gap:8px; align-items:center; }
+    .cards-grid{ display:none; grid-template-columns:repeat(auto-fit,minmax(240px,1fr)); gap:12px; }
+    .promo-card{ background:#fff; border:1px solid #e5e8f0; border-radius:12px; padding:12px; display:flex; flex-direction:column; gap:8px; }
+    .promo-card .row{ display:flex; justify-content:space-between; gap:8px; align-items:center; }
+    .promo-chip{ font-weight:800; font-size:.78rem; padding:4px 10px; border-radius:999px; }
+    .chip-green{ background:rgba(124,244,209,.2); color:var(--success); }
+    .chip-blue{ background:rgba(139,182,255,.2); color:var(--accent-2); }
+    .chip-red{ background:rgba(239,68,68,.15); color:#ef4444; }
+    .promo-actions{ display:flex; gap:6px; flex-wrap:wrap; margin-top:4px; }
+    footer{ margin-top:16px; padding:18px; text-align:center; color:var(--muted); font-size:0.9rem; }
+    @media(max-width:980px){ .grid-2{ grid-template-columns:1fr; } .table-wrap{ border-left: none; border-right: none; } }
+  </style>
+</head>
+<body>
+  <aside class="sidebar">
+    <div class="brand"><div class="logo">P</div><div class="title">Petopia</div></div>
+    <nav class="side-nav">
+      <a href="{{ url_for('seller_dashboard') }}"><i class="fa-solid fa-chart-line"></i><span>Dashboard</span></a>
+      <a href="{{ url_for('seller_products') }}"><i class="fa-solid fa-box"></i><span>My Products</span></a>
+      <a href="{{ url_for('seller_orders') }}"><i class="fa-solid fa-cart-shopping"></i><span>My Orders</span></a>
+      <a href="{{ url_for('seller_earnings_commission') }}"><i class="fa-solid fa-sack-dollar"></i><span>Earnings & Commission</span></a>
+      <a href="{{ url_for('seller_promotions') }}" class="active"><i class="fa-solid fa-bullhorn"></i><span>Promotions</span></a>
+      <a href="{{ url_for('seller_reports') }}"><i class="fa-solid fa-chart-pie"></i><span>Reports & Analytics</span></a>
+      <a href="{{ url_for('logout') }}" id="logoutLink"><i class="fa-solid fa-right-from-bracket"></i><span>Logout</span></a>
+    </nav>
+    <div class="spacer"></div>
+    <div class="small">Signed in as <strong>Seller</strong></div>
+  </aside>
+
+  <main class="main">
+    <header class="topbar">
+      <div>
+        <div style="font-weight:800;font-size:1.05rem">Promotions Manager 📣</div>
+        <div class="muted" style="font-size:.9rem">Create Flash Sales, Vouchers, and Free Shipping rules</div>
+      </div>
+      <div class="search">
+        <input type="text" id="searchPromo" placeholder="Search code, title...">
+        <button class="icon-btn" onclick="renderAll()"><i class="fa-solid fa-magnifying-glass"></i> Search</button>
+      </div>
+      <div class="actions">
+        <button class="btn btn-primary" onclick="openFlashModal()"><i class="fa-solid fa-bolt"></i> New Flash Sale</button>
+        <button class="btn btn-secondary" onclick="openVoucherModal()"><i class="fa-solid fa-ticket"></i> New Voucher</button>
+        <button class="btn btn-secondary" onclick="openShipModal()"><i class="fa-solid fa-truck"></i> Free Shipping Rule</button>
+      </div>
+    </header>
+
+    <section class="grid-2">
+      <div class="panel">
+        <h4>Flash Sale</h4>
+        <div class="muted" style="margin:-6px 0 10px 0">Discount specific items for a limited time. Buyer pages can read these via localStorage.</div>
+        <div id="flashCards" class="cards-grid" aria-hidden="true"></div>
+        <div class="table-wrap" style="display:none;">
+        <table class="clean" id="flashTable">
+          <thead>
+            <tr><th>Item</th><th>Discount</th><th>Schedule</th><th>Status</th><th></th></tr>
+          </thead>
+          <tbody></tbody>
+        </table>
+        </div>
+      </div>
+
+      <div class="panel">
+        <h4>Store Vouchers</h4>
+        <div class="muted" style="margin:-6px 0 10px 0">Create fixed or percent discounts with min spend and caps.</div>
+        <div id="voucherCards" class="cards-grid" aria-hidden="true"></div>
+        <div class="table-wrap" style="display:none;">
+        <table class="clean" id="voucherTable">
+          <thead>
+            <tr><th>Code</th><th>Type</th><th>Min Spend</th><th>Valid</th><th>Used</th><th>Status</th><th></th></tr>
+          </thead>
+        <tbody></tbody></table>
+        </div>
+      </div>
+
+      <div class="panel">
+        <h4>Free Shipping</h4>
+        <div class="muted" style="margin:-6px 0 10px 0">Subsidize shipping above a minimum spend or up to a cap.</div>
+        <div id="shipCards" class="cards-grid" aria-hidden="true"></div>
+        <div class="table-wrap" style="display:none;">
+        <table class="clean" id="shipTable">
+          <thead>
+            <tr><th>Rule</th><th>Min Spend</th><th>Cap</th><th>Areas</th><th>Valid</th><th>Status</th><th></th></tr>
+          </thead>
+        <tbody></tbody></table>
+        </div>
+      </div>
+
+      <div class="panel">
+        <h4>Active Promotions (Preview)</h4>
+        <div id="activeSummary" class="muted">No active promos.</div>
+      </div>
+    </section>
+
+    <footer>© <span id="yr"></span> Petopia — Seller Promotions</footer>
+  </main>
+
+  <!-- Flash Modal -->
+  <div id="flashModal" class="modal">
+    <div class="content">
+      <div class="head"><div style="font-weight:800">New Flash Sale</div><button class="btn btn-secondary" onclick="closeFlashModal()" aria-label="Close">&times;</button></div>
+      <div class="body">
+        <div class="form-grid">
+          <div class="form-group"><label>Product (optional)</label><select id="f_product"><option value="">— Select product —</option></select></div>
+          <div class="form-group"><label>Title</label><input id="f_title" placeholder="e.g. Premium Dog Food 5kg"></div>
+          <div class="form-group"><label>Original Price (₱)</label><input id="f_orig" type="number" min="0" step="1"></div>
+          <div class="form-group"><label>Sale Price (₱)</label><input id="f_sale" type="number" min="0" step="1"></div>
+          <div class="form-group"><label>Stock</label><input id="f_stock" type="number" min="1" step="1" value="10"></div>
+          <div class="form-group"><label>Start</label><input id="f_start" type="datetime-local"></div>
+          <div class="form-group"><label>End</label><input id="f_end" type="datetime-local"></div>
+          <div class="form-group" style="grid-column:1/-1"><label>Description</label><textarea id="f_desc" rows="3" placeholder="Short description..."></textarea></div>
+        </div>
+        <div class="actions" style="justify-content:flex-end;margin-top:12px">
+          <button class="btn btn-primary" onclick="saveFlash()">Save</button>
+        </div>
+        <div class="hint">Discount is auto-computed from original vs sale price.</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Voucher Modal -->
+  <div id="voucherModal" class="modal">
+    <div class="content">
+      <div class="head"><div style="font-weight:800">New Voucher</div><button class="btn btn-secondary" onclick="closeVoucherModal()" aria-label="Close">&times;</button></div>
+      <div class="body">
+        <div class="form-grid">
+          <div class="form-group"><label>Code</label><input id="v_code" placeholder="e.g. PETO10"></div>
+          <div class="form-group"><label>Type</label><select id="v_type"><option value="percent">Percent</option><option value="fixed">Fixed</option></select></div>
+          <div class="form-group"><label>Discount Value</label><input id="v_value" type="number" min="1" step="1" placeholder="10 = 10% or ₱10"></div>
+          <div class="form-group"><label>Min Spend (₱)</label><input id="v_min" type="number" min="0" step="1" value="0"></div>
+          <div class="form-group"><label>Max Discount Cap (₱)</label><input id="v_cap" type="number" min="0" step="1" value="0"></div>
+          <div class="form-group"><label>Usage Limit</label><input id="v_limit" type="number" min="1" step="1" value="100"></div>
+          <div class="form-group"><label>Start</label><input id="v_start" type="datetime-local"></div>
+          <div class="form-group"><label>End</label><input id="v_end" type="datetime-local"></div>
+        </div>
+        <div class="actions" style="justify-content:flex-end;margin-top:12px">
+          <button class="btn btn-primary" onclick="saveVoucher()">Save</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Shipping Modal -->
+  <div id="shipModal" class="modal">
+    <div class="content">
+      <div class="head"><div style="font-weight:800">New Free Shipping Rule</div><button class="btn btn-secondary" onclick="closeShipModal()" aria-label="Close">&times;</button></div>
+      <div class="body">
+        <div class="form-grid">
+          <div class="form-group"><label>Rule Name</label><input id="s_name" placeholder="e.g. Free Ship over ₱1,000"></div>
+          <div class="form-group"><label>Minimum Spend (₱)</label><input id="s_min" type="number" min="0" step="1" value="500"></div>
+          <div class="form-group"><label>Shipping Cap (₱)</label><input id="s_cap" type="number" min="0" step="1" value="0"></div>
+          <div class="form-group"><label>Areas</label><input id="s_areas" placeholder="e.g. NCR, Luzon"></div>
+          <div class="form-group"><label>Start</label><input id="s_start" type="datetime-local"></div>
+          <div class="form-group"><label>End</label><input id="s_end" type="datetime-local"></div>
+        </div>
+        <div class="actions" style="justify-content:flex-end;margin-top:12px">
+          <button class="btn btn-primary" onclick="saveShip()">Save</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    document.getElementById('yr').textContent = new Date().getFullYear();
+
+    // Custom alert function to replace browser alert dialogs
+    function showCustomAlert(message, type = 'error', title = null) {
+      const div = document.createElement('div');
+      div.id = 'customAlertModal';
+      div.style = 'position:fixed;top:0;left:0;width:100vw;height:100vh;z-index:9999;background:rgba(0,0,0,.25);backdrop-filter:blur(2px);display:flex;align-items:center;justify-content:center;';
+      
+      // Determine icon and colors based on type
+      let iconBg, iconColor, iconClass, alertTitle, borderColor;
+      const errorColor = '#ff6b6b';
+      const successColor = '#4ade80';
+      const warningColor = '#fbbf24';
+      const infoColor = '#8bb6ff';
+      
+      if (type === 'success') {
+        iconBg = 'rgba(74,222,128,.15)';
+        iconColor = successColor;
+        iconClass = 'fa-circle-check';
+        alertTitle = title || 'Success';
+        borderColor = successColor;
+      } else if (type === 'warning') {
+        iconBg = 'rgba(251,191,36,.15)';
+        iconColor = warningColor;
+        iconClass = 'fa-triangle-exclamation';
+        alertTitle = title || 'Warning';
+        borderColor = warningColor;
+      } else if (type === 'info') {
+        iconBg = 'rgba(139,182,255,.15)';
+        iconColor = infoColor;
+        iconClass = 'fa-circle-info';
+        alertTitle = title || 'Notice';
+        borderColor = infoColor;
+      } else {
+        // error (default)
+        iconBg = 'rgba(255,107,107,.15)';
+        iconColor = errorColor;
+        iconClass = 'fa-circle-exclamation';
+        alertTitle = title || 'Error';
+        borderColor = errorColor;
+      }
+      
+      div.innerHTML = `
+        <div style="background:rgba(255,255,255,.97);border-radius:18px;max-width:500px;width:90vw;box-shadow:0 10px 40px rgba(16,24,40,.22);position:relative;overflow:hidden;">
+          <div style="padding:32px;text-align:center;">
+            <div style="width:64px;height:64px;border-radius:50%;background:${iconBg};display:flex;align-items:center;justify-content:center;margin:0 auto 20px;border:2px solid ${borderColor};">
+              <i class="fa-solid ${iconClass}" style="font-size:2rem;color:${iconColor};"></i>
+            </div>
+            <h3 style="font-size:1.5rem;font-weight:800;color:#23272f;margin-bottom:12px;">${alertTitle}</h3>
+            <p style="color:#5b6378;font-weight:600;font-size:1rem;line-height:1.6;margin-bottom:24px;">${message}</p>
+            <div style="display:flex;gap:12px;justify-content:center;">
+              <button id="alertOk" style="padding:12px 32px;border-radius:10px;background:linear-gradient(135deg, var(--accent), var(--accent-2));color:#051014;font-weight:700;border:none;cursor:pointer;font-size:1rem;box-shadow:0 8px 26px rgba(139,182,255,.08);transition:all .2s ease;">OK</button>
+            </div>
+          </div>
+        </div>
+      `;
+      document.body.appendChild(div);
+      
+      const closeHandler = function() {
+        div.remove();
+      };
+      
+      document.getElementById('alertOk').addEventListener('click', closeHandler);
+      
+      div.addEventListener('click', function(e) {
+        if (e.target === div) closeHandler();
+      });
+      
+      const escapeHandler = function(e) {
+        if (e.key === 'Escape') {
+          closeHandler();
+          document.removeEventListener('keydown', escapeHandler);
+        }
+      };
+      document.addEventListener('keydown', escapeHandler);
+    }
+
+    // Custom confirmation function to replace browser confirm dialogs
+    function showCustomConfirm(message, onConfirm, onCancel = null) {
+      const div = document.createElement('div');
+      div.id = 'customConfirmModal';
+      div.style = 'position:fixed;top:0;left:0;width:100vw;height:100vh;z-index:9999;background:rgba(0,0,0,.25);backdrop-filter:blur(2px);display:flex;align-items:center;justify-content:center;';
+      
+      div.innerHTML = `
+        <div style="background:rgba(255,255,255,.97);border-radius:18px;max-width:500px;width:90vw;box-shadow:0 10px 40px rgba(16,24,40,.22);position:relative;overflow:hidden;">
+          <div style="padding:32px;text-align:center;">
+            <div style="width:64px;height:64px;border-radius:50%;background:rgba(251,191,36,.15);display:flex;align-items:center;justify-content:center;margin:0 auto 20px;border:2px solid #fbbf24;">
+              <i class="fa-solid fa-circle-question" style="font-size:2rem;color:#fbbf24;"></i>
+            </div>
+            <h3 style="font-size:1.5rem;font-weight:800;color:#23272f;margin-bottom:12px;">Confirm Action</h3>
+            <p style="color:#5b6378;font-weight:600;font-size:1rem;line-height:1.6;margin-bottom:24px;">${message}</p>
+            <div style="display:flex;gap:12px;justify-content:center;">
+              <button id="confirmCancel" style="padding:12px 24px;border-radius:10px;background:#e5e8f0;color:#23272f;font-weight:700;border:none;cursor:pointer;font-size:1rem;transition:all .2s ease;">Cancel</button>
+              <button id="confirmOk" style="padding:12px 24px;border-radius:10px;background:linear-gradient(135deg, var(--accent), var(--accent-2));color:#051014;font-weight:700;border:none;cursor:pointer;font-size:1rem;box-shadow:0 8px 26px rgba(139,182,255,.08);transition:all .2s ease;">Confirm</button>
+            </div>
+          </div>
+        </div>
+      `;
+      document.body.appendChild(div);
+      
+      const closeHandler = function() {
+        div.remove();
+      };
+      
+      document.getElementById('confirmOk').addEventListener('click', function() {
+        closeHandler();
+        if (onConfirm) onConfirm();
+      });
+      
+      document.getElementById('confirmCancel').addEventListener('click', function() {
+        closeHandler();
+        if (onCancel) onCancel();
+      });
+      
+      div.addEventListener('click', function(e) {
+        if (e.target === div) {
+          closeHandler();
+          if (onCancel) onCancel();
+        }
+      });
+      
+      const escapeHandler = function(e) {
+        if (e.key === 'Escape') {
+          closeHandler();
+          if (onCancel) onCancel();
+          document.removeEventListener('keydown', escapeHandler);
+        }
+      };
+      document.addEventListener('keydown', escapeHandler);
+    }
+
+    document.getElementById('logoutLink').addEventListener('click', function(e){
+      e.preventDefault();
+      showCustomConfirm('Are you sure you want to logout?', function() {
+        window.location.href = "{{ url_for('logout') }}";
+      });
+    });
+
+    // Storage helpers
+    function lsGet(key, def){ try{ return JSON.parse(localStorage.getItem(key) || def) }catch(e){ return JSON.parse(def) } }
+    function lsSet(key, val){ localStorage.setItem(key, JSON.stringify(val)); }
+
+    // Keys (local snapshot for preview only)
+    const K_VOUCH = 'petopia_vouchers';
+    const K_PUBLIC = 'petopia_public_promotions'; // preview for buyer apps
+
+    // (no seed; shipping rules are persisted in the database)
+
+    // Utilities
+    function peso(n){ return '₱' + Number(n||0).toLocaleString(); }
+    function dtRange(a,b){ const f=(t)=> new Date(t).toLocaleString('en-PH',{ month:'short', day:'numeric', hour:'2-digit', minute:'2-digit'}); return f(a)+' – '+f(b); }
+    function nowMs(){ return Date.now(); }
+    function statusBadge(start,end){ const n=nowMs(); if (n<start) return '<span class="badge b-upcoming">UPCOMING</span>'; if (n>end) return '<span class="badge b-expired">EXPIRED</span>'; return '<span class="badge b-active">ACTIVE</span>'; }
+
+    // Renderers
+    async function renderFlash(){
+      const q = (document.getElementById('searchPromo').value||'').toLowerCase().trim();
+      // Fetch from backend
+      let data = [];
+      try{
+        const res = await fetch('/seller/flash_sales', { headers: { 'Accept': 'application/json' } });
+        data = await res.json();
+      }catch(e){ data = []; }
+      FLASH_CACHE = Array.isArray(data) ? data : [];
+      const filtered = FLASH_CACHE.filter(x=> !q || (x.title||'').toLowerCase().includes(q)).sort((a,b)=> (a.start||0)-(b.start||0));
+      const rows = filtered.map(x=>{
+        const disc = Math.max(0, Math.round((1-(x.sale/x.orig))*100));
+        const linked = null;
+        return `<tr>
+          <td style="display:flex;align-items:center;gap:8px;"><img src="${x.img}" alt="" style="width:42px;height:32px;border-radius:6px;object-fit:cover;"> <div><div style=\"font-weight:800\">${x.title}${linked? ` <span class=\"muted\" style=\"font-weight:700\">(from: ${(linked.title||linked.name||('Product '+linked.id))})</span>`:''}</div><div class=\"muted\">${peso(x.sale)} <span style=\"text-decoration:line-through;color:#9aa1b5;font-weight:600\">${peso(x.orig)}</span></div></div></td>
+          <td style="font-weight:800;">${disc}%</td>
+          <td>${dtRange(x.start,x.end)}</td>
+          <td>${statusBadge(x.start,x.end)}</td>
+          <td class="actions">
+            <button class="btn btn-secondary" onclick="toggleActive('flash','${x.id}')">${x.active? 'Disable':'Enable'}</button>
+            <button class="btn btn-danger" onclick="delItem('flash','${x.id}')">Delete</button>
+          </td>
+        </tr>`;
+      }).join('');
+      document.querySelector('#flashTable tbody').innerHTML = rows || `<tr><td colspan="5" class="muted" style="text-align:center;font-weight:700;">No flash sale items</td></tr>`;
+      // cards
+      const cards = filtered.length ? filtered.map(x=>{
+        const disc = Math.max(0, Math.round((1-(x.sale/x.orig))*100));
+        const state = (function(){ const n=nowMs(); if(n<x.start) return 'upcoming'; if(n>x.end) return 'expired'; return 'active';})();
+        const chip = state==='active'?'chip-green':(state==='upcoming'?'chip-blue':'chip-red');
+        return `<div class="promo-card">
+          <div class="row"><div style="font-weight:800;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${x.title}</div><span class="promo-chip ${chip}">${state.toUpperCase()}</span></div>
+          <div class="row" style="gap:10px;align-items:flex-start;">
+            <img src="${x.img}" alt="" style="width:72px;height:56px;border-radius:8px;object-fit:cover;">
+            <div style="flex:1;min-width:0;">
+              <div class="muted">${dtRange(x.start,x.end)}</div>
+              <div style="font-weight:800;margin-top:4px;">${disc}% OFF • ${peso(x.sale)} <span style="text-decoration:line-through;color:#9aa1b5;font-weight:600">${peso(x.orig)}</span></div>
+            </div>
+          </div>
+          <div class="promo-actions">
+            <button class="btn btn-secondary" onclick="toggleActive('flash','${x.id}')">${x.active? 'Disable':'Enable'}</button>
+            <button class="btn btn-danger" onclick="delItem('flash','${x.id}')">Delete</button>
+          </div>
+        </div>`;
+      }).join('') : '<div class="muted" style="text-align:center;font-weight:700;">No flash sale items</div>';
+      document.getElementById('flashCards').innerHTML = cards;
+    }
+    async function renderVouchers(){
+      const q = (document.getElementById('searchPromo').value||'').toLowerCase().trim();
+      let data = [];
+      try{
+        const res = await fetch('/seller/vouchers', { headers: { 'Accept': 'application/json' } });
+        data = await res.json();
+      }catch(e){ data = []; }
+      VOUCHER_CACHE = Array.isArray(data) ? data : [];
+      const filtered = VOUCHER_CACHE.filter(x=> !q || (x.code||'').toLowerCase().includes(q)).sort((a,b)=> (a.start||0)-(b.start||0));
+      const rows = filtered.map(x=>{
+        const type = x.type==='percent'? (x.value+'%') : peso(x.value);
+        return `<tr>
+          <td style="font-weight:800">${x.code}</td>
+          <td>${type}</td>
+          <td>${x.min? peso(x.min):'—'}</td>
+          <td>${dtRange(x.start,x.end)}</td>
+          <td>${x.used||0}/${x.limit||0}</td>
+          <td>${statusBadge(x.start,x.end)}</td>
+          <td class="actions">
+            <button class="btn btn-secondary" onclick="toggleActive('voucher','${x.id}')">${x.active? 'Disable':'Enable'}</button>
+            <button class="btn btn-danger" onclick="delItem('voucher','${x.id}')">Delete</button>
+          </td>
+        </tr>`;
+      }).join('');
+      document.querySelector('#voucherTable tbody').innerHTML = rows || `<tr><td colspan="7" class="muted" style="text-align:center;font-weight:700;">No vouchers</td></tr>`;
+      // cards
+      const cards = filtered.length ? filtered.map(x=>{
+        const state = (function(){ const n=nowMs(); if(n<x.start) return 'upcoming'; if(n>x.end) return 'expired'; return 'active';})();
+        const chip = state==='active'?'chip-green':(state==='upcoming'?'chip-blue':'chip-red');
+        const type = x.type==='percent'? (x.value+'%') : peso(x.value);
+        return `<div class="promo-card">
+          <div class="row"><div style="font-weight:800;">${x.code}</div><span class="promo-chip ${chip}">${state.toUpperCase()}</span></div>
+          <div class="muted">Valid: ${dtRange(x.start,x.end)}</div>
+          <div style="font-weight:800;">${type} off ${x.min? '• Min '+peso(x.min):''}${x.cap? ' • Cap '+peso(x.cap):''}</div>
+          <div class="muted">Used: ${x.used||0}/${x.limit||0}</div>
+          <div class="promo-actions">
+            <button class="btn btn-secondary" onclick="toggleActive('voucher','${x.id}')">${x.active? 'Disable':'Enable'}</button>
+            <button class="btn btn-danger" onclick="delItem('voucher','${x.id}')">Delete</button>
+          </div>
+        </div>`;
+      }).join('') : '<div class="muted" style="text-align:center;font-weight:700;">No vouchers</div>';
+      document.getElementById('voucherCards').innerHTML = cards;
+    }
+    async function renderShip(){
+      const q = (document.getElementById('searchPromo').value||'').toLowerCase().trim();
+      let data = [];
+      try{
+        const res = await fetch('/seller/free_shipping', { headers: { 'Accept': 'application/json' } });
+        data = await res.json();
+      }catch(e){ data = []; }
+      SHIP_CACHE = Array.isArray(data) ? data : [];
+      const rows = SHIP_CACHE.filter(x=> !q || (x.name||'').toLowerCase().includes(q)).sort((a,b)=> (a.start||0)-(b.start||0)).map(x=>{
+        return `<tr>
+          <td style="font-weight:800">${x.name}</td>
+          <td>${peso(x.min||0)}</td>
+          <td>${x.cap? peso(x.cap):'—'}</td>
+          <td>${x.areas||'—'}</td>
+          <td>${dtRange(x.start,x.end)}</td>
+          <td>${statusBadge(x.start,x.end)}</td>
+          <td class="actions">
+            <button class="btn btn-secondary" onclick="toggleActive('ship','${x.id}')">${x.active? 'Disable':'Enable'}</button>
+            <button class="btn btn-danger" onclick="delItem('ship','${x.id}')">Delete</button>
+          </td>
+        </tr>`;
+      }).join('');
+      document.querySelector('#shipTable tbody').innerHTML = rows || `<tr><td colspan="7" class="muted" style="text-align:center;font-weight:700;">No free shipping rules</td></tr>`;
+      // cards
+      const cards = SHIP_CACHE.length ? SHIP_CACHE.map(x=>{
+        const state = (function(){ const n=nowMs(); if(n<x.start) return 'upcoming'; if(n>x.end) return 'expired'; return 'active';})();
+        const chip = state==='active'?'chip-green':(state==='upcoming'?'chip-blue':'chip-red');
+        return `<div class="promo-card">
+          <div class="row"><div style="font-weight:800;">${x.name}</div><span class="promo-chip ${chip}">${state.toUpperCase()}</span></div>
+          <div class="muted">Valid: ${dtRange(x.start,x.end)}</div>
+          <div style="font-weight:800;">Min ${peso(x.min||0)} ${x.cap? '• Cap '+peso(x.cap):''}</div>
+          <div class="muted">Areas: ${x.areas||'—'}</div>
+          <div class="promo-actions">
+            <button class="btn btn-secondary" onclick="toggleActive('ship','${x.id}')">${x.active? 'Disable':'Enable'}</button>
+            <button class="btn btn-danger" onclick="delItem('ship','${x.id}')">Delete</button>
+          </div>
+        </div>`;
+      }).join('') : '<div class="muted" style="text-align:center;font-weight:700;">No free shipping rules</div>';
+      document.getElementById('shipCards').innerHTML = cards;
+    }
+
+    function renderActiveSummary(){
+      const n = nowMs();
+      const flashes = (FLASH_CACHE||[]).filter(x=> x.active && x.start<=n && n<=x.end).length;
+      const vouchers = (VOUCHER_CACHE||[]).filter(x=> x.active && x.start<=n && n<=x.end).length;
+      const shipData = (SHIP_CACHE||[]);
+      const shipping = shipData.filter(x=> x.active && x.start<=n && n<=x.end).length;
+      document.getElementById('activeSummary').textContent = flashes+" Flash • "+vouchers+" Voucher • "+shipping+" Free Shipping active";
+      // Optional: publish compact snapshot for buyer pages
+      const pub = {
+        flashes: FLASH_CACHE,
+        vouchers: VOUCHER_CACHE,
+        shipping: shipData
+      };
+      lsSet(K_PUBLIC, pub);
+    }
+
+    async function renderAll(){
+      await Promise.all([renderFlash(), renderVouchers()]);
+      await renderShip(); // ensure shipping data ready before summary
+      renderActiveSummary();
+      forceCardsView();
+    }
+
+    // View toggle state
+    function forceCardsView(){
+      const flash = document.getElementById('flashCards'); if (flash){ flash.style.display='grid'; flash.setAttribute('aria-hidden','false'); }
+      const voucher = document.getElementById('voucherCards'); if (voucher){ voucher.style.display='grid'; voucher.setAttribute('aria-hidden','false'); }
+      const ship = document.getElementById('shipCards'); if (ship){ ship.style.display='grid'; ship.setAttribute('aria-hidden','false'); }
+      // hide all table wraps (already defaulted to display:none inline)
+    }
+
+    // Populate product dropdown and auto-fill
+    let FLASH_CACHE = [];
+    let VOUCHER_CACHE = [];
+    let SHIP_CACHE = [];
+    let PRODUCTS_CACHE = [];
+    async function populateProductDropdown(){
+      const sel = document.getElementById('f_product'); if(!sel) return;
+      try{
+        const res = await fetch('/seller/products');
+        const products = await res.json();
+        PRODUCTS_CACHE = Array.isArray(products) ? products : [];
+        const options = Array.isArray(products) ? products.map(p=>`<option value="${p.id}">${(p.name||('Product '+p.id))}</option>`).join('') : '';
+        sel.innerHTML = '<option value="">— Select product —</option>' + options;
+      }catch(e){ sel.innerHTML = '<option value="">— Select product —</option>'; }
+    }
+    document.getElementById('f_product').addEventListener('change', function(){
+      const id = this.value; if(!id) return;
+      const p = (PRODUCTS_CACHE||[]).find(x=> String(x.id)===String(id)); if(!p) return;
+      // Populate with real product details
+      document.getElementById('f_title').value = p.name || '';
+      const price = Number(p.price || 0);
+      document.getElementById('f_orig').value = isNaN(price)? '' : price;
+      const stock = Number(p.stock || 0);
+      document.getElementById('f_stock').value = isNaN(stock)? '' : stock;
+      document.getElementById('f_desc').value = p.description || '';
+      // Ensure these remain empty
+      document.getElementById('f_sale').value = '';
+      document.getElementById('f_start').value = '';
+      document.getElementById('f_end').value = '';
+    });
+
+    // Modals
+    function openFlashModal(){ document.getElementById('flashModal').style.display='flex'; }
+    function closeFlashModal(){ document.getElementById('flashModal').style.display='none'; }
+    function openVoucherModal(){ document.getElementById('voucherModal').style.display='flex'; }
+    function closeVoucherModal(){ document.getElementById('voucherModal').style.display='none'; }
+    function openShipModal(){ document.getElementById('shipModal').style.display='flex'; }
+    function closeShipModal(){ document.getElementById('shipModal').style.display='none'; }
+    document.getElementById('flashModal').addEventListener('click', e=>{ if(e.target.id==='flashModal') closeFlashModal();});
+    document.getElementById('voucherModal').addEventListener('click', e=>{ if(e.target.id==='voucherModal') closeVoucherModal();});
+    document.getElementById('shipModal').addEventListener('click', e=>{ if(e.target.id==='shipModal') closeShipModal();});
+
+    // Saves
+    async function saveFlash(){
+      const t=(document.getElementById('f_title').value||'').trim();
+      const productId = document.getElementById('f_product').value || '';
+      if(!productId){ 
+        showCustomAlert('Please select a product', 'warning', 'Product Required');
+        return; 
+      }
+      const payload={
+        productId: productId,
+        title: t,
+        orig: Number(document.getElementById('f_orig').value||0),
+        sale: Number(document.getElementById('f_sale').value||0),
+        stock: Number(document.getElementById('f_stock').value||0),
+        start: new Date(document.getElementById('f_start').value||Date.now()).getTime(),
+        end: new Date(document.getElementById('f_end').value||Date.now()+86400000).getTime(),
+        desc: (document.getElementById('f_desc').value||'').trim(),
+        active: true
+      };
+      try{
+        const res = await fetch('/seller/flash_sales', { method:'POST', headers:{'Content-Type':'application/json','Accept':'application/json'}, body: JSON.stringify(payload) });
+        if(!res.ok){ const e = await res.json().catch(()=>({error:'Request failed'})); throw new Error(e.error||'Failed'); }
+        closeFlashModal(); await renderAll(); showCustomAlert('Flash sale saved', 'success', 'Saved');
+      }catch(e){ showCustomAlert('Failed to save flash sale: '+e.message, 'error', 'Save Error'); }
+    }
+    async function saveVoucher(){
+      let code=(document.getElementById('v_code').value||'').toUpperCase().replace(/\s+/g,'');
+      if(!code) code='PETO'+Math.floor(Math.random()*900+100);
+      const payload={
+        code:code,
+        type:document.getElementById('v_type').value,
+        value:Number(document.getElementById('v_value').value||0),
+        min:Number(document.getElementById('v_min').value||0),
+        cap:Number(document.getElementById('v_cap').value||0),
+        limit:Number(document.getElementById('v_limit').value||0),
+        start:new Date(document.getElementById('v_start').value||Date.now()).getTime(),
+        end:new Date(document.getElementById('v_end').value||Date.now()+7*86400000).getTime(),
+        active:true
+      };
+      try{
+        const res = await fetch('/seller/vouchers', { method:'POST', headers:{'Content-Type':'application/json','Accept':'application/json'}, body: JSON.stringify(payload) });
+        if(!res.ok){ const err = await res.json().catch(()=>({})); throw new Error(err.error || 'Request failed'); }
+        closeVoucherModal();
+        await renderAll();
+        showCustomAlert('Voucher saved', 'success', 'Saved');
+      }catch(e){
+        showCustomAlert('Failed to save voucher: '+e.message, 'error', 'Save Error');
+      }
+    }
+    async function saveShip(){
+      const payload={
+        name:(document.getElementById('s_name').value||'').trim()||'Free Shipping',
+        min:Number(document.getElementById('s_min').value||0),
+        cap:Number(document.getElementById('s_cap').value||0),
+        areas:(document.getElementById('s_areas').value||'').trim(),
+        start:new Date(document.getElementById('s_start').value||Date.now()).getTime(),
+        end:new Date(document.getElementById('s_end').value||Date.now()+30*86400000).getTime(),
+        active:true
+      };
+      try{
+        const res = await fetch('/seller/free_shipping', { method:'POST', headers:{'Content-Type':'application/json','Accept':'application/json'}, body: JSON.stringify(payload) });
+        if(!res.ok){ const e = await res.json().catch(()=>({error:'Request failed'})); throw new Error(e.error||'Failed'); }
+        closeShipModal(); await renderAll(); showCustomAlert('Free shipping rule saved', 'success', 'Saved');
+      }catch(e){ showCustomAlert('Failed to save free shipping rule: '+e.message, 'error', 'Save Error'); }
+    }
+
+    async function toggleActive(kind, id){
+      if(kind==='flash'){
+        try{ await fetch(`/seller/flash_sales/${id}/toggle`, { method:'POST' }); }catch(e){}
+      }
+      if(kind==='voucher'){
+        try{ await fetch(`/seller/vouchers/${id}/toggle`, { method:'POST' }); }catch(e){}
+      }
+      if(kind==='ship'){
+        try{ await fetch(`/seller/free_shipping/${id}/toggle`, { method:'POST' }); }catch(e){}
+      }
+      await renderAll();
+    }
+    async function delItem(kind, id){
+      showCustomConfirm('Delete this item?', async function() {
+      if(kind==='flash'){
+        try{ await fetch(`/seller/flash_sales/${id}`, { method:'DELETE' }); }catch(e){}
+      }
+      if(kind==='voucher'){
+        try{ await fetch(`/seller/vouchers/${id}`, { method:'DELETE' }); }catch(e){}
+      }
+      if(kind==='ship'){
+        try{ await fetch(`/seller/free_shipping/${id}`, { method:'DELETE' }); }catch(e){}
+      }
+      await renderAll();
+      });
+    }
+
+    // Initial
+    populateProductDropdown();
+    renderAll();
+  </script>
+</body>
+</html>
+
+

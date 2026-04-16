@@ -1,0 +1,2039 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Petopia • Checkout</title>
+  <meta name="description" content="Petopia Checkout — Review items, enter shipping details, and place your order.">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+  <style>
+    :root {
+      --bg: #f6f8ff;
+      --panel: rgba(255,255,255,.60);
+      --panel-strong: rgba(255,255,255,.95);
+      --text: #0b0f1a;
+      --muted: #5b6378;
+      --accent: #7cf4d1;
+      --accent-2: #8bb6ff;
+      --glass-shadow: 0 10px 30px rgba(16,24,40,.08);
+      --card-radius: 12px;
+      --gap: 18px;
+      --ring: rgba(124, 244, 209, 0.7);
+      --error: #ff6b6b;
+      --success: #4ade80;
+      --warning: #ffb86b;
+    }
+    *{box-sizing:border-box;margin:0;padding:0}
+    body {
+      font-family: "Inter", system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
+      color: var(--text);
+      background: var(--bg);
+      line-height: 1.6;
+      overflow-x: hidden;
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+    }
+    .container { max-width: 1200px; margin: 0 auto; padding-left: 20px; padding-right: 20px; }
+    header { background: var(--panel-strong); backdrop-filter: blur(10px); box-shadow: var(--glass-shadow); padding: 12px 0; position: sticky; top: 0; z-index: 99; width: 100%; }
+    .topbar { display:flex; justify-content:space-between; align-items:center; gap:16px; max-width:1200px; margin:0 auto; padding:0 20px; }
+    .logo a { display:flex; align-items:center; gap:10px; text-decoration:none; }
+    .logo-icon { width:44px; height:44px; border-radius:10px; background:linear-gradient(135deg, var(--accent), var(--accent-2)); display:flex; align-items:center; justify-content:center; color:#051014; font-weight:800; font-size:1.05rem; box-shadow:0 6px 18px rgba(139,182,255,.09); }
+    .logo-img { width:44px; height:44px; border-radius:10px; object-fit:contain; box-shadow:0 6px 18px rgba(139,182,255,.09); }
+    .logo-text { font-weight:800; letter-spacing:.3px; color:#23272f; font-size:1.05rem; }
+    .search { flex:1; display:flex; gap:8px; max-width:600px; align-items:center; }
+    .search input { flex:1; padding:10px 12px; border-radius:10px; border:1px solid rgba(11,15,26,.06); background:#fff; color:var(--text); font-size:.95rem; }
+    .search button { padding:10px 16px; border:none; border-radius:10px; background:linear-gradient(135deg, var(--accent), var(--accent-2)); color:#051014; font-weight:600; cursor:pointer; box-shadow:0 8px 26px rgba(139,182,255,.08); }
+    .quick-icons { display:flex; gap:8px; align-items:center; }
+    .quick-icons .icon-btn { position:relative; border:none; background:transparent; font-size:1.05rem; padding:8px; border-radius:8px; cursor:pointer; color:var(--text); transition:color .16s ease; }
+    .quick-icons .icon-btn:hover { color: var(--accent-2); }
+    .badge { position:absolute; top:2px; right:2px; background:var(--accent-2); color:#051014; border-radius:999px; padding:1px 4px; font-weight:800; font-size:.65rem; min-width:16px; height:19px; display:flex; align-items:center; justify-content:center; z-index:2; }
+    /* Match homepage smaller bell badge */
+    #notifBadge { font-size:.55rem; height:16px; min-width:14px; padding:0 4px; }
+    /* Match homepage smaller cart badge */
+    #cartBadge { font-size:.55rem; height:16px; min-width:14px; padding:0 4px; }
+    .user-profile { display:flex; align-items:center; gap:12px; }
+    .user-avatar { width:40px; height:40px; border-radius:50%; background:linear-gradient(135deg, var(--accent), var(--accent-2)); display:flex; align-items:center; justify-content:center; color:#051014; font-weight:700; font-size:1rem; }
+    .user-info { display:flex; flex-direction:column; }
+    .user-name { font-weight:700; color:var(--text); font-size:.95rem; }
+    .user-status { font-size:.8rem; color:var(--muted); }
+
+    .dashboard-main { margin:24px auto; display:grid; grid-template-columns: 280px 1fr; gap:var(--gap); max-width:1200px; padding-left:20px; padding-right:20px; width:100%; box-sizing:border-box; }
+    .sidebar { background:var(--panel-strong); backdrop-filter: blur(10px); border-radius:var(--card-radius); padding:20px; box-shadow:var(--glass-shadow); height:fit-content; position:sticky; top:100px; }
+    .sidebar h3 { font-weight:800; color:#23272f; font-size:1.1rem; margin-bottom:16px; }
+    .nav-menu { list-style:none; display:flex; flex-direction:column; gap:8px; }
+    .nav-item { padding:12px 16px; border-radius:8px; cursor:pointer; transition: all .16s ease; display:flex; align-items:center; gap:12px; font-weight:600; color:var(--text); }
+    .nav-item:hover, .nav-item.active { background: rgba(139,182,255,.1); color: var(--accent-2); }
+    .nav-item i { width:20px; text-align:center; }
+
+    .content-area { width:100%; max-width:none; margin:0 auto; }
+
+    .section-card { background: var(--panel-strong); border-radius: var(--card-radius); box-shadow: var(--glass-shadow); border:1px solid rgba(11,15,26,.06); padding: 32px; }
+    .grid-2 { display:grid; grid-template-columns: 1.2fr .8fr; gap: var(--gap); }
+    .section-title { margin-bottom: 18px; font-weight: 800; color: #23272f; }
+
+    .input { width:100%; padding:10px 12px; border-radius:10px; border:1px solid rgba(11,15,26,.06); background:#fff; color:var(--text); font-size:.95rem; }
+    .label { font-weight:700; color:#23272f; font-size:.9rem; margin-bottom:6px; display:block; }
+
+    .items-list { border:1px solid #e5e8f0; border-radius:10px; background:#fff; padding:12px; }
+    .item-row { display:flex; align-items:center; gap:14px; margin-bottom:12px; padding-bottom:12px; border-bottom:1px solid #e5e8f0; }
+    .item-row:last-child { margin-bottom:0; padding-bottom:0; border-bottom:none; }
+
+    .summary-row { display:flex; justify-content:space-between; align-items:center; margin-top:8px; }
+    .summary-row.total { font-weight:800; color:#23272f; font-size:1.05rem; }
+
+    .cta { min-width:140px; background:linear-gradient(135deg, var(--accent), var(--accent-2)); color:#051014; padding:10px 18px; border:none; border-radius:10px; font-weight:800; box-shadow:0 2px 8px rgba(139,182,255,.12); cursor:pointer; }
+
+    @media (max-width: 1000px) {
+      .grid-2 { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body data-user-id="{{ user_data.id if user_data else '' }}" data-user-name="{{ user_data.fullname if user_data else '' }}">
+  <header role="banner" aria-label="Main header">
+    <div class="topbar">
+      <div class="logo" aria-label="Petopia logo">
+        <a href="{{ url_for('buyer_homepage') }}">
+          <img src="{{ url_for('static', filename='logo/PETOPIA_LOGO.png') }}" alt="Petopia Logo" class="logo-img">
+          <div class="logo-text">Petopia</div>
+        </a>
+      </div>
+      <div class="search" role="search" aria-label="Search products">
+        <input id="searchInput" type="search" placeholder="Search your orders, products..." aria-label="Search" />
+        <button aria-label="Search button">Search</button>
+        <div class="quick-icons">
+          <button class="icon-btn" aria-label="Cart" data-url="{{ url_for('buyer_cart') }}">
+            <i class="fa-solid fa-cart-shopping"></i><span id="cartBadge" class="badge" aria-live="polite">0</span>
+          </button>
+          <button id="notifBtn" class="icon-btn" aria-label="Notifications"><i class="fa-regular fa-bell"></i><span id="notifBadge" class="badge" style="display:none">0</span></button>
+          <button id="msgBtn" class="icon-btn" aria-label="Messages"><i class="fa-regular fa-envelope"></i><span id="msgBadge" class="badge" style="display:none">0</span></button>
+        </div>
+      </div>
+      <div class="user-profile" id="userProfileBtn" style="cursor:pointer;">
+        <div class="user-avatar" id="userAvatar">
+          {% if user_data and user_data.profile_photo %}
+            {% set _photo = user_data.profile_photo %}
+            {% if 'static/' in _photo or 'http' in _photo %}
+              <img src="{{ _photo }}" alt="Profile" style="width:100%;height:100%;object-fit:cover;border-radius:50%;">
+            {% else %}
+              <img src="{{ url_for('static', filename='uploads/' ~ _photo) }}" alt="Profile" style="width:100%;height:100%;object-fit:cover;border-radius:50%;">
+            {% endif %}
+          {% else %}
+            {% if user_data and user_data.fullname %}
+              {% set initials = user_data.fullname.split(' ')[:2] | map('first') | join('') | upper %}
+              {{ initials }}
+            {% else %}
+              U
+            {% endif %}
+          {% endif %}
+        </div>
+        <div class="user-info">
+          <div class="user-name" id="userName">{{ user_data.fullname if user_data else 'User' }}</div>
+          <div class="user-status">Active Member</div>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <main class="dashboard-main" role="main">
+    <aside class="sidebar">
+      <h3>Dashboard</h3>
+      <ul class="nav-menu">
+        <li class="nav-item" data-section="overview" data-url="{{ url_for('buyer_homepage') }}">
+          <i class="fa-solid fa-chart-line"></i>
+          Overview
+        </li>
+        <li class="nav-item" data-section="orders" data-url="{{ url_for('buyer_orders') }}">
+          <i class="fa-solid fa-box"></i>
+          My Orders
+        </li>
+        <li class="nav-item active" data-section="wishlist" data-url="{{ url_for('buyer_cart') }}">
+          <i class="fa-solid fa-cart-shopping"></i>
+          Cart
+        </li>
+        <li class="nav-item" data-section="addresses" data-url="{{ url_for('buyer_address') }}">
+          <i class="fa-solid fa-location-dot"></i>
+          Addresses
+        </li>
+        <li class="nav-item" data-section="settings" data-logout="{{ url_for('logout') }}">
+          <i class="fa-solid fa-right-from-bracket"></i>
+          Logout
+        </li>
+      </ul>
+    </aside>
+
+    <div class="content-area">
+      <div class="section-card">
+        <div style="display:flex; justify-content:space-between; align-items:center;">
+          <h3 class="section-title">Checkout</h3>
+          <a href="{{ url_for('buyer_cart') }}" style="text-decoration:none; font-weight:700; color:var(--accent-2);">Back to Cart</a>
+        </div>
+
+        <div id="emptyState" style="display:none; text-align:center; color:var(--muted); padding:32px;">
+          No selected items to checkout. Go back to cart to select products.
+        </div>
+
+        <div id="checkoutContent" style="display:none;">
+          <!-- Order Summary Section -->
+          <div class="section-card" style="margin-bottom: 16px;">
+            <div class="section-title" style="margin-bottom:14px;">Order Summary</div>
+            <div id="itemsList" class="items-list" style="max-height: 4.5rem * 4; overflow-y:auto;"></div>
+          </div>
+
+          <!-- Shipping Details and Payment Section -->
+          <div class="section-card" style="margin-bottom: 16px;">
+            <div class="section-title" style="margin-bottom:14px;">Shipping Details</div>
+            <div id="shipSummary" style="display:flex; justify-content:space-between; align-items:center; gap:12px; margin-bottom:10px;">
+              <div>
+                <div id="shipName" style="font-weight:800;color:#23272f;"></div>
+                <div id="shipPhone" style="color:var(--muted); font-weight:700; font-size:.9rem;"></div>
+                <div id="shipAddr" style="font-weight:700;color:#23272f; margin-top:2px;"></div>
+              </div>
+              <button id="changeAddrBtn" type="button" class="btn" style="padding:8px 12px;border-radius:8px;border:1px solid rgba(11,15,26,.1);background:#fff;font-weight:700;color:#23272f;cursor:pointer">Change</button>
+            </div>
+            <div id="addrControls" style="display:none; gap:12px; align-items:center; margin-bottom:10px; flex-wrap:wrap;">
+              <label style="display:flex; align-items:center; gap:8px; cursor:pointer;">
+                <input type="radio" name="addrMode" value="saved" id="addrSavedRadio" style="width:18px;height:18px;accent-color: var(--accent-2);">
+                <span style="font-weight:700;">Use saved address</span>
+              </label>
+              <select id="savedAddressSelect" class="input" style="max-width:360px; display:none;"></select>
+            </div>
+            <div id="addrFormGrid" style="display:grid; grid-template-columns:1fr 1fr; gap:12px;">
+              <div>
+                <label class="label" for="fullName">Full Name</label>
+                <input id="fullName" class="input" placeholder="Juan Dela Cruz">
+              </div>
+              <div>
+                <label class="label" for="phone">Phone</label>
+                <input id="phone" class="input" placeholder="09xxxxxxxxx">
+              </div>
+              <div style="grid-column:1 / -1;">
+                <label class="label" for="address">Address</label>
+                <input id="address" class="input" placeholder="House No., Street, Barangay, City, Province, ZIP">
+              </div>
+              <div>
+                <label class="label" for="notes">Order Notes (optional)</label>
+                <input id="notes" class="input" placeholder="Any instructions for delivery">
+              </div>
+            </div>
+
+            <div class="section-title" style="margin:18px 0 12px;">Payment Method</div>
+            <div style="display:flex; gap:12px; align-items:center;">
+              <label style="display:flex; align-items:center; gap:8px; cursor:pointer;">
+                <input type="radio" name="payment" value="cod" checked style="width:18px; height:18px; accent-color: var(--accent-2);">
+                <span style="font-weight:700;">Cash on Delivery</span>
+              </label>
+            </div>
+          </div>
+
+          <!-- Order Totals and Place Order Section -->
+          <div class="section-card">
+            <div style="margin-bottom:10px; display:flex; gap:8px; align-items:center;">
+              <input id="voucherInput" class="input" placeholder="Enter voucher code" style="flex:1;">
+              <button id="applyVoucherBtn" class="cta" style="min-width:120px;">Apply</button>
+            </div>
+            <div id="voucherMsg" style="margin-bottom:6px; font-weight:700; font-size:.9rem; color: var(--muted);"></div>
+            <div id="appliedVoucher" style="margin-bottom:6px; display:none;">
+              <span style="background: rgba(139,182,255,.12); color: var(--accent-2); border:1px solid rgba(139,182,255,.35); padding:6px 10px; border-radius:999px; font-weight:800;">
+                <i class="fa-solid fa-ticket" style="margin-right:6px;"></i>
+                <span id="appliedVoucherLabel"></span>
+              </span>
+              <button id="removeVoucherBtn" type="button" style="margin-left:8px; background:none; border:none; color:#ff6b6b; font-weight:800; cursor:pointer;">Remove</button>
+            </div>
+
+            <div class="summary-row" style="margin-top:12px;">
+              <div style="color:var(--muted); font-weight:700;">Subtotal</div>
+              <div id="subtotalValue" style="font-weight:700; color: rgba(11,15,26,.70);">₱0</div>
+            </div>
+            <div class="summary-row" id="discountRow" style="display:none;">
+              <div style="color:var(--muted); font-weight:700;">Discount</div>
+              <div id="discountValue" style="font-weight:700; color:#16a34a;">-₱0</div>
+            </div>
+            <div class="summary-row">
+              <div style="color:var(--muted); font-weight:700;">Shipping</div>
+              <div id="shippingValue" style="font-weight:700; color: rgba(11,15,26,.70);">₱0</div>
+            </div>
+            <div class="summary-row total" style="margin-top:4px;">
+              <div>Total</div>
+              <div id="totalValue">₱0</div>
+            </div>
+            <button id="placeOrderBtn" class="cta" style="margin-top:12px; width:100%;">Place Order</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <footer role="contentinfo" style="margin-top: 40px; padding: 18px 12px; background: var(--panel-strong); backdrop-filter: blur(10px); box-shadow: var(--glass-shadow);">
+    <div class="container">
+      <div class="footer-grid" style="display:grid; grid-template-columns: repeat(auto-fit,minmax(200px,1fr)); gap: var(--gap);">
+        <div>
+          <h4 style="margin-bottom: 10px; font-size: .95rem; color: var(--accent-2); font-weight:700;">Customer Service</h4>
+          <ul style="list-style:none; padding:0; display:grid; gap:6px;">
+            <li><a href="#" id="helpCenterLink" style="text-decoration:none; color:var(--text); font-weight:600;">Help Center</a></li>
+            <li><a href="#" id="trackOrderLink" style="text-decoration:none; color:var(--text); font-weight:600;">Track Order</a></li>
+            <li><a href="#" id="returnsRefundsLink" style="text-decoration:none; color:var(--text); font-weight:600;">Returns & Refunds</a></li>
+          </ul>
+        </div>
+        <div>
+          <h4 style="margin-bottom: 10px; font-size: .95rem; color: var(--accent-2); font-weight:700;">About</h4>
+          <ul style="list-style:none; padding:0; display:grid; gap:6px;">
+            <li><a href="#" id="aboutPetopiaLink" style="text-decoration:none; color:var(--text); font-weight:600;">About Petopia</a></li>
+            <li><a href="#" id="careersLink" style="text-decoration:none; color:var(--text); font-weight:600;">Careers</a></li>
+            <li><a href="#" id="blogLink" style="text-decoration:none; color:var(--text); font-weight:600;">Blog</a></li>
+          </ul>
+        </div>
+        <div>
+          <h4 style="margin-bottom: 10px; font-size: .95rem; color: var(--accent-2); font-weight:700;">Download App</h4>
+          <p>
+            <a href="#"><img alt="App Store" src="https://upload.wikimedia.org/wikipedia/commons/6/67/App_Store_%28iOS%29.svg" style="height:32px;vertical-align:middle;margin-right:8px;" loading="lazy"></a>
+            <a href="#"><img alt="Google Play" src="https://upload.wikimedia.org/wikipedia/commons/7/78/Google_Play_Store_badge_EN.svg" style="height:32px;vertical-align:middle;" loading="lazy"></a>
+          </p>
+        </div>
+        <div>
+          <h4 style="margin-bottom: 10px; font-size: .95rem; color: var(--accent-2); font-weight:700;">Follow Us</h4>
+          <p>
+            <a href="https://www.facebook.com/profile.php?id=61582925271846" target="_blank" rel="noopener noreferrer" aria-label="Facebook"><img alt="Facebook" src="https://cdn-icons-png.flaticon.com/512/733/733547.png" style="height:28px;vertical-align:middle;margin-right:6px;"></a>
+            <a href="https://www.instagram.com/petopia_official_page?igsh=MXJpdmgxYXo0dnU1bA==" target="_blank" rel="noopener noreferrer" aria-label="Instagram"><img alt="Instagram" src="https://cdn-icons-png.flaticon.com/512/2111/2111463.png" style="height:28px;vertical-align:middle;margin-right:6px;"></a>
+            <a href="https://x.com/Petopia_page?s=09" target="_blank" rel="noopener noreferrer" aria-label="X (Twitter)"><img alt="X (Twitter)" src="https://cdn-icons-png.flaticon.com/512/5968/5968958.png" style="height:28px;vertical-align:middle;"></a>
+          </p>
+        </div>
+      </div>
+      <p style="margin-top:12px;color:var(--muted);font-size:.9rem">© <span id="yr"></span> Petopia. All rights reserved.</p>
+    </div>
+  </footer>
+
+  <script>
+    // Profile dropdown design as try.html (header Save, larger avatar)
+    (function(){
+      const btn = document.getElementById('userProfileBtn'); if(!btn) return;
+      const initialUserData = {
+        fullname: '{{ user_data.fullname if user_data else "" }}',
+        email: '{{ user_data.email if user_data else "" }}',
+        profile_photo: (function(){ var p='{{ user_data.profile_photo if user_data else "" }}'; if(!p) return ''; if(p.startsWith('http')||p.startsWith('/static/')) return p; return '/static/uploads/'+p; })(),
+        username: '{{ user_data.username if user_data and user_data.username else "" }}'
+      };
+      const panel = document.createElement('div');
+      panel.id = 'profilePanel'; panel.style.position='fixed'; panel.style.width='360px'; panel.style.maxHeight='70vh'; panel.style.display='none'; panel.style.zIndex='200'; panel.style.background='var(--panel-strong)'; panel.style.border='1px solid rgba(11,15,26,.08)'; panel.style.borderRadius='12px'; panel.style.boxShadow='var(--glass-shadow)'; panel.style.overflow='hidden';
+      panel.innerHTML = '<div id="profileArrowWrap" style="position:absolute;top:-10px;right:20px;width:0;height:0;">\
+        <div style="position:absolute;top:-1px;right:-1px;width:0;height:0;border-left:9px solid transparent;border-right:9px solid transparent;border-bottom:9px solid rgba(11,15,26,.08);"></div>\
+        <div style="position:relative;width:0;height:0;border-left:8px solid transparent;border-right:8px solid transparent;border-bottom:8px solid var(--panel-strong);"></div>\
+      </div>\
+      <div style="padding:12px 12px 10px 12px;display:flex;align-items:center;gap:8px;justify-content:space-between;border-bottom:1px solid rgba(11,15,26,.08);">\
+        <div style="font-weight:800;color:#23272f;">Profile Settings</div>\
+        <button id="saveProfileBtn" class="btn" style="padding:6px 12px;border-radius:8px;border:1px solid rgba(11,15,26,.1);background:linear-gradient(135deg, var(--accent), var(--accent-2));font-weight:700;color:#051014;cursor:pointer;box-shadow:0 4px 12px rgba(139,182,255,.15);">Save</button>\
+      </div>\
+      <div style="max-height:calc(70vh - 56px);overflow-y:auto;background:#fff;">\
+        <div style="padding:16px 12px;display:flex;flex-direction:column;align-items:center;gap:10px;background:rgba(139,182,255,.04);border-bottom:1px solid #e5e8f0;">\
+          <div id="profileAvatarPreview" style="width:80px;height:80px;border-radius:50%;background:linear-gradient(135deg,var(--accent),var(--accent-2));display:flex;align-items:center;justify-content:center;color:#051014;font-weight:800;font-size:1.2rem;box-shadow:0 6px 18px rgba(139,182,255,.15);overflow:hidden;"></div>\
+          <label for="profileAvatarInput" class="btn" style="padding:6px 12px;border-radius:8px;border:1px solid rgba(11,15,26,.1);background:#fff;font-weight:700;color:#23272f;cursor:pointer;font-size:.85rem;">\
+            <i class="fa-solid fa-camera" style="margin-right:4px;"></i>Change Photo\
+          </label>\
+          <input id="profileAvatarInput" type="file" accept="image/*" style="display:none">\
+        </div>\
+        <div style="padding:12px;display:grid;gap:12px;">\
+          <div>\
+            <div style="font-weight:700;color:#23272f;font-size:.85rem;margin-bottom:6px;">Username</div>\
+            <input id="profileUsername" class="input" placeholder="Enter username" style="width:100%;border-radius:10px;border:1px solid rgba(11,15,26,.1);padding:10px 12px;font-size:.95rem;font-weight:600;background:#fff;">\
+          </div>\
+          <div style="border-top:1px solid #e5e8f0;padding-top:12px;">\
+            <div style="font-weight:700;color:#23272f;font-size:.85rem;margin-bottom:6px;">Full Name</div>\
+            <div id="profileFullName" style="font-weight:800;color:#23272f;font-size:.95rem;padding:10px 12px;background:rgba(139,182,255,.06);border-radius:10px;border:1px solid rgba(139,182,255,.15);">-</div>\
+          </div>\
+          <div>\
+            <div style="font-weight:700;color:#23272f;font-size:.85rem;margin-bottom:6px;">Email Address</div>\
+            <div id="profileEmail" style="font-weight:800;color:#23272f;font-size:.95rem;padding:10px 12px;background:rgba(139,182,255,.06);border-radius:10px;border:1px solid rgba(139,182,255,.15);">-</div>\
+          </div>\
+        </div>\
+      </div>';
+      document.body.appendChild(panel);
+      function placePanel(){ const rect = btn.getBoundingClientRect(); const width = Math.min(420, Math.max(280, Math.floor(window.innerWidth*0.95))); panel.style.width = width+'px'; const margin=12; const top=rect.bottom+8; let left = rect.right - width; left = Math.max(margin, Math.min(left, window.innerWidth - margin - width)); panel.style.top = top+'px'; panel.style.left = left+'px'; const arrow = panel.querySelector('#profileArrowWrap'); const rightOffset = Math.max(12, Math.min(width - 24, width - (rect.right - left) - 12)); arrow.style.right = rightOffset + 'px'; }
+      function refreshHeaderFromProfile(p){ const nameEl=document.getElementById('userName'); const avatarEl=document.getElementById('userAvatar'); if(nameEl) nameEl.textContent=p.fullname||'User'; if(p.profile_photo){ avatarEl.style.background='transparent'; avatarEl.innerHTML = `<img src="${p.profile_photo}" alt="avatar" style="width:100%;height:100%;object-fit:cover;border-radius:50%;">`; } else { avatarEl.style.backgroundImage='none'; avatarEl.textContent=(p.fullname? p.fullname.split(' ').map(w=>w[0]).slice(0,2).join('').toUpperCase():'U'); avatarEl.style.background='linear-gradient(135deg, var(--accent), var(--accent-2))'; } }
+      function applyAvatarToPreview(url, initials){ const avatarBox=document.getElementById('profileAvatarPreview'); if(url){ avatarBox.style.background='transparent'; avatarBox.innerHTML=`<img src="${url}" alt="avatar" style="width:100%;height:100%;object-fit:cover;">`; } else { avatarBox.style.background='linear-gradient(135deg,var(--accent),var(--accent-2))'; avatarBox.textContent=(initials||'U'); } }
+      function openPanel(){ document.getElementById('profileUsername').value = initialUserData.username||''; document.getElementById('profileFullName').textContent = initialUserData.fullname||'-'; document.getElementById('profileEmail').textContent = initialUserData.email||'-'; applyAvatarToPreview(initialUserData.profile_photo||'', (initialUserData.fullname||'').split(' ').map(w=>w[0]).slice(0,2).join('').toUpperCase()||'U'); panel.style.display='block'; placePanel(); }
+      function closePanel(){ panel.style.display='none'; }
+      btn.addEventListener('click', function(){ const willShow=panel.style.display==='none'; panel.style.display=willShow?'block':'none'; if(willShow) openPanel(); });
+      document.addEventListener('click', function(e){ if(!panel.contains(e.target) && e.target!==btn && !btn.contains(e.target)) closePanel(); });
+      window.addEventListener('resize', ()=>{ if(panel.style.display==='block') placePanel(); });
+      window.addEventListener('scroll', ()=>{ if(panel.style.display==='block') placePanel(); }, { passive:true });
+      document.getElementById('profileAvatarInput').addEventListener('change', function(){ const file=this.files&&this.files[0]; if(!file) return; const reader=new FileReader(); reader.onload=function(ev){ const url=String(ev.target?.result||''); applyAvatarToPreview(url, (initialUserData.fullname||'').split(' ').map(w=>w[0]).slice(0,2).join('').toUpperCase()); }; reader.readAsDataURL(file); const form=new FormData(); form.append('photo', file); fetch('/update_profile_photo', { method:'POST', body: form }).then(r=>r.json()).then(data=>{ if(data.success && data.photo_url){ initialUserData.profile_photo=data.photo_url; refreshHeaderFromProfile(initialUserData); } else { alert('Photo upload failed: ' + (data.error||'Unknown error')); } }).catch(err=>{ console.error(err); alert('Network error while uploading photo'); }); });
+      document.getElementById('saveProfileBtn').addEventListener('click', function(){ const username=(document.getElementById('profileUsername').value||'').trim(); if(!username){ alert('Username is required'); return; } fetch('/update_username', { method:'POST', headers:{ 'Content-Type':'application/json' }, body: JSON.stringify({ username }) }).then(r=>r.json()).then(data=>{ if(data.success){ initialUserData.username=username; alert('Changes saved'); closePanel(); } else { alert('Error: ' + (data.error||'Unknown error')); } }).catch(err=>{ console.error(err); alert('Network error'); }); });
+      refreshHeaderFromProfile(initialUserData);
+    })();
+    // Handle cart button click
+    document.querySelector('.icon-btn[data-url]').addEventListener('click', function() {
+      window.location.href = this.dataset.url;
+    });
+
+    // Handle navigation clicks
+    document.querySelectorAll('.nav-item[data-url]').forEach(item => {
+      item.addEventListener('click', function() {
+        window.location.href = this.dataset.url;
+      });
+    });
+
+    // Custom confirmation function to replace browser confirm dialogs
+    function showCustomConfirm(message, onConfirm, onCancel = null) {
+      const div = document.createElement('div');
+      div.id = 'customConfirmModal';
+      div.style = 'position:fixed;top:0;left:0;width:100vw;height:100vh;z-index:9999;background:rgba(0,0,0,.25);backdrop-filter:blur(2px);display:flex;align-items:center;justify-content:center;';
+      
+      div.innerHTML = `
+        <div style="background:rgba(255,255,255,.97);border-radius:18px;max-width:500px;width:90vw;box-shadow:0 10px 40px rgba(16,24,40,.22);position:relative;overflow:hidden;">
+          <div style="padding:32px;text-align:center;">
+            <div style="width:64px;height:64px;border-radius:50%;background:rgba(255,184,107,.15);display:flex;align-items:center;justify-content:center;margin:0 auto 20px;border:2px solid var(--warning);">
+              <i class="fa-solid fa-circle-question" style="font-size:2rem;color:var(--warning);"></i>
+            </div>
+            <h3 style="font-size:1.5rem;font-weight:800;color:#23272f;margin-bottom:12px;">Confirm Action</h3>
+            <p style="color:#5b6378;font-weight:600;font-size:1rem;line-height:1.6;margin-bottom:24px;">${message}</p>
+            <div style="display:flex;gap:12px;justify-content:center;">
+              <button id="confirmCancel" style="padding:12px 32px;border-radius:10px;background:#fff;color:#23272f;font-weight:700;border:2px solid rgba(11,15,26,.1);cursor:pointer;font-size:1rem;transition:all .2s ease;">Cancel</button>
+              <button id="confirmOk" style="padding:12px 32px;border-radius:10px;background:linear-gradient(135deg, var(--accent), var(--accent-2));color:#051014;font-weight:700;border:none;cursor:pointer;font-size:1rem;box-shadow:0 8px 26px rgba(139,182,255,.08);transition:all .2s ease;">Confirm</button>
+            </div>
+          </div>
+        </div>
+      `;
+      document.body.appendChild(div);
+      
+      const closeHandler = function(confirmed) {
+        div.remove();
+        if (confirmed && onConfirm) {
+          onConfirm();
+        } else if (!confirmed && onCancel) {
+          onCancel();
+        }
+      };
+      
+      document.getElementById('confirmOk').addEventListener('click', () => closeHandler(true));
+      document.getElementById('confirmCancel').addEventListener('click', () => closeHandler(false));
+      
+      div.addEventListener('click', function(e) {
+        if (e.target === div) closeHandler(false);
+      });
+      
+      const escapeHandler = function(e) {
+        if (e.key === 'Escape') {
+          closeHandler(false);
+          document.removeEventListener('keydown', escapeHandler);
+        }
+      };
+      document.addEventListener('keydown', escapeHandler);
+    }
+
+    // Handle logout click
+    document.querySelector('.nav-item[data-logout]').addEventListener('click', function() {
+      showCustomConfirm('Are you sure you want to log out?', function() {
+        localStorage.removeItem('petopia_session');
+        window.location.href = document.querySelector('.nav-item[data-logout]').dataset.logout;
+      });
+    });
+    document.getElementById('yr').textContent = new Date().getFullYear();
+
+    let cart = {}; // not used now for items; server provides selected items
+    let addresses = [];
+    let readyAddresses = false;
+    let readyItems = false;
+    function tryRender(){ if (readyAddresses && readyItems) renderCheckout(); }
+
+    function saveCart() {
+      localStorage.setItem('petopia_cart', JSON.stringify(cart));
+    }
+
+    function updateCartBadge() {
+      // Fetch cart count from database
+      fetch('/cart/items')
+        .then(response => response.json())
+        .then(data => {
+          if (!data.error) {
+            const count = data.length;
+      const cartBadge = document.getElementById('cartBadge');
+            if (cartBadge) {
+      cartBadge.textContent = count;
+      cartBadge.style.display = count > 0 ? 'block' : 'none';
+            }
+          }
+        })
+        .catch(error => {
+          console.error('Error fetching cart count:', error);
+        });
+    }
+    updateCartBadge();
+
+    function parsePrice(text) {
+      return parseFloat(String(text).replace(/[^\d.]/g, '')) || 0;
+    }
+
+    // --- Voucher application (validated server-side) ---
+    let appliedVoucher = null; // { code, sellerId, type, value, cap, min, sellerSubtotal, discount, storeName }
+
+    function describeVoucher(v) {
+      if (!v) return '';
+      const typeLabel = v.type === 'percent' ? `${v.value}%` : `₱${Number(v.value||0).toLocaleString()}`;
+      const minLabel = v.min ? ` (min ₱${Number(v.min).toLocaleString()})` : '';
+      const store = v.storeName ? ` — ${v.storeName}` : '';
+      return `${v.code} — ${typeLabel} OFF${minLabel}${store}`;
+    }
+
+    function computeShipping(subtotal) {
+      if (subtotal <= 0) return 0;
+      const base = 59;
+      if (appliedVoucher && appliedVoucher.type === 'free_shipping' && subtotal >= (appliedVoucher.minSubtotal || 0)) {
+        return 0;
+      }
+      return base;
+    }
+
+    // Cache for free shipping rules
+    let freeShippingRulesCache = [];
+    let freeShippingRulesLastFetch = 0;
+    const FREE_SHIPPING_CACHE_TTL = 30000; // 30 seconds
+
+    async function fetchFreeShippingRules(sellerIds) {
+      if (!sellerIds || sellerIds.length === 0) return [];
+      
+      const now = Date.now();
+      // Use cache if recent
+      if (freeShippingRulesCache.length > 0 && (now - freeShippingRulesLastFetch) < FREE_SHIPPING_CACHE_TTL) {
+        return freeShippingRulesCache;
+      }
+      
+      try {
+        const res = await fetch('/free_shipping/rules', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ seller_ids: sellerIds })
+        });
+        const rules = await res.json();
+        freeShippingRulesCache = Array.isArray(rules) ? rules : [];
+        freeShippingRulesLastFetch = now;
+        return freeShippingRulesCache;
+      } catch (e) {
+        console.error('Error fetching free shipping rules:', e);
+        return [];
+      }
+    }
+
+    async function computeShippingPerSeller(selectedItems) {
+      if (!selectedItems || selectedItems.length === 0) return 0;
+      
+      // Group items by seller_id (not store_name, since sellers can have multiple products)
+      const sellerGroups = {};
+      const sellerIds = new Set();
+      selectedItems.forEach(item => {
+        const sellerId = item.seller_id;
+        if (!sellerId) return; // Skip items without seller_id
+        
+        sellerIds.add(sellerId);
+        if (!sellerGroups[sellerId]) {
+          sellerGroups[sellerId] = [];
+        }
+        sellerGroups[sellerId].push(item);
+      });
+      
+      // Calculate subtotal per seller
+      const sellerSubtotals = {};
+      Object.keys(sellerGroups).forEach(sellerId => {
+        const subtotal = sellerGroups[sellerId].reduce((sum, item) => {
+          return sum + (parseFloat(item.price) * item.quantity);
+        }, 0);
+        sellerSubtotals[sellerId] = subtotal;
+      });
+      
+      // Fetch free shipping rules for all sellers in cart
+      const rules = await fetchFreeShippingRules(Array.from(sellerIds));
+      
+      // Build map of seller_id -> applicable rule (best match: lowest min_spend that qualifies)
+      const sellerRules = {};
+      rules.forEach(rule => {
+        const sid = String(rule.sellerId);
+        if (!sellerRules[sid] || rule.min < sellerRules[sid].min) {
+          sellerRules[sid] = rule;
+        }
+      });
+      
+      // Calculate shipping per seller
+      let totalShipping = 0;
+      Object.keys(sellerSubtotals).forEach(sellerId => {
+        const sellerSubtotal = sellerSubtotals[sellerId];
+        if (sellerSubtotal > 0) {
+          const rule = sellerRules[sellerId];
+          // Check if free shipping rule applies
+          if (rule && sellerSubtotal >= rule.min) {
+            // Free shipping applies!
+            // If cap is set, only free shipping up to the cap
+            if (rule.cap > 0) {
+              totalShipping += Math.max(0, 59 - rule.cap); // Apply cap as discount on shipping
+            } else {
+              totalShipping += 0; // Full free shipping
+            }
+          } else {
+            // Regular shipping fee for this seller
+            totalShipping += 59;
+          }
+        }
+      });
+      
+      return totalShipping;
+    }
+
+    function renderCheckout() {
+      const selectedItems = window.__checkoutItems || [];
+      const emptyState = document.getElementById('emptyState');
+      const checkoutContent = document.getElementById('checkoutContent');
+      
+      // First check if user has addresses
+      if (!addresses || addresses.length === 0) {
+        emptyState.style.display = 'block';
+        const addressUrl = "{{ url_for('buyer_address') }}";
+        emptyState.innerHTML = `You need to add your address first before checking out. <a href="${addressUrl}" style="color: var(--accent-2); font-weight: 700; text-decoration: underline; margin-left: 4px;">Add Address</a>`;
+        checkoutContent.style.display = 'none';
+        document.getElementById('subtotalValue').textContent = '₱0';
+        document.getElementById('discountRow').style.display = 'none';
+        document.getElementById('discountValue').textContent = '-₱0';
+        document.getElementById('shippingValue').textContent = '₱0';
+        document.getElementById('totalValue').textContent = '₱0';
+        return;
+      }
+      
+      // Then check if there are selected items
+      if (!selectedItems.length) {
+        emptyState.style.display = 'block';
+        emptyState.textContent = "No selected items to checkout. Go back to cart to select products.";
+        checkoutContent.style.display = 'none';
+        document.getElementById('subtotalValue').textContent = '₱0';
+        document.getElementById('discountRow').style.display = 'none';
+        document.getElementById('discountValue').textContent = '-₱0';
+        document.getElementById('shippingValue').textContent = '₱0';
+        document.getElementById('totalValue').textContent = '₱0';
+        return;
+      }
+      
+      emptyState.style.display = 'none';
+      checkoutContent.style.display = 'block';
+
+      // Address UI init: show default summary by default
+      populateSavedAddresses();
+      const def = addresses.find(a => a.isDefault) || addresses[0];
+      if (def){
+        fillFormWithAddress(def);
+        setFormDisabled(true);
+        document.getElementById('shipName').textContent = def.fullName;
+        document.getElementById('shipPhone').textContent = def.phone;
+        document.getElementById('shipAddr').textContent = def.address + (def.label ? ` • ${def.label}` : '');
+        document.getElementById('addrControls').style.display = 'none';
+        document.getElementById('addrFormGrid').style.display = 'none';
+      } else {
+        // no addresses saved
+        document.getElementById('shipSummary').style.display = 'none';
+        document.getElementById('addrControls').style.display = 'flex';
+        updateAddressModeUI();
+      }
+
+      const itemsList = document.getElementById('itemsList');
+      let html = '';
+      let subtotal = 0;
+      selectedItems.forEach((it) => {
+        const unitPrice = parseFloat(it.price);
+        const lineTotal = unitPrice * it.quantity;
+        subtotal += lineTotal;
+        
+        // Display selected attributes if any
+        let attributesText = '';
+        if (it.selected_attributes && Object.keys(it.selected_attributes).length > 0) {
+          const attributes = Object.entries(it.selected_attributes)
+            .map(([key, value]) => `${key.charAt(0).toUpperCase() + key.slice(1)}: ${value}`)
+            .join(', ');
+          attributesText = `<div style="color:var(--muted); font-weight:600; font-size:.8rem;margin-top:2px;">${attributes}</div>`;
+        }
+        
+        html += `
+          <div class="item-row">
+            <img src="${it.image_url ? '/static/uploads/' + it.image_url : 'https://via.placeholder.com/400x300?text=No+Image'}" alt="${it.name}" style="width:52px;height:52px;object-fit:cover;border-radius:10px;box-shadow:0 2px 8px #e5e8f0;">
+            <div style="flex:1;">
+              <div style="font-weight:700;color:#23272f;">${it.name}</div>
+              ${attributesText}
+              <div style="color:var(--muted); font-weight:700; font-size:.9rem;">Qty: ${it.quantity}</div>
+            </div>
+            <div style="text-align:right;">
+              <div style="color:var(--accent-2); font-weight:800;">₱${unitPrice.toLocaleString()}</div>
+              <div style="color:#23272f; font-weight:700; font-size:.9rem;">₱${lineTotal.toLocaleString()}</div>
+            </div>
+          </div>
+        `;
+      });
+      itemsList.innerHTML = html;
+
+      const discount = appliedVoucher ? Number(appliedVoucher.discount || 0) : 0;
+      // Shipping calculation is async, so we'll need to update it separately
+      computeShippingPerSeller(selectedItems).then(shipping => {
+        const total = Math.max(0, subtotal - discount + shipping);
+        document.getElementById('shippingValue').textContent = '₱' + shipping.toLocaleString();
+        document.getElementById('totalValue').textContent = '₱' + total.toLocaleString();
+      }).catch(() => {
+        // Fallback to default shipping if fetch fails
+        const defaultShipping = (selectedItems.length > 0 ? 59 : 0);
+        const total = Math.max(0, subtotal - discount + defaultShipping);
+        document.getElementById('shippingValue').textContent = '₱' + defaultShipping.toLocaleString();
+        document.getElementById('totalValue').textContent = '₱' + total.toLocaleString();
+      });
+      
+      // Show subtotal and discount immediately
+      const total = Math.max(0, subtotal - discount + 0); // Temporary, will be updated by async call
+      document.getElementById('subtotalValue').textContent = '₱' + subtotal.toLocaleString();
+      if (discount > 0) {
+        document.getElementById('discountRow').style.display = 'flex';
+        document.getElementById('discountValue').textContent = '-₱' + discount.toLocaleString();
+      } else {
+        document.getElementById('discountRow').style.display = 'none';
+        document.getElementById('discountValue').textContent = '-₱0';
+      }
+      // Shipping and total will be updated by async computeShippingPerSeller call above
+
+      // Constrain visible items to 4 rows similar to cart
+      const firstRow = itemsList.querySelector('.item-row');
+      const rowHeight = firstRow ? firstRow.offsetHeight : 72;
+      const maxVisible = 4;
+      const needsScroll = selectedItems.length > maxVisible;
+      itemsList.style.maxHeight = needsScroll ? (rowHeight * maxVisible + 8) + 'px' : 'none';
+      itemsList.style.overflowY = needsScroll ? 'auto' : 'visible';
+
+      // Update applied voucher UI
+      const appliedWrap = document.getElementById('appliedVoucher');
+      const appliedLabel = document.getElementById('appliedVoucherLabel');
+      const msg = document.getElementById('voucherMsg');
+      if (appliedVoucher) {
+        appliedWrap.style.display = 'block';
+        appliedLabel.textContent = describeVoucher(appliedVoucher);
+        msg.textContent = '';
+        msg.style.color = 'var(--muted)';
+      } else {
+        appliedWrap.style.display = 'none';
+      }
+    }
+    function fetchSelectedItems(){
+      console.log('Fetching selected items...');
+      fetch('/cart/selected')
+        .then(r=>{
+          console.log('Cart selected response status:', r.status);
+          if (!r.ok) {
+            console.error('Cart selected API error:', r.status, r.statusText);
+            throw new Error(`API error: ${r.status}`);
+          }
+          return r.json();
+        })
+        .then(data=>{
+          console.log('Cart selected data:', data);
+          if (Array.isArray(data) && data.length > 0){
+            // normalize to {id, product_id, name, price, image_url, quantity, selected_attributes, store_name, seller_id}
+            window.__checkoutItems = data.map(d=>({
+              id: d.id, // This is the cart item ID
+              product_id: d.product_id,
+              name: d.name,
+              price: d.price,
+              image_url: d.image_url,
+              quantity: d.quantity,
+              selected_attributes: d.selected_attributes || {},
+              store_name: d.store_name || 'Unknown Store',
+              seller_id: d.seller_id || null
+            }));
+            console.log('Normalized checkout items:', window.__checkoutItems);
+            readyItems = true; tryRender();
+          } else {
+            console.log('No selected items found');
+            window.__checkoutItems = [];
+            readyItems = true; tryRender();
+          }
+        })
+        .catch(err=>{ 
+          console.error('Error fetching selected items:', err);
+          window.__checkoutItems = []; 
+          readyItems = true; 
+          tryRender(); 
+        });
+    }
+    fetchSelectedItems();
+
+    // Fetch saved addresses from backend and prefer default
+    function fetchAddresses(){
+      fetch('/addresses')
+        .then(r=>r.json())
+        .then(data=>{
+          if (Array.isArray(data)){
+            // normalize keys if backend returns snake_case
+            addresses = data.map(a=>({
+              id: a.id,
+              fullName: a.fullName || a.full_name || '',
+              phone: a.phone || '',
+              address: a.address || '',
+              isDefault: (typeof a.isDefault !== 'undefined') ? !!a.isDefault : !!a.is_default,
+              label: a.label || null
+            }));
+          } else {
+            addresses = [];
+          }
+          readyAddresses = true; tryRender();
+        })
+        .catch(()=>{ addresses = []; readyAddresses = true; tryRender(); });
+    }
+    fetchAddresses();
+
+    function saveAddresses() {}
+
+    function populateSavedAddresses() {
+      const select = document.getElementById('savedAddressSelect');
+      if (!select) return;
+      select.innerHTML = '';
+      if (!addresses.length) {
+        select.style.display = 'none';
+        document.getElementById('addrNewRadio').checked = true;
+        document.getElementById('addrSavedRadio').checked = false;
+        return;
+      }
+      addresses.forEach((addr, idx) => {
+        const opt = document.createElement('option');
+        opt.value = String(addr.id);
+        opt.textContent = `${addr.fullName} — ${addr.address}` + (addr.isDefault ? ' (Default)' : '');
+        select.appendChild(opt);
+      });
+      // preselect default or first
+      const def = addresses.find(a => a.isDefault) || addresses[0];
+      select.value = String(def.id);
+      select.style.display = 'block';
+      document.getElementById('addrSavedRadio').checked = true;
+      fillFormWithAddress(def);
+      setFormDisabled(true);
+      
+    }
+
+    function fillFormWithAddress(addr) {
+      document.getElementById('fullName').value = addr.fullName || '';
+      document.getElementById('phone').value = addr.phone || '';
+      document.getElementById('address').value = addr.address || '';
+    }
+
+    function setFormDisabled(disabled) {
+      document.getElementById('fullName').disabled = disabled;
+      document.getElementById('phone').disabled = disabled;
+      document.getElementById('address').disabled = disabled;
+      // notes stays editable
+    }
+
+    function updateAddressModeUI() {
+      const savedRadio = document.getElementById('addrSavedRadio');
+      const select = document.getElementById('savedAddressSelect');
+      if (addresses.length) {
+        select.style.display = 'block';
+        const current = addresses.find(a => String(a.id) === String(select.value)) || addresses[0];
+        fillFormWithAddress(current);
+        setFormDisabled(true);
+        if (savedRadio) savedRadio.checked = true;
+      } else {
+        // No saved addresses: keep form disabled and hide select
+        select.style.display = 'none';
+        setFormDisabled(true);
+      }
+    }
+
+    document.getElementById('addrSavedRadio').addEventListener('change', updateAddressModeUI);
+    document.getElementById('savedAddressSelect').addEventListener('change', function(e){
+      const id = String(e.target.value);
+      const addr = addresses.find(a => String(a.id) === id);
+      if (addr) fillFormWithAddress(addr);
+    });
+
+    // Change address button toggles controls
+    const changeBtn = document.getElementById('changeAddrBtn');
+    if (changeBtn){
+      changeBtn.addEventListener('click', function(){
+        const controls = document.getElementById('addrControls');
+        const grid = document.getElementById('addrFormGrid');
+        const isHidden = controls.style.display === 'none' || controls.style.display === '';
+        controls.style.display = isHidden ? 'flex' : 'none';
+        grid.style.display = isHidden ? 'grid' : 'none';
+        if (isHidden){
+          // default to saved if available
+          if (addresses.length){
+            document.getElementById('addrSavedRadio').checked = true;
+          }
+          updateAddressModeUI();
+        }
+      });
+    }
+
+    // Apply voucher flow (server-validated)
+    document.getElementById('applyVoucherBtn').addEventListener('click', function() {
+      const input = document.getElementById('voucherInput');
+      const code = input.value.trim().toUpperCase();
+      const msg = document.getElementById('voucherMsg');
+      if (!code) {
+        msg.style.color = 'var(--error)';
+        msg.textContent = 'Please enter a voucher code.';
+        return;
+      }
+      const selectedItems = (window.__checkoutItems || []).map(it => ({ product_id: it.product_id, quantity: it.quantity }));
+      fetch('/vouchers/validate', {
+        method:'POST', headers:{ 'Content-Type':'application/json' },
+        body: JSON.stringify({ code, items: selectedItems })
+      }).then(r=>r.json()).then(res=>{
+        if (!res || res.error) {
+          msg.style.color = 'var(--error)';
+          msg.textContent = res && res.error ? res.error : 'Invalid voucher code.';
+          appliedVoucher = null;
+          renderCheckout();
+          return;
+        }
+        appliedVoucher = res;
+        msg.style.color = 'var(--success)';
+        msg.textContent = `${code} applied.`;
+        renderCheckout();
+      }).catch(()=>{
+        msg.style.color = 'var(--error)';
+        msg.textContent = 'Network error validating voucher.';
+      });
+    });
+
+    document.getElementById('removeVoucherBtn').addEventListener('click', function() {
+      appliedVoucher = null;
+      const msg = document.getElementById('voucherMsg');
+      msg.textContent = '';
+      msg.style.color = 'var(--muted)';
+      renderCheckout();
+    });
+
+    // Custom alert function to replace browser alerts
+    function showCustomAlert(message, type = 'info', onClose = null) {
+      const div = document.createElement('div');
+      div.id = 'customAlertModal';
+      div.style = 'position:fixed;top:0;left:0;width:100vw;height:100vh;z-index:9999;background:rgba(0,0,0,.25);backdrop-filter:blur(2px);display:flex;align-items:center;justify-content:center;';
+      
+      const iconColor = type === 'success' ? 'var(--success)' : type === 'error' ? 'var(--error)' : 'var(--accent-2)';
+      const iconClass = type === 'success' ? 'fa-circle-check' : type === 'error' ? 'fa-circle-exclamation' : 'fa-circle-info';
+      
+      div.innerHTML = `
+        <div style="background:rgba(255,255,255,.97);border-radius:18px;max-width:500px;width:90vw;box-shadow:0 10px 40px rgba(16,24,40,.22);position:relative;overflow:hidden;">
+          <div style="padding:32px;text-align:center;">
+            <div style="width:64px;height:64px;border-radius:50%;background:${type === 'success' ? 'rgba(74,222,128,.15)' : type === 'error' ? 'rgba(255,107,107,.15)' : 'rgba(139,182,255,.15)'};display:flex;align-items:center;justify-content:center;margin:0 auto 20px;border:2px solid ${iconColor};">
+              <i class="fa-solid ${iconClass}" style="font-size:2rem;color:${iconColor};"></i>
+            </div>
+            <h3 style="font-size:1.5rem;font-weight:800;color:#23272f;margin-bottom:12px;">${type === 'success' ? 'Success!' : type === 'error' ? 'Error' : 'Notice'}</h3>
+            <p style="color:#5b6378;font-weight:600;font-size:1rem;line-height:1.6;margin-bottom:24px;">${message}</p>
+            <button id="closeCustomAlert" style="padding:12px 32px;border-radius:10px;background:linear-gradient(135deg, var(--accent), var(--accent-2));color:#051014;font-weight:700;border:none;cursor:pointer;font-size:1rem;box-shadow:0 8px 26px rgba(139,182,255,.08);">OK</button>
+          </div>
+        </div>
+      `;
+      document.body.appendChild(div);
+      
+      const closeHandler = function() {
+        div.remove();
+        if (onClose) onClose();
+      };
+      
+      document.getElementById('closeCustomAlert').addEventListener('click', closeHandler);
+      div.addEventListener('click', function(e) {
+        if (e.target === div) closeHandler();
+      });
+      
+      const escapeHandler = function(e) {
+        if (e.key === 'Escape') {
+          closeHandler();
+          document.removeEventListener('keydown', escapeHandler);
+        }
+      };
+      document.addEventListener('keydown', escapeHandler);
+    }
+
+    document.getElementById('placeOrderBtn').addEventListener('click', async function() {
+      const fullName = document.getElementById('fullName').value.trim();
+      const phone = document.getElementById('phone').value.trim();
+      const address = document.getElementById('address').value.trim();
+      if (!fullName || !phone || !address) {
+        showCustomAlert('Please fill in your name, phone, and address.', 'error');
+        return;
+      }
+      // Address entry is limited to saved addresses only; no new address saving
+      // Build order object and persist to localStorage
+      const selectedEntries = Object.entries(cart).filter(([id, it]) => it.selected);
+      const items = selectedEntries.map(([id, it]) => ({
+        product: it.product,
+        qty: it.qty,
+        unitPrice: parsePrice(it.product.price)
+      }));
+      const subtotal = items.reduce((s, it) => s + it.unitPrice * it.qty, 0);
+      // use server-validated discount result when present
+      const discount = appliedVoucher ? Number(appliedVoucher.discount || 0) : 0;
+      // Note: Shipping will be calculated on backend, but we calculate here for display consistency
+      const shipping = await computeShippingPerSeller(window.__checkoutItems || []).catch(() => 0);
+      const total = Math.max(0, subtotal - discount + shipping);
+      const order = {
+        id: Date.now(),
+        createdAt: Date.now(),
+        status: 'to_pay',
+        items,
+        subtotal, discount, shipping, total,
+        shippingAddress: { fullName, phone, address }
+      };
+      // Create order via backend
+      const shippingPayload = { fullName, phone, address };
+      const itemsPayload = (window.__checkoutItems||[]).map(it=>({ 
+        id: it.id, // Cart item ID
+        product_id: it.product_id, 
+        quantity: it.quantity,
+        selected_attributes: it.selected_attributes || {}
+      }));
+      console.log('Placing order with payload:', { items: itemsPayload, shipping: shippingPayload, payment: document.querySelector('input[name="payment"]:checked')?.value || 'cod' });
+      fetch('/orders', {
+        method:'POST', headers:{ 'Content-Type':'application/json' },
+        body: JSON.stringify({ items: itemsPayload, shipping: shippingPayload, payment: document.querySelector('input[name="payment"]:checked')?.value || 'cod', removeFromCart: true, voucherCode: (appliedVoucher && appliedVoucher.code) ? appliedVoucher.code : '' })
+      }).then(r=>{
+        console.log('Order creation response status:', r.status);
+        if (!r.ok) {
+          console.error('Order creation API error:', r.status, r.statusText);
+          throw new Error(`Order API error: ${r.status}`);
+        }
+        return r.json();
+      }).then(res=>{
+        console.log('Order creation response:', res);
+        if(res && (res.success || res.order_id)){
+          showCustomAlert('Your order has been placed successfully! You will be redirected to your orders page.', 'success', function() {
+            window.location.href = "{{ url_for('buyer_orders') }}";
+          });
+        } else {
+          showCustomAlert('Failed to place order: ' + (res.error || 'Unknown error'), 'error');
+        }
+      }).catch(err=>{
+        console.error('Error placing order:', err);
+        showCustomAlert('Network error placing order. Please check your connection and try again.', 'error');
+      });
+    });
+
+    // Notifications: bell dropdown under bell with arrow (scoped + polling)
+    function currentUserId(){ try{ return document.body && document.body.dataset && document.body.dataset.userId ? String(document.body.dataset.userId) : ''; }catch(e){ return ''; } }
+    function notifKey(){ const uid=currentUserId(); return uid ? ('petopia_notifications_'+uid) : 'petopia_notifications'; }
+    function loadNotifs(){ return JSON.parse(localStorage.getItem(notifKey())||'[]'); }
+    function saveNotifs(n){ localStorage.setItem(notifKey(), JSON.stringify(n)); }
+    function unreadCount(){ return loadNotifs().filter(n=>!n.read).length; }
+    function refreshNotifBadge(){ const b=document.getElementById('notifBadge'); if(!b) return; const c=unreadCount(); b.textContent=c; b.style.display=c>0?'block':'none'; }
+    refreshNotifBadge();
+    function userScopedKey(key){ const uid=currentUserId(); return uid ? (key+'_'+uid) : key; }
+    function getCache(key, fallback){ try{ return JSON.parse(localStorage.getItem(userScopedKey(key))||''); }catch(e){ return fallback; } }
+    function setCache(key, val){ try{ localStorage.setItem(userScopedKey(key), JSON.stringify(val)); }catch(e){} }
+    function addNotificationOnce(nid, title, body){ try{ const list=loadNotifs(); if(list.some(n=> String(n.id)===String(nid))) return; const now=Date.now(); list.push({ id:String(nid), title, body, createdAt: now, read:false }); saveNotifs(list); refreshNotifBadge(); }catch(e){} }
+    (function(){
+      const K_FLASH='petopia_flash_ids';
+      const K_VOUCH='petopia_voucher_ids';
+      const K_PRODS='petopia_product_ids';
+      const K_ORDMAP='petopia_order_status_map';
+      async function pollFlashSales(){ try{ const r=await fetch('/flash_sales/public'); const items=await r.json(); const prev=new Set(getCache(K_FLASH,[])||[]); const nowIds=[]; (Array.isArray(items)?items:[]).forEach(x=>{ nowIds.push(x.id); if(!prev.has(x.id)){ addNotificationOnce('fs-'+x.id,'Flash Sale',`${x.title||'A product'} is now on sale`); } }); setCache(K_FLASH, nowIds);}catch(e){} }
+      async function pollVouchers(){ try{ const r=await fetch('/vouchers/public'); const items=await r.json(); const prev=new Set(getCache(K_VOUCH,[])||[]); const nowIds=[]; (Array.isArray(items)?items:[]).forEach(v=>{ nowIds.push(v.id); if(!prev.has(v.id)){ addNotificationOnce('v-'+v.id,'New voucher',`New voucher from ${v.storeName||'a seller'}: ${v.code||''}`); } }); setCache(K_VOUCH, nowIds);}catch(e){} }
+      function pollNewProducts(){ try{ const products = Array.isArray(window.allProductsData)? window.allProductsData : []; if(!products.length){ setCache(K_PRODS, getCache(K_PRODS,[])||[]); return; } const prev=new Set(getCache(K_PRODS,[])||[]); const nowIds=[]; products.forEach(p=>{ nowIds.push(p.id); if(!prev.has(p.id)){ const name=(p.title||p.name||'New product'); const store=p.store_name?` from ${p.store_name}`:''; addNotificationOnce('np-'+p.id,'New product',`${name}${store}`); } }); setCache(K_PRODS, nowIds);}catch(e){} }
+      async function pollOrders(){ try{ const r=await fetch('/orders/mine'); const orders=await r.json(); const map=getCache(K_ORDMAP,{})||{}; const nextMap={}; const entries=[]; (Array.isArray(orders)?orders:[]).forEach(o=>{ const segs=Array.isArray(o.segments)?o.segments:[]; if(segs.length){ segs.forEach(seg=> entries.push({ key:`${o.id}-${seg.sellerId}`, orderId:o.id, status:String(seg.status||'') })); } else { entries.push({ key:String(o.id), orderId:o.id, status:String(o.status||'') }); } }); entries.forEach(e=>{ const prevStatus=map[e.key]; nextMap[e.key]=e.status; if(prevStatus && prevStatus!==e.status){ addNotificationOnce('ord-'+e.key+'-'+e.status,'Order update',`Order #${e.orderId} status changed to ${e.status.replace('_',' ')}`); } if(e.status==='completed' && prevStatus!=='completed'){ addNotificationOnce('rev-'+e.key,'Review reminder',`Please review your Order #${e.orderId}.`); } }); setCache(K_ORDMAP, nextMap);}catch(e){} }
+      document.addEventListener('DOMContentLoaded', function(){ setTimeout(()=>{ try{ pollNewProducts(); }catch(e){} }, 500); pollFlashSales(); pollVouchers(); pollOrders(); setInterval(pollFlashSales,30000); setInterval(pollVouchers,30000); setInterval(pollNewProducts,30000); setInterval(pollOrders,30000); });
+    })();
+
+    // Messages: e-commerce style inbox (conversation list + chat view) - API-based
+    let conversationsCache = [];
+    let messagesCache = {};
+    
+    async function fetchConvos(){
+      try{
+        const res = await fetch('/messages/conversations');
+        if (!res.ok) throw new Error('Failed to fetch conversations');
+        const data = await res.json();
+        conversationsCache = Array.isArray(data) ? data : [];
+        return conversationsCache;
+      }catch(e){
+        console.error('Error fetching conversations:', e);
+        return [];
+      }
+    }
+    
+    async function fetchConvMsgs(convId){
+      try{
+        const res = await fetch(`/messages/conversations/${convId}`);
+        if (!res.ok) throw new Error('Failed to fetch messages');
+        const data = await res.json();
+        messagesCache[convId] = Array.isArray(data) ? data : [];
+        return messagesCache[convId];
+      }catch(e){
+        console.error('Error fetching messages:', e);
+        return [];
+      }
+    }
+    
+    async function sendMessageToAPI(convId, text){
+      try{
+        const res = await fetch('/messages/send', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ conversationId: convId, message: text })
+        });
+        if (!res.ok) throw new Error('Failed to send message');
+        return await res.json();
+      }catch(e){
+        console.error('Error sending message:', e);
+        throw e;
+      }
+    }
+    
+    async function markMessagesRead(convId){
+      try{
+        await fetch('/messages/mark-read', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ conversationId: convId })
+        });
+      }catch(e){
+        console.error('Error marking messages as read:', e);
+      }
+    }
+    
+    function totalUnread(){ return conversationsCache.reduce((s,c)=> s + (c.unreadCount||0), 0); }
+    function refreshMsgBadge(){ const b=document.getElementById('msgBadge'); if(!b) return; const c=totalUnread(); b.textContent=c; b.style.display=c>0?'block':'none'; }
+    
+    // Initial badge refresh
+    fetchConvos().then(() => refreshMsgBadge());
+    
+    (function(){
+      const btn = document.getElementById('msgBtn'); if(!btn) return;
+      const panel = document.createElement('div');
+      panel.id='msgPanel'; panel.style.position='fixed'; panel.style.width='420px'; panel.style.maxHeight='70vh'; panel.style.display='none'; panel.style.zIndex='200'; panel.style.background='var(--panel-strong)'; panel.style.border='1px solid rgba(11,15,26,.08)'; panel.style.borderRadius='12px'; panel.style.boxShadow='var(--glass-shadow)'; panel.style.overflow='hidden';
+      panel.innerHTML = '<div id="msgArrowWrap" style="position:absolute;top:-10px;right:20px;width:0;height:0;">\
+        <div style="position:absolute;top:-1px;right:-1px;width:0;height:0;border-left:9px solid transparent;border-right:9px solid transparent;border-bottom:9px solid rgba(11,15,26,.08);"></div>\
+        <div style="position:relative;width:0;height:0;border-left:8px solid transparent;border-right:8px solid transparent;border-bottom:8px solid var(--panel-strong);"></div>\
+      </div>\
+      <div id="msgHeader" style="padding:12px 12px 10px 12px;display:flex;align-items:center;gap:8px;justify-content:space-between;border-bottom:1px solid rgba(11,15,26,.08);">\
+        <div style="display:flex;align-items:center;gap:8px;">\
+          <button id="msgBackBtn" class="btn" style="display:none;padding:6px 10px;border-radius:8px;border:1px solid rgba(11,15,26,.1);background:#fff;font-weight:800;color:#23272f;cursor:pointer">←</button>\
+          <div id="msgTitle" style="font-weight:800;color:#23272f;">Messages</div>\
+        </div>\
+        <div id="msgHeaderActions">\
+          <button id="clearMsgs" class="btn" style="padding:6px 10px;border-radius:8px;border:1px solid rgba(11,15,26,.1);background:#fff;font-weight:700;color:#23272f;cursor:pointer">Clear</button>\
+          <button id="markAllMsgRead" class="btn" style="padding:6px 10px;border-radius:8px;border:1px solid rgba(11,15,26,.1);background:#fff;font-weight:700;color:#23272f;cursor:pointer">Mark all read</button>\
+          <button id="customerServiceBtn" class="icon-btn" title="Customer Service" aria-label="Customer Service" style="font-size:1.2rem;padding:6px;border:none;background:transparent;cursor:pointer;color:var(--text);">\
+            <i class="fa-solid fa-headset"></i>\
+          </button>\
+        </div>\
+      </div>\
+      <div id="inboxView" style="display:grid;gap:0;max-height:calc(70vh - 56px);overflow-y:auto;background:#fff;">\
+        <!-- conversation items injected here -->\
+      </div>\
+      <div id="chatView" style="display:none;max-height:58vh;grid-template-rows:auto 1fr auto;">\
+        <div id="chatList" style="padding:12px;display:grid;gap:8px;overflow-y:auto;background:#fff;max-height:48vh;"></div>\
+        <div style="padding:10px;border-top:1px solid #e5e8f0;background:var(--panel-strong);display:flex;gap:8px;align-items:center;">\
+          <input id="chatInput" class="input" placeholder="Type a message..." style="flex:1;border-radius:999px;">\
+          <button id="sendChatBtn" class="cta" style="min-width:auto;padding:8px 14px;border-radius:999px;">Send</button>\
+        </div>\
+      </div>';
+      document.body.appendChild(panel);
+
+      let currentConvId = null;
+      let bc = null; try { bc = new BroadcastChannel('petopia_msgs'); bc.onmessage = (ev)=>{ if (ev?.data?.type==='msgs_update'){ refreshMsgBadge(); if (panel.style.display==='block'){ if (currentConvId) renderChat(); else renderInbox(); } } }; } catch(e) {}
+
+      function placePanel(){
+        const rect = btn.getBoundingClientRect();
+        const width = Math.min(420, Math.max(280, Math.floor(window.innerWidth * 0.95)));
+        panel.style.width = width + 'px';
+        const margin = 12; const top = rect.bottom + 8; let left = rect.right - width;
+        left = Math.max(margin, Math.min(left, window.innerWidth - margin - width));
+        panel.style.top = top + 'px'; panel.style.left = left + 'px';
+        const arrowWrap = panel.querySelector('#msgArrowWrap');
+        const rightOffset = Math.max(12, Math.min(width - 24, width - (rect.right - left) - 12));
+        arrowWrap.style.right = rightOffset + 'px';
+      }
+
+      function snippet(text){ const t=String(text||''); return t.length>40? t.slice(0,40)+'…' : t; }
+      function timeStr(ts){ return new Date(ts).toLocaleTimeString(); }
+
+      async function renderInbox(){
+        currentConvId = null;
+        document.getElementById('msgTitle').textContent = 'Messages';
+        document.getElementById('msgBackBtn').style.display = 'none';
+        document.getElementById('msgHeaderActions').style.display = 'block';
+        document.getElementById('chatView').style.display = 'none';
+        const wrap = document.getElementById('inboxView');
+        wrap.style.display = 'block';
+        wrap.innerHTML = '<div style="color:var(--muted);font-weight:700;text-align:center;padding:20px;">Loading...</div>';
+        
+        const convos = await fetchConvos();
+        conversationsCache = convos;
+        refreshMsgBadge();
+        
+        if (!convos.length){ 
+          wrap.innerHTML = '<div style="color:var(--muted);font-weight:700;text-align:center;padding:20px;">No conversations</div>'; 
+          return; 
+        }
+        
+        const sorted = convos.slice().sort((a,b)=> (b.updatedAt||0)-(a.updatedAt||0));
+        wrap.innerHTML = sorted.map(c=>{
+          // Replace "Petopia Admin" with "Customer Service"
+          const displayName = (c.name === 'Petopia Admin' || c.name === 'petopia admin') ? 'Customer Service' : c.name;
+          const badge = c.unreadCount>0 ? `<span style="background:#ef4444;color:#fff;border-radius:999px;padding:2px 8px;font-weight:800;font-size:.75rem;">${c.unreadCount}</span>` : '';
+          return `<button class="conv-item" data-id="${c.id}" style="text-align:left;display:flex;gap:10px;align-items:center;width:100%;padding:10px 12px;border:none;background:#fff;cursor:pointer;border-bottom:1px solid #e5e8f0;">\
+            <img src="${c.avatar}" alt="${displayName}" style="width:36px;height:36px;border-radius:50%;object-fit:cover;box-shadow:0 2px 8px #eef;">\
+            <div style="flex:1;min-width:0;">\
+              <div style="display:flex;justify-content:space-between;align-items:center;gap:8px;">\
+                <div style="font-weight:800;color:#23272f;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${displayName}</div>\
+                <div style="color:var(--muted);font-size:.8rem;">${timeStr(c.updatedAt||Date.now())}</div>\
+              </div>\
+              <div style="display:flex;justify-content:space-between;align-items:center;gap:8px;">\
+                <div style="color:${c.unreadCount>0?'#23272f':'var(--muted)'};font-weight:700;font-size:.9rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${snippet(c.lastMessage||'')}</div>\
+                ${badge}\
+              </div>\
+            </div>\
+          </button>`; 
+        }).join('');
+      }
+
+      async function renderChat(){
+        if (!currentConvId) return;
+        const conv = conversationsCache.find(c=>c.id===currentConvId); 
+        if (!conv) { renderInbox(); return; }
+        // Replace "Petopia Admin" with "Customer Service"
+        const displayName = (conv.name === 'Petopia Admin' || conv.name === 'petopia admin') ? 'Customer Service' : conv.name;
+        document.getElementById('msgTitle').textContent = displayName;
+        document.getElementById('msgBackBtn').style.display = 'inline-flex';
+        document.getElementById('msgHeaderActions').style.display = 'none';
+        document.getElementById('inboxView').style.display = 'none';
+        const chat = document.getElementById('chatView'); chat.style.display = 'grid';
+        const list = document.getElementById('chatList');
+        list.innerHTML = '<div style="color:var(--muted);font-weight:700;text-align:center;padding:20px;">Loading...</div>';
+        
+        const items = await fetchConvMsgs(currentConvId);
+        messagesCache[currentConvId] = items;
+        
+        // Mark messages as read
+        await markMessagesRead(currentConvId);
+        
+        // Update conversation unreadCount in cache
+        const idx = conversationsCache.findIndex(c=>c.id===currentConvId);
+        if (idx>-1){ conversationsCache[idx].unreadCount = 0; }
+        refreshMsgBadge();
+        
+        if (!items.length){ 
+          list.innerHTML = '<div style="color:var(--muted);font-weight:700;text-align:center;padding:20px;">No messages yet</div>'; 
+        } else {
+          list.innerHTML = items.map(m=>{
+            const isIn = m.direction==='in';
+            const bubbleBg = isIn ? 'rgba(139,182,255,.12)' : 'rgba(124,244,209,.15)';
+            const border = isIn ? '1px solid rgba(139,182,255,.35)' : '1px solid rgba(124,244,209,.45)';
+            const justify = isIn ? 'flex-start' : 'flex-end';
+            return `<div style="display:flex;justify-content:${justify};">\
+              <div style="max-width:78%;background:${bubbleBg};border:${border};border-radius:12px;padding:8px 10px;overflow:hidden;word-wrap:break-word;overflow-wrap:break-word;word-break:break-word;">\
+                <div style="font-weight:700;font-size:.95rem;color:#23272f;white-space:pre-wrap;word-wrap:break-word;overflow-wrap:break-word;word-break:break-word;">${String(m.body).replace(/</g,'&lt;')}</div>\
+                <div style="color:var(--muted);font-size:.75rem;margin-top:4px;">${timeStr(m.createdAt)}</div>\
+              </div>\
+            </div>`;
+          }).join('');
+        }
+        list.scrollTop = list.scrollHeight;
+      }
+
+      function openConv(id){ currentConvId = id; renderChat(); }
+
+      async function sendChat(text){
+        const t = text.trim(); if (!t || !currentConvId) return;
+        
+        try {
+          // Send message to API
+          await sendMessageToAPI(currentConvId, t);
+          
+          // Refresh messages and conversations
+          await fetchConvMsgs(currentConvId);
+          await fetchConvos();
+          refreshMsgBadge();
+          
+          // Re-render chat
+          await renderChat();
+        } catch(e) {
+          alert('Failed to send message. Please try again.');
+          console.error(e);
+        }
+      }
+
+      // wire events
+      btn.addEventListener('click', function(){
+        const willShow = panel.style.display==='none';
+        panel.style.display = willShow ? 'block' : 'none';
+        if (willShow) { placePanel(); }
+        if (panel.style.display==='block'){
+          if (currentConvId) renderChat(); else renderInbox();
+        }
+      });
+      document.addEventListener('click', function(e){ if (!panel.contains(e.target) && e.target !== btn && !btn.contains(e.target)) panel.style.display = 'none'; });
+      window.addEventListener('resize', ()=>{ if (panel.style.display==='block') placePanel(); });
+      window.addEventListener('scroll', ()=>{ if (panel.style.display==='block') placePanel(); }, { passive:true });
+
+      panel.addEventListener('click', function(e){
+        const item = e.target.closest('.conv-item'); if (item){ openConv(Number(item.dataset.id)); return; }
+      });
+      document.getElementById('msgBackBtn').addEventListener('click', function(){ currentConvId=null; renderInbox(); });
+      document.getElementById('markAllMsgRead').addEventListener('click', async function(){
+        // Mark all conversations as read
+        for (const conv of conversationsCache) {
+          await markMessagesRead(conv.id);
+        }
+        await fetchConvos();
+        refreshMsgBadge();
+        renderInbox();
+      });
+      document.getElementById('clearMsgs').addEventListener('click', function(){
+        // Clear is not supported via API (conversations persist in DB)
+        alert('Conversations are stored in the database. To clear, please contact support.');
+      });
+      
+      // Customer Service button wiring
+      (function wireCustomerServiceConvo(){
+        const csBtn = panel.querySelector && panel.querySelector('#customerServiceBtn');
+        if (!csBtn) return;
+        let inFlight = false;
+        csBtn.addEventListener('click', async function(e){
+          e.preventDefault(); e.stopPropagation();
+          if (inFlight) return;
+          inFlight = true;
+          const icon = this.querySelector('i');
+          if (icon) icon.classList.add('fa-spin');
+          try {
+            const res = await fetch('/messages/customer-service', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              credentials: 'same-origin'
+            });
+            let data = {};
+            try { data = await res.json(); } catch(_) {}
+            if (!res.ok || !data.success) {
+              throw new Error(data && data.error ? data.error : 'Failed to contact customer service');
+            }
+
+            await fetchConvos();
+            refreshMsgBadge();
+
+            const convId = Number(data.conversationId);
+            if (convId) {
+              placePanel();
+              openConv(convId);
+            } else {
+              await renderInbox();
+            }
+          } catch(err) {
+            console.error('Failed to open customer service conversation:', err);
+            alert('Unable to contact Customer Service right now. Please try again later.');
+          } finally {
+            if (icon) icon.classList.remove('fa-spin');
+            inFlight = false;
+          }
+        });
+      })();
+      document.getElementById('sendChatBtn').addEventListener('click', function(){ const inp=document.getElementById('chatInput'); const v=inp.value; inp.value=''; sendChat(v); });
+      document.getElementById('chatInput').addEventListener('keydown', function(e){ if (e.key==='Enter'){ e.preventDefault(); const v=this.value; this.value=''; sendChat(v); }});
+
+      // Poll for new messages every 10 seconds (always, to update badge)
+      let pollInterval = null;
+      function startPolling(){
+        if (pollInterval) return;
+        pollInterval = setInterval(async ()=>{
+          await fetchConvos();
+          refreshMsgBadge();
+          if (panel.style.display==='block'){
+            if (currentConvId) {
+              await fetchConvMsgs(currentConvId);
+              await renderChat();
+            } else {
+              await renderInbox();
+            }
+          }
+        }, 10000);
+      }
+      function stopPolling(){
+        if (pollInterval) {
+          clearInterval(pollInterval);
+          pollInterval = null;
+        }
+      }
+      // Start polling immediately to keep badge updated
+      startPolling();
+      btn.addEventListener('click', function(){
+        if (panel.style.display==='block') {
+          // Ensure polling is active when panel opens
+          if (!pollInterval) startPolling();
+        }
+      });
+    })();
+    (function(){
+      const btn = document.getElementById('notifBtn'); if(!btn) return;
+      const panel = document.createElement('div');
+      panel.id = 'notifPanel'; panel.style.position='fixed'; panel.style.width='360px'; panel.style.maxHeight='60vh'; panel.style.overflowY='auto'; panel.style.background='var(--panel-strong)'; panel.style.border='1px solid rgba(11,15,26,.08)'; panel.style.borderRadius='12px'; panel.style.boxShadow='var(--glass-shadow)'; panel.style.display='none'; panel.style.zIndex='200';
+      panel.innerHTML = '<div id="notifArrowWrap" style="position:absolute;top:-10px;right:20px; width:0;height:0;">\
+        <div style="position:absolute;top:-1px;right:-1px; width:0;height:0;border-left:9px solid transparent;border-right:9px solid transparent;border-bottom:9px solid rgba(11,15,26,.08);"></div>\
+        <div style="position:relative; width:0;height:0;border-left:8px solid transparent;border-right:8px solid transparent;border-bottom:8px solid var(--panel-strong);"></div>\
+      </div>\
+      <div style="padding:12px 12px 8px 12px; display:flex; justify-content:space-between; align-items:center;"><div style="font-weight:800;color:#23272f">Notifications</div><div><button id="clearNotifs" class="btn" style="padding:6px 10px;border-radius:8px;border:1px solid rgba(11,15,26,.1);background:#fff;font-weight:700;color:#23272f;cursor:pointer">Clear</button> <button id="markAllRead" class="btn" style="padding:6px 10px;border-radius:8px;border:1px solid rgba(11,15,26,.1);background:#fff;font-weight:700;color:#23272f;cursor:pointer">Mark all read</button></div></div><div id="notifList" style="padding:8px 12px 12px 12px; display:grid; gap:8px;"></div>';
+      document.body.appendChild(panel);
+      function renderNotifs(){
+        const list = document.getElementById('notifList');
+        const items = loadNotifs().slice().sort((a,b)=>b.createdAt-a.createdAt);
+        if (!items.length){
+          list.innerHTML = '<div style="color:var(--muted);font-weight:700;text-align:center;padding:20px;">No notifications</div>';
+          return;
+        }
+        list.innerHTML = items.map(n=>{
+          const unread = !n.read;
+          const itemStyle = unread
+            ? 'background:rgba(139,182,255,.12);border:1px solid rgba(139,182,255,.35);'
+            : 'background:#fff;border:1px solid #e5e8f0;opacity:.65;';
+          const bodyColor = unread ? '#23272f' : 'var(--muted)';
+          return `<div style="${itemStyle};border-radius:10px;padding:10px;">
+            <div style="font-weight:800;color:#23272f;">${n.title}</div>
+            <div style="color:${bodyColor};font-weight:700;font-size:.9rem;">${n.body}</div>
+            <div style="color:var(--muted);font-size:.8rem;margin-top:4px;">${new Date(n.createdAt).toLocaleString()}</div>
+          </div>`;
+        }).join('');
+      }
+      function placePanelBelowBell(){ const rect = btn.getBoundingClientRect(); const width = Math.min(360, Math.max(260, Math.floor(window.innerWidth * 0.9))); panel.style.width = width + 'px'; const margin = 12; const top = rect.bottom + 8; let left = rect.right - width; left = Math.max(margin, Math.min(left, window.innerWidth - margin - width)); panel.style.top = top + 'px'; panel.style.left = left + 'px'; const arrowWrap = panel.querySelector('#notifArrowWrap'); const rightOffset = Math.max(12, Math.min(width - 24, width - (rect.right - left) - 12)); arrowWrap.style.right = rightOffset + 'px'; }
+      btn.addEventListener('click', function(){
+        const willShow = panel.style.display==='none';
+        panel.style.display = willShow ? 'block' : 'none';
+        if (willShow) { placePanelBelowBell(); }
+        if (panel.style.display==='block'){
+          // Only render; do not auto-mark as read
+          refreshNotifBadge();
+          renderNotifs();
+        }
+      });
+      document.addEventListener('click', function(e){ if (!panel.contains(e.target) && e.target !== btn && !btn.contains(e.target)) panel.style.display = 'none'; });
+      panel.querySelector('#markAllRead').addEventListener('click', function(){ const n = loadNotifs().map(x=>({...x, read:true})); saveNotifs(n); refreshNotifBadge(); renderNotifs(); });
+      panel.querySelector('#clearNotifs').addEventListener('click', function(){ saveNotifs([]); refreshNotifBadge(); renderNotifs(); });
+      window.addEventListener('resize', ()=>{ if (panel.style.display==='block') placePanelBelowBell(); });
+      window.addEventListener('scroll', ()=>{ if (panel.style.display==='block') placePanelBelowBell(); }, { passive:true });
+    })();
+
+// About Petopia modal function
+function showAboutPetopiaModal() {
+  const div = document.createElement('div');
+  div.id = 'aboutPetopiaModal';
+  div.style = 'position:fixed;top:0;left:0;width:100vw;height:100vh;z-index:9999;background:rgba(0,0,0,.25);backdrop-filter:blur(2px);display:flex;align-items:center;justify-content:center;';
+  div.innerHTML = `
+    <div style="background:rgba(255,255,255,.97);border-radius:18px;max-width:700px;width:90vw;max-height:85vh;box-shadow:0 10px 40px rgba(16,24,40,.22);position:relative;overflow:hidden;display:flex;flex-direction:column;">
+      <button id="closeAboutModal" style="position:absolute;top:16px;right:18px;background:none;border:none;font-size:2rem;cursor:pointer;z-index:2;color:#23272f;">&times;</button>
+      <div style="overflow-y:auto;padding:40px 32px;flex:1;">
+      <div style="text-align:center;margin-bottom:32px;">
+        <div style="width:80px;height:80px;border-radius:16px;background:linear-gradient(135deg,var(--accent),var(--accent-2));display:flex;align-items:center;justify-content:center;margin:0 auto 20px;box-shadow:0 8px 26px rgba(139,182,255,.15);">
+          <img src="{{ url_for('static', filename='logo/PETOPIA_LOGO.png') }}" alt="Petopia Logo" style="width:60px;height:60px;object-fit:contain;">
+        </div>
+        <h2 style="font-size:2rem;font-weight:800;color:#23272f;margin-bottom:8px;">About Petopia</h2>
+        <p style="color:var(--muted);font-weight:600;font-size:1.05rem;">Your trusted pet care marketplace</p>
+      </div>
+      <div style="color:#23272f;line-height:1.8;font-size:1rem;">
+        <div style="margin-bottom:24px;">
+          <h3 style="font-size:1.3rem;font-weight:800;color:#23272f;margin-bottom:12px;display:flex;align-items:center;gap:8px;">
+            <i class="fa-solid fa-heart" style="color:var(--accent-2);"></i>
+            Our Mission
+          </h3>
+          <p style="color:#5b6378;font-weight:600;margin-bottom:12px;">
+            At Petopia, we believe that every pet deserves the best care and products. Our mission is to connect pet owners with quality pet supplies, trusted sellers, and exceptional service, making pet care accessible and convenient for everyone.
+          </p>
+        </div>
+        <div style="margin-bottom:24px;">
+          <h3 style="font-size:1.3rem;font-weight:800;color:#23272f;margin-bottom:12px;display:flex;align-items:center;gap:8px;">
+            <i class="fa-solid fa-star" style="color:var(--accent-2);"></i>
+            What We Offer
+          </h3>
+          <ul style="color:#5b6378;font-weight:600;margin-left:20px;line-height:2;">
+            <li>Wide selection of pet food, treats, and supplies</li>
+            <li>Health and wellness products for all pet types</li>
+            <li>Grooming and hygiene essentials</li>
+            <li>Toys, accessories, and entertainment items</li>
+            <li>Trusted sellers and official stores</li>
+            <li>Fast and reliable delivery service</li>
+          </ul>
+        </div>
+        <div style="margin-bottom:24px;">
+          <h3 style="font-size:1.3rem;font-weight:800;color:#23272f;margin-bottom:12px;display:flex;align-items:center;gap:8px;">
+            <i class="fa-solid fa-shield-halved" style="color:var(--accent-2);"></i>
+            Why Choose Petopia
+          </h3>
+          <p style="color:#5b6378;font-weight:600;margin-bottom:12px;">
+            We are committed to providing a safe, secure, and user-friendly platform where pet owners can find everything they need for their furry, feathered, or scaled friends. With verified sellers, quality products, and excellent customer service, Petopia is your one-stop shop for all pet care needs.
+          </p>
+        </div>
+        <div style="background:rgba(139,182,255,.08);border-radius:12px;padding:20px;margin-top:32px;border:1px solid rgba(139,182,255,.2);">
+          <p style="color:#23272f;font-weight:700;font-size:1.05rem;margin-bottom:8px;text-align:center;">
+            <i class="fa-solid fa-paw" style="color:var(--accent-2);margin-right:8px;"></i>
+            Join thousands of happy pet owners who trust Petopia
+          </p>
+          <p style="color:var(--muted);font-weight:600;font-size:0.95rem;text-align:center;">
+            Start shopping today and give your pet the care they deserve!
+          </p>
+        </div>
+      </div>
+      </div>
+    </div>
+  `;
+  document.body.appendChild(div);
+  
+  // Close button handler
+  document.getElementById('closeAboutModal').addEventListener('click', function() {
+    div.remove();
+  });
+  
+  // Close when clicking outside
+  div.addEventListener('click', function(e) {
+    if (e.target === div) {
+      div.remove();
+    }
+  });
+  
+  // Close on Escape key
+  const escapeHandler = function(e) {
+    if (e.key === 'Escape') {
+      div.remove();
+      document.removeEventListener('keydown', escapeHandler);
+    }
+  };
+  document.addEventListener('keydown', escapeHandler);
+}
+
+// Careers modal function
+function showCareersModal() {
+  const div = document.createElement('div');
+  div.id = 'careersModal';
+  div.style = 'position:fixed;top:0;left:0;width:100vw;height:100vh;z-index:9999;background:rgba(0,0,0,.25);backdrop-filter:blur(2px);display:flex;align-items:center;justify-content:center;';
+  div.innerHTML = `
+    <div style="background:rgba(255,255,255,.97);border-radius:18px;max-width:700px;width:90vw;max-height:85vh;box-shadow:0 10px 40px rgba(16,24,40,.22);position:relative;overflow:hidden;display:flex;flex-direction:column;">
+      <button id="closeCareersModal" style="position:absolute;top:16px;right:18px;background:none;border:none;font-size:2rem;cursor:pointer;z-index:2;color:#23272f;">&times;</button>
+      <div style="overflow-y:auto;padding:40px 32px;flex:1;">
+      <div style="text-align:center;margin-bottom:32px;">
+        <div style="width:80px;height:80px;border-radius:16px;background:linear-gradient(135deg,var(--accent),var(--accent-2));display:flex;align-items:center;justify-content:center;margin:0 auto 20px;box-shadow:0 8px 26px rgba(139,182,255,.15);">
+          <i class="fa-solid fa-briefcase" style="font-size:2.5rem;color:#051014;"></i>
+        </div>
+        <h2 style="font-size:2rem;font-weight:800;color:#23272f;margin-bottom:8px;">Careers at Petopia</h2>
+        <p style="color:var(--muted);font-weight:600;font-size:1.05rem;">Join our growing team</p>
+      </div>
+      <div style="color:#23272f;line-height:1.8;font-size:1rem;">
+        <div style="margin-bottom:24px;">
+          <h3 style="font-size:1.3rem;font-weight:800;color:#23272f;margin-bottom:12px;display:flex;align-items:center;gap:8px;">
+            <i class="fa-solid fa-users" style="color:var(--accent-2);"></i>
+            Why Work With Us
+          </h3>
+          <p style="color:#5b6378;font-weight:600;margin-bottom:12px;">
+            At Petopia, we're building a platform that makes pet care accessible to everyone. We're looking for passionate individuals who share our love for pets and want to make a difference in the pet care industry.
+          </p>
+        </div>
+        <div style="margin-bottom:24px;">
+          <h3 style="font-size:1.3rem;font-weight:800;color:#23272f;margin-bottom:12px;display:flex;align-items:center;gap:8px;">
+            <i class="fa-solid fa-list-check" style="color:var(--accent-2);"></i>
+            Open Positions
+          </h3>
+          <ul style="color:#5b6378;font-weight:600;margin-left:20px;line-height:2;">
+            <li>Software Engineer - Full Stack Development</li>
+            <li>Product Designer - UX/UI Design</li>
+            <li>Marketing Specialist - Digital Marketing</li>
+            <li>Customer Support Representative</li>
+            <li>Business Development Manager</li>
+            <li>Data Analyst - E-commerce Analytics</li>
+          </ul>
+        </div>
+        <div style="margin-bottom:24px;">
+          <h3 style="font-size:1.3rem;font-weight:800;color:#23272f;margin-bottom:12px;display:flex;align-items:center;gap:8px;">
+            <i class="fa-solid fa-gift" style="color:var(--accent-2);"></i>
+            Benefits & Perks
+          </h3>
+          <ul style="color:#5b6378;font-weight:600;margin-left:20px;line-height:2;">
+            <li>Competitive salary and performance bonuses</li>
+            <li>Health insurance and wellness programs</li>
+            <li>Flexible work arrangements</li>
+            <li>Professional development opportunities</li>
+            <li>Pet-friendly office environment</li>
+            <li>Team building activities and events</li>
+          </ul>
+        </div>
+        <div style="background:rgba(139,182,255,.08);border-radius:12px;padding:20px;margin-top:32px;border:1px solid rgba(139,182,255,.2);">
+          <p style="color:#23272f;font-weight:700;font-size:1.05rem;margin-bottom:8px;text-align:center;">
+            <i class="fa-solid fa-envelope" style="color:var(--accent-2);margin-right:8px;"></i>
+            Interested in joining our team?
+          </p>
+          <p style="color:var(--muted);font-weight:600;font-size:0.95rem;text-align:center;">
+            Send your resume to <strong>vpetopia@gmail.com</strong>
+          </p>
+        </div>
+      </div>
+      </div>
+    </div>
+  `;
+  document.body.appendChild(div);
+  
+  // Close button handler
+  document.getElementById('closeCareersModal').addEventListener('click', function() {
+    div.remove();
+  });
+  
+  // Close when clicking outside
+  div.addEventListener('click', function(e) {
+    if (e.target === div) {
+      div.remove();
+    }
+  });
+  
+  // Close on Escape key
+  const escapeHandler = function(e) {
+    if (e.key === 'Escape') {
+      div.remove();
+      document.removeEventListener('keydown', escapeHandler);
+    }
+  };
+  document.addEventListener('keydown', escapeHandler);
+}
+
+// Blog modal function
+function showBlogModal() {
+  const div = document.createElement('div');
+  div.id = 'blogModal';
+  div.style = 'position:fixed;top:0;left:0;width:100vw;height:100vh;z-index:9999;background:rgba(0,0,0,.25);backdrop-filter:blur(2px);display:flex;align-items:center;justify-content:center;';
+  div.innerHTML = `
+    <div style="background:rgba(255,255,255,.97);border-radius:18px;max-width:700px;width:90vw;max-height:85vh;box-shadow:0 10px 40px rgba(16,24,40,.22);position:relative;overflow:hidden;display:flex;flex-direction:column;">
+      <button id="closeBlogModal" style="position:absolute;top:16px;right:18px;background:none;border:none;font-size:2rem;cursor:pointer;z-index:2;color:#23272f;">&times;</button>
+      <div style="overflow-y:auto;padding:40px 32px;flex:1;">
+      <div style="text-align:center;margin-bottom:32px;">
+        <div style="width:80px;height:80px;border-radius:16px;background:linear-gradient(135deg,var(--accent),var(--accent-2));display:flex;align-items:center;justify-content:center;margin:0 auto 20px;box-shadow:0 8px 26px rgba(139,182,255,.15);">
+          <i class="fa-solid fa-blog" style="font-size:2.5rem;color:#051014;"></i>
+        </div>
+        <h2 style="font-size:2rem;font-weight:800;color:#23272f;margin-bottom:8px;">Petopia Blog</h2>
+        <p style="color:var(--muted);font-weight:600;font-size:1.05rem;">Pet care tips, news, and insights</p>
+      </div>
+      <div style="color:#23272f;line-height:1.8;font-size:1rem;">
+        <div style="margin-bottom:24px;">
+          <h3 style="font-size:1.3rem;font-weight:800;color:#23272f;margin-bottom:12px;display:flex;align-items:center;gap:8px;">
+            <i class="fa-solid fa-book-open" style="color:var(--accent-2);"></i>
+            Latest Articles
+          </h3>
+          <div style="display:grid;gap:16px;margin-bottom:16px;">
+            <div style="background:rgba(139,182,255,.05);border-radius:10px;padding:16px;border-left:4px solid var(--accent-2);">
+              <h4 style="font-weight:800;color:#23272f;margin-bottom:6px;font-size:1.1rem;">10 Essential Pet Care Tips for New Pet Owners</h4>
+              <p style="color:#5b6378;font-weight:600;font-size:0.95rem;margin-bottom:8px;">Learn the basics of pet care to ensure your furry friend stays healthy and happy.</p>
+              <span style="color:var(--muted);font-size:0.85rem;font-weight:600;">Published: January 15, 2024</span>
+            </div>
+            <div style="background:rgba(139,182,255,.05);border-radius:10px;padding:16px;border-left:4px solid var(--accent-2);">
+              <h4 style="font-weight:800;color:#23272f;margin-bottom:6px;font-size:1.1rem;">Understanding Your Pet's Nutritional Needs</h4>
+              <p style="color:#5b6378;font-weight:600;font-size:0.95rem;margin-bottom:8px;">A comprehensive guide to choosing the right food for your pet's age and breed.</p>
+              <span style="color:var(--muted);font-size:0.85rem;font-weight:600;">Published: January 8, 2024</span>
+            </div>
+            <div style="background:rgba(139,182,255,.05);border-radius:10px;padding:16px;border-left:4px solid var(--accent-2);">
+              <h4 style="font-weight:800;color:#23272f;margin-bottom:6px;font-size:1.1rem;">Pet Grooming: A Complete Guide</h4>
+              <p style="color:#5b6378;font-weight:600;font-size:0.95rem;margin-bottom:8px;">Everything you need to know about keeping your pet clean and well-groomed.</p>
+              <span style="color:var(--muted);font-size:0.85rem;font-weight:600;">Published: January 1, 2024</span>
+            </div>
+          </div>
+        </div>
+        <div style="margin-bottom:24px;">
+          <h3 style="font-size:1.3rem;font-weight:800;color:#23272f;margin-bottom:12px;display:flex;align-items:center;gap:8px;">
+            <i class="fa-solid fa-tags" style="color:var(--accent-2);"></i>
+            Popular Topics
+          </h3>
+          <div style="display:flex;flex-wrap:wrap;gap:8px;">
+            <span style="background:rgba(139,182,255,.1);color:#23272f;padding:6px 14px;border-radius:20px;font-weight:600;font-size:0.9rem;">Pet Health</span>
+            <span style="background:rgba(139,182,255,.1);color:#23272f;padding:6px 14px;border-radius:20px;font-weight:600;font-size:0.9rem;">Training Tips</span>
+            <span style="background:rgba(139,182,255,.1);color:#23272f;padding:6px 14px;border-radius:20px;font-weight:600;font-size:0.9rem;">Nutrition</span>
+            <span style="background:rgba(139,182,255,.1);color:#23272f;padding:6px 14px;border-radius:20px;font-weight:600;font-size:0.9rem;">Grooming</span>
+            <span style="background:rgba(139,182,255,.1);color:#23272f;padding:6px 14px;border-radius:20px;font-weight:600;font-size:0.9rem;">Pet Products</span>
+            <span style="background:rgba(139,182,255,.1);color:#23272f;padding:6px 14px;border-radius:20px;font-weight:600;font-size:0.9rem;">Pet Care</span>
+          </div>
+        </div>
+        <div style="background:rgba(139,182,255,.08);border-radius:12px;padding:20px;margin-top:32px;border:1px solid rgba(139,182,255,.2);">
+          <p style="color:#23272f;font-weight:700;font-size:1.05rem;margin-bottom:8px;text-align:center;">
+            <i class="fa-solid fa-rss" style="color:var(--accent-2);margin-right:8px;"></i>
+            Stay Updated
+          </p>
+          <p style="color:var(--muted);font-weight:600;font-size:0.95rem;text-align:center;">
+            Subscribe to our newsletter for the latest pet care tips and updates!
+          </p>
+        </div>
+      </div>
+      </div>
+    </div>
+  `;
+  document.body.appendChild(div);
+  
+  // Close button handler
+  document.getElementById('closeBlogModal').addEventListener('click', function() {
+    div.remove();
+  });
+  
+  // Close when clicking outside
+  div.addEventListener('click', function(e) {
+    if (e.target === div) {
+      div.remove();
+    }
+  });
+  
+  // Close on Escape key
+  const escapeHandler = function(e) {
+    if (e.key === 'Escape') {
+      div.remove();
+      document.removeEventListener('keydown', escapeHandler);
+    }
+  };
+  document.addEventListener('keydown', escapeHandler);
+}
+
+// Help Center modal function
+function showHelpCenterModal() {
+  const div = document.createElement('div');
+  div.id = 'helpCenterModal';
+  div.style = 'position:fixed;top:0;left:0;width:100vw;height:100vh;z-index:9999;background:rgba(0,0,0,.25);backdrop-filter:blur(2px);display:flex;align-items:center;justify-content:center;';
+  div.innerHTML = `
+    <div style="background:rgba(255,255,255,.97);border-radius:18px;max-width:700px;width:90vw;max-height:85vh;box-shadow:0 10px 40px rgba(16,24,40,.22);position:relative;overflow:hidden;display:flex;flex-direction:column;">
+      <button id="closeHelpCenterModal" style="position:absolute;top:16px;right:18px;background:none;border:none;font-size:2rem;cursor:pointer;z-index:2;color:#23272f;">&times;</button>
+      <div style="overflow-y:auto;padding:40px 32px;flex:1;">
+      <div style="text-align:center;margin-bottom:32px;">
+        <div style="width:80px;height:80px;border-radius:16px;background:linear-gradient(135deg,var(--accent),var(--accent-2));display:flex;align-items:center;justify-content:center;margin:0 auto 20px;box-shadow:0 8px 26px rgba(139,182,255,.15);">
+          <i class="fa-solid fa-circle-question" style="font-size:2.5rem;color:#051014;"></i>
+        </div>
+        <h2 style="font-size:2rem;font-weight:800;color:#23272f;margin-bottom:8px;">Help Center</h2>
+        <p style="color:var(--muted);font-weight:600;font-size:1.05rem;">We're here to help you</p>
+      </div>
+      <div style="color:#23272f;line-height:1.8;font-size:1rem;">
+        <div style="margin-bottom:24px;">
+          <h3 style="font-size:1.3rem;font-weight:800;color:#23272f;margin-bottom:12px;display:flex;align-items:center;gap:8px;">
+            <i class="fa-solid fa-question-circle" style="color:var(--accent-2);"></i>
+            Frequently Asked Questions
+          </h3>
+          <div style="display:grid;gap:12px;">
+            <div style="background:rgba(139,182,255,.05);border-radius:10px;padding:16px;border-left:4px solid var(--accent-2);">
+              <h4 style="font-weight:800;color:#23272f;margin-bottom:6px;font-size:1.05rem;">How do I place an order?</h4>
+              <p style="color:#5b6378;font-weight:600;font-size:0.95rem;">Browse our products, add items to your cart, and proceed to checkout. You'll need to create an account or log in to complete your purchase.</p>
+            </div>
+            <div style="background:rgba(139,182,255,.05);border-radius:10px;padding:16px;border-left:4px solid var(--accent-2);">
+              <h4 style="font-weight:800;color:#23272f;margin-bottom:6px;font-size:1.05rem;">What payment methods do you accept?</h4>
+              <p style="color:#5b6378;font-weight:600;font-size:0.95rem;">We accept major credit cards, debit cards, and digital payment methods. All transactions are secure and encrypted.</p>
+            </div>
+            <div style="background:rgba(139,182,255,.05);border-radius:10px;padding:16px;border-left:4px solid var(--accent-2);">
+              <h4 style="font-weight:800;color:#23272f;margin-bottom:6px;font-size:1.05rem;">How long does shipping take?</h4>
+              <p style="color:#5b6378;font-weight:600;font-size:0.95rem;">Standard shipping typically takes 3-5 business days. Express shipping options are available for faster delivery.</p>
+            </div>
+            <div style="background:rgba(139,182,255,.05);border-radius:10px;padding:16px;border-left:4px solid var(--accent-2);">
+              <h4 style="font-weight:800;color:#23272f;margin-bottom:6px;font-size:1.05rem;">Can I modify or cancel my order?</h4>
+              <p style="color:#5b6378;font-weight:600;font-size:0.95rem;">You can modify or cancel your order within 24 hours of placing it, as long as it hasn't been shipped yet.</p>
+            </div>
+          </div>
+        </div>
+        <div style="margin-bottom:24px;">
+          <h3 style="font-size:1.3rem;font-weight:800;color:#23272f;margin-bottom:12px;display:flex;align-items:center;gap:8px;">
+            <i class="fa-solid fa-headset" style="color:var(--accent-2);"></i>
+            Contact Support
+          </h3>
+          <p style="color:#5b6378;font-weight:600;margin-bottom:12px;">
+            Need more help? Our customer support team is available to assist you with any questions or concerns.
+          </p>
+          <ul style="color:#5b6378;font-weight:600;margin-left:20px;line-height:2;">
+            <li>Email: vpetopia@gmail.com</li>
+            <li>Phone: +63 917 123 4567</li>
+            <li>Live Chat: Available 24/7 on our website</li>
+            <li>Response Time: Within 24 hours</li>
+          </ul>
+        </div>
+        <div style="background:rgba(139,182,255,.08);border-radius:12px;padding:20px;margin-top:32px;border:1px solid rgba(139,182,255,.2);">
+          <p style="color:#23272f;font-weight:700;font-size:1.05rem;margin-bottom:8px;text-align:center;">
+            <i class="fa-solid fa-envelope-circle-check" style="color:var(--accent-2);margin-right:8px;"></i>
+            Still have questions?
+          </p>
+          <p style="color:var(--muted);font-weight:600;font-size:0.95rem;text-align:center;">
+            Reach out to our support team and we'll be happy to help!
+          </p>
+        </div>
+      </div>
+      </div>
+    </div>
+  `;
+  document.body.appendChild(div);
+  
+  // Close button handler
+  document.getElementById('closeHelpCenterModal').addEventListener('click', function() {
+    div.remove();
+  });
+  
+  // Close when clicking outside
+  div.addEventListener('click', function(e) {
+    if (e.target === div) {
+      div.remove();
+    }
+  });
+  
+  // Close on Escape key
+  const escapeHandler = function(e) {
+    if (e.key === 'Escape') {
+      div.remove();
+      document.removeEventListener('keydown', escapeHandler);
+    }
+  };
+  document.addEventListener('keydown', escapeHandler);
+}
+
+// Track Order modal function
+function showTrackOrderModal() {
+  const div = document.createElement('div');
+  div.id = 'trackOrderModal';
+  div.style = 'position:fixed;top:0;left:0;width:100vw;height:100vh;z-index:9999;background:rgba(0,0,0,.25);backdrop-filter:blur(2px);display:flex;align-items:center;justify-content:center;';
+  div.innerHTML = `
+    <div style="background:rgba(255,255,255,.97);border-radius:18px;max-width:700px;width:90vw;max-height:85vh;box-shadow:0 10px 40px rgba(16,24,40,.22);position:relative;overflow:hidden;display:flex;flex-direction:column;">
+      <button id="closeTrackOrderModal" style="position:absolute;top:16px;right:18px;background:none;border:none;font-size:2rem;cursor:pointer;z-index:2;color:#23272f;">&times;</button>
+      <div style="overflow-y:auto;padding:40px 32px;flex:1;">
+      <div style="text-align:center;margin-bottom:32px;">
+        <div style="width:80px;height:80px;border-radius:16px;background:linear-gradient(135deg,var(--accent),var(--accent-2));display:flex;align-items:center;justify-content:center;margin:0 auto 20px;box-shadow:0 8px 26px rgba(139,182,255,.15);">
+          <i class="fa-solid fa-truck-fast" style="font-size:2.5rem;color:#051014;"></i>
+        </div>
+        <h2 style="font-size:2rem;font-weight:800;color:#23272f;margin-bottom:8px;">Track Your Order</h2>
+        <p style="color:var(--muted);font-weight:600;font-size:1.05rem;">Monitor your order status in real-time</p>
+      </div>
+      <div style="color:#23272f;line-height:1.8;font-size:1rem;">
+        <div style="margin-bottom:24px;">
+          <h3 style="font-size:1.3rem;font-weight:800;color:#23272f;margin-bottom:12px;display:flex;align-items:center;gap:8px;">
+            <i class="fa-solid fa-magnifying-glass" style="color:var(--accent-2);"></i>
+            How to Track Your Order
+          </h3>
+          <p style="color:#5b6378;font-weight:600;margin-bottom:12px;">
+            To track your order, you'll need your order number and email address. Once your order is confirmed, you'll receive a tracking number via email.
+          </p>
+          <div style="background:rgba(139,182,255,.08);border-radius:12px;padding:20px;margin-top:16px;border:1px solid rgba(139,182,255,.2);">
+            <div style="margin-bottom:16px;">
+              <label style="display:block;font-weight:700;color:#23272f;margin-bottom:8px;font-size:1rem;">Order Number</label>
+              <input type="text" placeholder="Enter your order number" style="width:100%;padding:12px;border-radius:8px;border:1px solid rgba(11,15,26,.1);font-size:1rem;font-weight:600;">
+            </div>
+            <div style="margin-bottom:16px;">
+              <label style="display:block;font-weight:700;color:#23272f;margin-bottom:8px;font-size:1rem;">Email Address</label>
+              <input type="email" placeholder="Enter your email" style="width:100%;padding:12px;border-radius:8px;border:1px solid rgba(11,15,26,.1);font-size:1rem;font-weight:600;">
+            </div>
+            <button style="width:100%;padding:12px;border-radius:8px;background:linear-gradient(135deg,var(--accent),var(--accent-2));color:#051014;font-weight:700;border:none;cursor:pointer;font-size:1rem;box-shadow:0 8px 26px rgba(139,182,255,.08);">
+              Track Order
+            </button>
+          </div>
+        </div>
+        <div style="margin-bottom:24px;">
+          <h3 style="font-size:1.3rem;font-weight:800;color:#23272f;margin-bottom:12px;display:flex;align-items:center;gap:8px;">
+            <i class="fa-solid fa-list-check" style="color:var(--accent-2);"></i>
+            Order Status
+          </h3>
+          <div style="display:grid;gap:12px;">
+            <div style="display:flex;align-items:center;gap:12px;padding:12px;background:rgba(139,182,255,.05);border-radius:8px;">
+              <i class="fa-solid fa-circle-check" style="color:var(--accent-2);font-size:1.5rem;"></i>
+              <div>
+                <div style="font-weight:800;color:#23272f;">Order Confirmed</div>
+                <div style="color:#5b6378;font-weight:600;font-size:0.9rem;">Your order has been received</div>
+              </div>
+            </div>
+            <div style="display:flex;align-items:center;gap:12px;padding:12px;background:rgba(139,182,255,.05);border-radius:8px;">
+              <i class="fa-solid fa-box" style="color:var(--accent-2);font-size:1.5rem;"></i>
+              <div>
+                <div style="font-weight:800;color:#23272f;">Processing</div>
+                <div style="color:#5b6378;font-weight:600;font-size:0.9rem;">Your order is being prepared</div>
+              </div>
+            </div>
+            <div style="display:flex;align-items:center;gap:12px;padding:12px;background:rgba(139,182,255,.05);border-radius:8px;">
+              <i class="fa-solid fa-truck" style="color:var(--accent-2);font-size:1.5rem;"></i>
+              <div>
+                <div style="font-weight:800;color:#23272f;">Shipped</div>
+                <div style="color:#5b6378;font-weight:600;font-size:0.9rem;">Your order is on the way</div>
+              </div>
+            </div>
+            <div style="display:flex;align-items:center;gap:12px;padding:12px;background:rgba(139,182,255,.05);border-radius:8px;">
+              <i class="fa-solid fa-house" style="color:var(--accent-2);font-size:1.5rem;"></i>
+              <div>
+                <div style="font-weight:800;color:#23272f;">Delivered</div>
+                <div style="color:#5b6378;font-weight:600;font-size:0.9rem;">Your order has been delivered</div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div style="background:rgba(139,182,255,.08);border-radius:12px;padding:20px;margin-top:32px;border:1px solid rgba(139,182,255,.2);">
+          <p style="color:#23272f;font-weight:700;font-size:1.05rem;margin-bottom:8px;text-align:center;">
+            <i class="fa-solid fa-info-circle" style="color:var(--accent-2);margin-right:8px;"></i>
+            Need Help?
+          </p>
+          <p style="color:var(--muted);font-weight:600;font-size:0.95rem;text-align:center;">
+            Contact us at vpetopia@gmail.com if you have any questions about your order.
+          </p>
+        </div>
+      </div>
+      </div>
+    </div>
+  `;
+  document.body.appendChild(div);
+  
+  // Close button handler
+  document.getElementById('closeTrackOrderModal').addEventListener('click', function() {
+    div.remove();
+  });
+  
+  // Close when clicking outside
+  div.addEventListener('click', function(e) {
+    if (e.target === div) {
+      div.remove();
+    }
+  });
+  
+  // Close on Escape key
+  const escapeHandler = function(e) {
+    if (e.key === 'Escape') {
+      div.remove();
+      document.removeEventListener('keydown', escapeHandler);
+    }
+  };
+  document.addEventListener('keydown', escapeHandler);
+}
+
+// Returns & Refunds modal function
+function showReturnsRefundsModal() {
+  const div = document.createElement('div');
+  div.id = 'returnsRefundsModal';
+  div.style = 'position:fixed;top:0;left:0;width:100vw;height:100vh;z-index:9999;background:rgba(0,0,0,.25);backdrop-filter:blur(2px);display:flex;align-items:center;justify-content:center;';
+  div.innerHTML = `
+    <div style="background:rgba(255,255,255,.97);border-radius:18px;max-width:700px;width:90vw;max-height:85vh;box-shadow:0 10px 40px rgba(16,24,40,.22);position:relative;overflow:hidden;display:flex;flex-direction:column;">
+      <button id="closeReturnsRefundsModal" style="position:absolute;top:16px;right:18px;background:none;border:none;font-size:2rem;cursor:pointer;z-index:2;color:#23272f;">&times;</button>
+      <div style="overflow-y:auto;padding:40px 32px;flex:1;">
+      <div style="text-align:center;margin-bottom:32px;">
+        <div style="width:80px;height:80px;border-radius:16px;background:linear-gradient(135deg,var(--accent),var(--accent-2));display:flex;align-items:center;justify-content:center;margin:0 auto 20px;box-shadow:0 8px 26px rgba(139,182,255,.15);">
+          <i class="fa-solid fa-rotate-left" style="font-size:2.5rem;color:#051014;"></i>
+        </div>
+        <h2 style="font-size:2rem;font-weight:800;color:#23272f;margin-bottom:8px;">Returns & Refunds</h2>
+        <p style="color:var(--muted);font-weight:600;font-size:1.05rem;">Our return and refund policy</p>
+      </div>
+      <div style="color:#23272f;line-height:1.8;font-size:1rem;">
+        <div style="margin-bottom:24px;">
+          <h3 style="font-size:1.3rem;font-weight:800;color:#23272f;margin-bottom:12px;display:flex;align-items:center;gap:8px;">
+            <i class="fa-solid fa-clock" style="color:var(--accent-2);"></i>
+            Return Policy
+          </h3>
+          <p style="color:#5b6378;font-weight:600;margin-bottom:12px;">
+            We want you to be completely satisfied with your purchase. If you're not happy with your order, you can return it within 7 days of delivery.
+          </p>
+          <ul style="color:#5b6378;font-weight:600;margin-left:20px;line-height:2;">
+            <li>Items must be unused and in original packaging</li>
+            <li>Return request must be made within 7 days of delivery</li>
+            <li>Original receipt or order confirmation required</li>
+            <li>Some items may be non-returnable (e.g., perishable goods)</li>
+          </ul>
+        </div>
+        <div style="margin-bottom:24px;">
+          <h3 style="font-size:1.3rem;font-weight:800;color:#23272f;margin-bottom:12px;display:flex;align-items:center;gap:8px;">
+            <i class="fa-solid fa-money-bill-wave" style="color:var(--accent-2);"></i>
+            Refund Process
+          </h3>
+          <div style="display:grid;gap:12px;">
+            <div style="background:rgba(139,182,255,.05);border-radius:10px;padding:16px;border-left:4px solid var(--accent-2);">
+              <h4 style="font-weight:800;color:#23272f;margin-bottom:6px;font-size:1.05rem;">Step 1: Request Return</h4>
+              <p style="color:#5b6378;font-weight:600;font-size:0.95rem;">Contact our support team or use the return form in your account to initiate a return request.</p>
+            </div>
+            <div style="background:rgba(139,182,255,.05);border-radius:10px;padding:16px;border-left:4px solid var(--accent-2);">
+              <h4 style="font-weight:800;color:#23272f;margin-bottom:6px;font-size:1.05rem;">Step 2: Ship Item Back</h4>
+              <p style="color:#5b6378;font-weight:600;font-size:0.95rem;">Once approved, you'll receive a return shipping label. Package the item securely and send it back.</p>
+            </div>
+            <div style="background:rgba(139,182,255,.05);border-radius:10px;padding:16px;border-left:4px solid var(--accent-2);">
+              <h4 style="font-weight:800;color:#23272f;margin-bottom:6px;font-size:1.05rem;">Step 3: Receive Refund</h4>
+              <p style="color:#5b6378;font-weight:600;font-size:0.95rem;">After we receive and inspect the item, your refund will be processed within 5-7 business days.</p>
+            </div>
+          </div>
+        </div>
+        <div style="margin-bottom:24px;">
+          <h3 style="font-size:1.3rem;font-weight:800;color:#23272f;margin-bottom:12px;display:flex;align-items:center;gap:8px;">
+            <i class="fa-solid fa-info-circle" style="color:var(--accent-2);"></i>
+            Important Information
+          </h3>
+          <ul style="color:#5b6378;font-weight:600;margin-left:20px;line-height:2;">
+            <li>Refunds will be issued to the original payment method</li>
+            <li>Shipping costs are non-refundable unless the item is defective</li>
+            <li>Damaged or defective items will be replaced or refunded immediately</li>
+            <li>Refund processing time: 5-7 business days after item receipt</li>
+          </ul>
+        </div>
+        <div style="background:rgba(139,182,255,.08);border-radius:12px;padding:20px;margin-top:32px;border:1px solid rgba(139,182,255,.2);">
+          <p style="color:#23272f;font-weight:700;font-size:1.05rem;margin-bottom:8px;text-align:center;">
+            <i class="fa-solid fa-envelope" style="color:var(--accent-2);margin-right:8px;"></i>
+            Need Help with Returns?
+          </p>
+          <p style="color:var(--muted);font-weight:600;font-size:0.95rem;text-align:center;">
+            Contact us at vpetopia@gmail.com or call +63 917 123 4567
+          </p>
+        </div>
+      </div>
+      </div>
+    </div>
+  `;
+  document.body.appendChild(div);
+  
+  // Close button handler
+  document.getElementById('closeReturnsRefundsModal').addEventListener('click', function() {
+    div.remove();
+  });
+  
+  // Close when clicking outside
+  div.addEventListener('click', function(e) {
+    if (e.target === div) {
+      div.remove();
+    }
+  });
+  
+  // Close on Escape key
+  const escapeHandler = function(e) {
+    if (e.key === 'Escape') {
+      div.remove();
+      document.removeEventListener('keydown', escapeHandler);
+    }
+  };
+  document.addEventListener('keydown', escapeHandler);
+}
+
+// Attach event listeners for footer buttons
+document.addEventListener('DOMContentLoaded', function() {
+  const aboutPetopiaLink = document.getElementById('aboutPetopiaLink');
+  const careersLink = document.getElementById('careersLink');
+  const blogLink = document.getElementById('blogLink');
+  const helpCenterLink = document.getElementById('helpCenterLink');
+  const trackOrderLink = document.getElementById('trackOrderLink');
+  const returnsRefundsLink = document.getElementById('returnsRefundsLink');
+  
+  if (aboutPetopiaLink) {
+    aboutPetopiaLink.addEventListener('click', function(e) {
+      e.preventDefault();
+      showAboutPetopiaModal();
+    });
+  }
+  
+  if (careersLink) {
+    careersLink.addEventListener('click', function(e) {
+      e.preventDefault();
+      showCareersModal();
+    });
+  }
+  
+  if (blogLink) {
+    blogLink.addEventListener('click', function(e) {
+      e.preventDefault();
+      showBlogModal();
+    });
+  }
+  
+  if (helpCenterLink) {
+    helpCenterLink.addEventListener('click', function(e) {
+      e.preventDefault();
+      showHelpCenterModal();
+    });
+  }
+  
+  if (trackOrderLink) {
+    trackOrderLink.addEventListener('click', function(e) {
+      e.preventDefault();
+      showTrackOrderModal();
+    });
+  }
+  
+  if (returnsRefundsLink) {
+    returnsRefundsLink.addEventListener('click', function(e) {
+      e.preventDefault();
+      showReturnsRefundsModal();
+    });
+  }
+});
+  </script>
+</body>
+</html>
+
+
+

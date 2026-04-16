@@ -1,0 +1,1843 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Petopia • Addresses</title>
+  <meta name="description" content="Manage your shipping addresses for Petopia checkout.">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+  <style>
+    :root { --bg:#f6f8ff; --panel:rgba(255,255,255,.60); --panel-strong:rgba(255,255,255,.95); --text:#0b0f1a; --muted:#5b6378; --accent:#7cf4d1; --accent-2:#8bb6ff; --glass-shadow:0 10px 30px rgba(16,24,40,.08); --card-radius:12px; --gap:18px; --ring:rgba(124,244,209,.7); --error:#ff6b6b; --success:#4ade80; --warning:#ffb86b; }
+    *{box-sizing:border-box;margin:0;padding:0}
+    body { font-family:"Inter", system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial; color:var(--text); background:var(--bg); line-height:1.6; overflow-x:hidden; -webkit-font-smoothing:antialiased; -moz-osx-font-smoothing:grayscale; }
+    .container{max-width:1200px;margin:0 auto;padding-left:20px;padding-right:20px}
+    header{background:var(--panel-strong);backdrop-filter:blur(10px);box-shadow:var(--glass-shadow);padding:12px 0;position:sticky;top:0;z-index:99;width:100%}
+    .topbar{display:flex;justify-content:space-between;align-items:center;gap:16px;max-width:1200px;margin:0 auto;padding:0 20px}
+    .logo a{display:flex;align-items:center;gap:10px;text-decoration:none}
+    .logo-icon{width:44px;height:44px;border-radius:10px;background:linear-gradient(135deg,var(--accent),var(--accent-2));display:flex;align-items:center;justify-content:center;color:#051014;font-weight:800;font-size:1.05rem;box-shadow:0 6px 18px rgba(139,182,255,.09)}
+    .logo-img{width:44px;height:44px;border-radius:10px;object-fit:contain;box-shadow:0 6px 18px rgba(139,182,255,.09)}
+    .logo-text{font-weight:800;letter-spacing:.3px;color:#23272f;font-size:1.05rem}
+    .search{flex:1;display:flex;gap:8px;max-width:600px;align-items:center}
+    .search input{flex:1;padding:10px 12px;border-radius:10px;border:1px solid rgba(11,15,26,.06);background:#fff;color:var(--text);font-size:.95rem}
+    .search button{padding:10px 16px;border:none;border-radius:10px;background:linear-gradient(135deg,var(--accent),var(--accent-2));color:#051014;font-weight:600;cursor:pointer;box-shadow:0 8px 26px rgba(139,182,255,.08)}
+    .quick-icons{display:flex;gap:8px;align-items:center}
+    .quick-icons .icon-btn{position:relative;border:none;background:transparent;font-size:1.05rem;padding:8px;border-radius:8px;cursor:pointer;color:var(--text);transition:color .16s ease}
+    .quick-icons .icon-btn:hover{color:var(--accent-2)}
+    .badge{position:absolute;top:2px;right:2px;background:var(--accent-2);color:#051014;border-radius:999px;padding:1px 4px;font-weight:800;font-size:.65rem;min-width:16px;height:19px;display:flex;align-items:center;justify-content:center;z-index:2}
+    /* Match homepage smaller bell badge */
+    #notifBadge{font-size:.55rem;height:16px;min-width:14px;padding:0 4px}
+    /* Match homepage smaller cart badge */
+    #cartBadge{font-size:.55rem;height:16px;min-width:14px;padding:0 4px}
+    .user-profile{display:flex;align-items:center;gap:12px}
+    .user-avatar{width:40px;height:40px;border-radius:50%;background:linear-gradient(135deg,var(--accent),var(--accent-2));display:flex;align-items:center;justify-content:center;color:#051014;font-weight:700;font-size:1rem}
+    .user-info{display:flex;flex-direction:column}
+    .user-name{font-weight:700;color:var(--text);font-size:.95rem}
+    .user-status{font-size:.8rem;color:var(--muted)}
+
+    .dashboard-main{margin:24px auto;display:grid;grid-template-columns:280px 1fr;gap:var(--gap);max-width:1200px;padding-left:20px;padding-right:20px;width:100%;box-sizing:border-box}
+    .sidebar{background:var(--panel-strong);backdrop-filter:blur(10px);border-radius:var(--card-radius);padding:20px;box-shadow:var(--glass-shadow);height:fit-content;position:sticky;top:100px}
+    .sidebar h3{font-weight:800;color:#23272f;font-size:1.1rem;margin-bottom:16px}
+    .nav-menu{list-style:none;display:flex;flex-direction:column;gap:8px}
+    .nav-item{padding:12px 16px;border-radius:8px;cursor:pointer;transition:all .16s ease;display:flex;align-items:center;gap:12px;font-weight:600;color:var(--text)}
+    .nav-item:hover,.nav-item.active{background:rgba(139,182,255,.1);color:var(--accent-2)}
+    .nav-item i{width:20px;text-align:center}
+
+    .content-area{width:100%;max-width:none;margin:0 auto}
+    .section-card{background:var(--panel-strong);border-radius:var(--card-radius);box-shadow:var(--glass-shadow);border:1px solid rgba(11,15,26,.06);padding:32px}
+    .section-title{margin-bottom:18px;font-weight:800;color:#23272f}
+    .label{font-weight:700;color:#23272f;font-size:.9rem;margin-bottom:6px;display:block}
+    .input{width:100%;padding:10px 12px;border-radius:10px;border:1px solid rgba(11,15,26,.06);background:#fff;color:var(--text);font-size:.95rem}
+    .chips{display:flex;gap:8px;flex-wrap:wrap;margin-top:8px}
+    .chip{padding:6px 10px;border-radius:999px;border:1px solid rgba(11,15,26,.08);background:#fff;font-weight:700;color:#23272f;cursor:pointer;font-size:.85rem}
+    .chip.active{background:rgba(139,182,255,.12);border-color:rgba(139,182,255,.35);color:var(--accent-2)}
+    .cta{min-width:140px;background:linear-gradient(135deg,var(--accent),var(--accent-2));color:#051014;padding:10px 18px;border:none;border-radius:10px;font-weight:800;box-shadow:0 2px 8px rgba(139,182,255,.12);cursor:pointer}
+    .muted{color:var(--muted);font-weight:700}
+    .addr-card{border:1px solid #e5e8f0;border-radius:12px;background:#fff;padding:14px;display:grid;grid-template-columns:1fr auto;gap:10px;align-items:start}
+    .addr-actions{display:flex;gap:8px}
+    .btn{padding:8px 12px;border-radius:8px;border:1px solid rgba(11,15,26,.1);background:#fff;font-weight:700;color:#23272f;cursor:pointer}
+    .btn:hover{background:rgba(139,182,255,.08);border-color:rgba(139,182,255,.35);color:var(--accent-2)}
+    .default-badge{padding:4px 8px;border-radius:999px;background:rgba(124,244,209,.2);color:var(--accent);font-weight:800;font-size:.75rem}
+    .row{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+    @media (max-width: 900px){ .row{grid-template-columns:1fr} }
+  </style>
+</head>
+<body data-user-id="{{ user_data.id if user_data else '' }}" data-user-name="{{ user_data.fullname if user_data else '' }}">
+  <header role="banner" aria-label="Main header">
+    <div class="topbar">
+      <div class="logo" aria-label="Petopia logo">
+        <a href="{{ url_for('buyer_homepage') }}">
+          <img src="{{ url_for('static', filename='logo/PETOPIA_LOGO.png') }}" alt="Petopia Logo" class="logo-img">
+          <div class="logo-text">Petopia</div>
+        </a>
+      </div>
+      <div class="search" role="search" aria-label="Search products">
+        <input id="searchInput" type="search" placeholder="Search your orders, products..." aria-label="Search" />
+        <button aria-label="Search button">Search</button>
+        <div class="quick-icons">
+          <button class="icon-btn" aria-label="Cart" data-url="{{ url_for('buyer_cart') }}">
+            <i class="fa-solid fa-cart-shopping"></i><span id="cartBadge" class="badge" aria-live="polite">0</span>
+          </button>
+          <button id="notifBtn" class="icon-btn" aria-label="Notifications"><i class="fa-regular fa-bell"></i><span id="notifBadge" class="badge" style="display:none">0</span></button>
+          <button id="msgBtn" class="icon-btn" aria-label="Messages"><i class="fa-regular fa-envelope"></i><span id="msgBadge" class="badge" style="display:none">0</span></button>
+        </div>
+      </div>
+      <div class="user-profile" id="userProfileBtn" style="cursor:pointer;">
+        <div class="user-avatar" id="userAvatar">
+          {% if user_data and user_data.profile_photo %}
+            {% set _photo = user_data.profile_photo %}
+            {% if 'static/' in _photo or 'http' in _photo %}
+              <img src="{{ _photo }}" alt="Profile" style="width:100%;height:100%;object-fit:cover;border-radius:50%;">
+            {% else %}
+              <img src="{{ url_for('static', filename='uploads/' ~ _photo) }}" alt="Profile" style="width:100%;height:100%;object-fit:cover;border-radius:50%;">
+            {% endif %}
+          {% else %}
+            {% if user_data and user_data.fullname %}
+              {% set initials = user_data.fullname.split(' ')[:2] | map('first') | join('') | upper %}
+              {{ initials }}
+            {% else %}
+              U
+            {% endif %}
+          {% endif %}
+        </div>
+        <div class="user-info">
+          <div class="user-name" id="userName">{{ user_data.fullname if user_data else 'User' }}</div>
+          <div class="user-status">Active Member</div>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <main class="dashboard-main" role="main">
+    <aside class="sidebar">
+      <h3>Dashboard</h3>
+      <ul class="nav-menu">
+        <li class="nav-item" data-section="overview" data-url="{{ url_for('buyer_homepage') }}">
+          <i class="fa-solid fa-chart-line"></i>
+          Overview
+        </li>
+        <li class="nav-item" data-section="orders" data-url="{{ url_for('buyer_orders') }}">
+          <i class="fa-solid fa-box"></i>
+          My Orders
+        </li>
+        <li class="nav-item" data-section="wishlist" data-url="{{ url_for('buyer_cart') }}">
+          <i class="fa-solid fa-cart-shopping"></i>
+          Cart
+        </li>
+        <li class="nav-item active" data-section="addresses" data-url="{{ url_for('buyer_address') }}">
+          <i class="fa-solid fa-location-dot"></i>
+          Addresses
+        </li>
+        <li class="nav-item" data-section="settings" data-logout="{{ url_for('logout') }}">
+          <i class="fa-solid fa-right-from-bracket"></i>
+          Logout
+        </li>
+      </ul>
+    </aside>
+
+    <div class="content-area">
+      <div class="section-card">
+        <div style="display:flex;justify-content:space-between;align-items:center;">
+          <h3 class="section-title">Saved Addresses</h3>
+          <button id="addAddrBtn" class="cta" style="min-width:auto;">Add Address</button>
+        </div>
+        <div id="addrEmpty" class="muted" style="display:none; text-align:center; padding:24px;">No addresses yet. Add one to use at checkout.</div>
+        <div id="addrList" style="display:grid; gap:12px; margin-top:10px;"></div>
+      </div>
+
+      <div class="section-card" style="margin-top:18px;">
+        <h3 class="section-title">Add / Edit Address</h3>
+        <form id="addrForm" onsubmit="return false;">
+          <div class="row">
+            <div>
+              <label class="label" for="fullName">Full Name</label>
+              <input id="fullName" class="input" placeholder="Juan Dela Cruz">
+            </div>
+            <div>
+              <label class="label" for="phone">Phone</label>
+              <input id="phone" class="input" placeholder="09xxxxxxxxx">
+            </div>
+          </div>
+          <div style="margin-top:12px; display:grid; gap:12px;">
+            <div>
+              <label class="label" for="country">Country</label>
+              <select id="country" class="input" aria-label="Country">
+                <option value="Philippines" selected>Philippines</option>
+              </select>
+            </div>
+            <div class="row">
+              <div>
+                <label class="label" for="region">Region / State / Province</label>
+                <select id="region" class="input" aria-label="Region">
+                  <option value="" selected disabled>Select region</option>
+                </select>
+              </div>
+              <div>
+                <label class="label" for="city">City / Municipality</label>
+                <select id="city" class="input" aria-label="City" disabled>
+                  <option value="" selected disabled>Select city</option>
+                </select>
+              </div>
+            </div>
+            <div class="row">
+              <div>
+                <label class="label" for="barangay">Barangay / District</label>
+                <select id="barangay" class="input" aria-label="Barangay" disabled>
+                  <option value="" selected disabled>Select barangay</option>
+                </select>
+              </div>
+              <div>
+                <label class="label" for="zipCode">Zip Code</label>
+                <input id="zipCode" class="input" inputmode="numeric" placeholder="e.g., 1000">
+              </div>
+            </div>
+            <div class="row">
+              <div>
+                <label class="label" for="houseNo">House No.</label>
+                <input id="houseNo" class="input" placeholder="e.g., Blk 12 Lot 3">
+              </div>
+              <div>
+                <label class="label" for="street">Street</label>
+                <input id="street" class="input" placeholder="e.g., Mabini St.">
+              </div>
+            </div>
+            <div>
+              <label class="label" for="landmark">Landmark (optional)</label>
+              <input id="landmark" class="input" placeholder="Near ...">
+            </div>
+          </div>
+          <div style="margin-top:12px;">
+            <div class="label">Label</div>
+            <div class="chips" id="labelChips">
+              <button type="button" class="chip" data-label="Home">Home</button>
+              <button type="button" class="chip" data-label="Office">Office</button>
+              <button type="button" class="chip" data-label="Other">Other</button>
+            </div>
+          </div>
+          <div style="margin-top:12px; display:flex; gap:10px; align-items:center;">
+            <label style="display:flex; align-items:center; gap:8px; cursor:pointer; font-weight:700;">
+              <input type="checkbox" id="isDefault" style="width:18px;height:18px;accent-color: var(--accent-2);">
+              Set as default
+            </label>
+            <div id="formMode" class="muted">Mode: Add</div>
+          </div>
+          <div style="margin-top:14px; display:flex; gap:10px;">
+            <button id="saveBtn" class="cta">Save</button>
+            <button id="cancelEditBtn" type="button" class="btn" style="display:none;">Cancel</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </main>
+
+  <footer role="contentinfo" style="margin-top: 40px; padding: 18px 12px; background: var(--panel-strong); backdrop-filter: blur(10px); box-shadow: var(--glass-shadow);">
+    <div class="container">
+      <div class="footer-grid" style="display:grid; grid-template-columns: repeat(auto-fit,minmax(200px,1fr)); gap: var(--gap);">
+        <div>
+          <h4 style="margin-bottom: 10px; font-size: .95rem; color: var(--accent-2); font-weight:700;">Customer Service</h4>
+          <ul style="list-style:none; padding:0; display:grid; gap:6px;">
+            <li><a href="#" id="helpCenterLink" style="text-decoration:none; color:var(--text); font-weight:600;">Help Center</a></li>
+            <li><a href="#" id="trackOrderLink" style="text-decoration:none; color:var(--text); font-weight:600;">Track Order</a></li>
+            <li><a href="#" id="returnsRefundsLink" style="text-decoration:none; color:var(--text); font-weight:600;">Returns & Refunds</a></li>
+          </ul>
+        </div>
+        <div>
+          <h4 style="margin-bottom: 10px; font-size: .95rem; color: var(--accent-2); font-weight:700;">About</h4>
+          <ul style="list-style:none; padding:0; display:grid; gap:6px;">
+            <li><a href="#" id="aboutPetopiaLink" style="text-decoration:none; color:var(--text); font-weight:600;">About Petopia</a></li>
+            <li><a href="#" id="careersLink" style="text-decoration:none; color:var(--text); font-weight:600;">Careers</a></li>
+            <li><a href="#" id="blogLink" style="text-decoration:none; color:var(--text); font-weight:600;">Blog</a></li>
+          </ul>
+        </div>
+        <div>
+          <h4 style="margin-bottom: 10px; font-size: .95rem; color: var(--accent-2); font-weight:700;">Download App</h4>
+          <p>
+            <a href="#"><img alt="App Store" src="https://upload.wikimedia.org/wikipedia/commons/6/67/App_Store_%28iOS%29.svg" style="height:32px;vertical-align:middle;margin-right:8px;" loading="lazy"></a>
+            <a href="#"><img alt="Google Play" src="https://upload.wikimedia.org/wikipedia/commons/7/78/Google_Play_Store_badge_EN.svg" style="height:32px;vertical-align:middle;" loading="lazy"></a>
+          </p>
+        </div>
+        <div>
+          <h4 style="margin-bottom: 10px; font-size: .95rem; color: var(--accent-2); font-weight:700;">Follow Us</h4>
+          <p>
+            <a href="https://www.facebook.com/profile.php?id=61582925271846" target="_blank" rel="noopener noreferrer" aria-label="Facebook"><img alt="Facebook" src="https://cdn-icons-png.flaticon.com/512/733/733547.png" style="height:28px;vertical-align:middle;margin-right:6px;"></a>
+            <a href="https://www.instagram.com/petopia_official_page?igsh=MXJpdmgxYXo0dnU1bA==" target="_blank" rel="noopener noreferrer" aria-label="Instagram"><img alt="Instagram" src="https://cdn-icons-png.flaticon.com/512/2111/2111463.png" style="height:28px;vertical-align:middle;margin-right:6px;"></a>
+            <a href="https://x.com/Petopia_page?s=09" target="_blank" rel="noopener noreferrer" aria-label="X (Twitter)"><img alt="X (Twitter)" src="https://cdn-icons-png.flaticon.com/512/5968/5968958.png" style="height:28px;vertical-align:middle;"></a>
+          </p>
+        </div>
+      </div>
+      <p style="margin-top:12px;color:var(--muted);font-size:.9rem">© <span id="yr"></span> Petopia. All rights reserved.</p>
+    </div>
+  </footer>
+
+  <script>
+    // Profile dropdown (same as buyer_homepage)
+    (function(){
+      const btn = document.getElementById('userProfileBtn'); if(!btn) return;
+      const initialUserData = {
+        fullname: '{{ user_data.fullname if user_data else "" }}',
+        email: '{{ user_data.email if user_data else "" }}',
+        profile_photo: (function(){ var p='{{ user_data.profile_photo if user_data else "" }}'; if(!p) return ''; if(p.startsWith('http')||p.startsWith('/static/')) return p; return '/static/uploads/'+p; })(),
+        username: '{{ user_data.username if user_data and user_data.username else "" }}'
+      };
+      const panel = document.createElement('div');
+      panel.id = 'profilePanel'; panel.style.position='fixed'; panel.style.width='360px'; panel.style.maxHeight='70vh'; panel.style.display='none'; panel.style.zIndex='200'; panel.style.background='var(--panel-strong)'; panel.style.border='1px solid rgba(11,15,26,.08)'; panel.style.borderRadius='12px'; panel.style.boxShadow='var(--glass-shadow)'; panel.style.overflow='hidden';
+      panel.innerHTML = '<div id="profileArrowWrap" style="position:absolute;top:-10px;right:20px;width:0;height:0;">\
+        <div style="position:absolute;top:-1px;right:-1px;width:0;height:0;border-left:9px solid transparent;border-right:9px solid transparent;border-bottom:9px solid rgba(11,15,26,.08);\"></div>\
+        <div style=\"position:relative;width:0;height:0;border-left:8px solid transparent;border-right:8px solid transparent;border-bottom:8px solid var(--panel-strong);\"></div>\
+      </div>\
+      <div style=\"padding:12px 12px 10px 12px;display:flex;align-items:center;gap:8px;justify-content:space-between;border-bottom:1px solid rgba(11,15,26,.08);\">\
+        <div style=\"font-weight:800;color:#23272f;\">Profile Settings</div>\
+        <button id=\"saveProfileBtn\" class=\"btn\" style=\"padding:6px 12px;border-radius:8px;border:1px solid rgba(11,15,26,.1);background:linear-gradient(135deg, var(--accent), var(--accent-2));font-weight:700;color:#051014;cursor:pointer;box-shadow:0 4px 12px rgba(139,182,255,.15);\">Save</button>\
+      </div>\
+      <div style=\"max-height:calc(70vh - 56px);overflow-y:auto;background:#fff;\">\
+        <div style=\"padding:16px 12px;display:flex;flex-direction:column;align-items:center;gap:10px;background:rgba(139,182,255,.04);border-bottom:1px solid #e5e8f0;\">\
+          <div id=\"profileAvatarPreview\" style=\"width:80px;height:80px;border-radius:50%;background:linear-gradient(135deg,var(--accent),var(--accent-2));display:flex;align-items:center;justify-content:center;color:#051014;font-weight:800;font-size:1.2rem;box-shadow:0 6px 18px rgba(139,182,255,.15);overflow:hidden;\"></div>\
+          <label for=\"profileAvatarInput\" class=\"btn\" style=\"padding:6px 12px;border-radius:8px;border:1px solid rgba(11,15,26,.1);background:#fff;font-weight:700;color:#23272f;cursor:pointer;font-size:.85rem;\">\
+            <i class=\"fa-solid fa-camera\" style=\"margin-right:4px;\"></i>Change Photo\
+          </label>\
+          <input id=\"profileAvatarInput\" type=\"file\" accept=\"image/*\" style=\"display:none\">\
+        </div>\
+        <div style=\"padding:12px;display:grid;gap:12px;\">\
+          <div>\
+            <div style=\"font-weight:700;color:#23272f;font-size:.85rem;margin-bottom:6px;\">Username</div>\
+            <input id=\"profileUsername\" class=\"input\" placeholder=\"Enter username\" style=\"width:100%;border-radius:10px;border:1px solid rgba(11,15,26,.1);padding:10px 12px;font-size:.95rem;font-weight:600;background:#fff;\">\
+          </div>\
+          <div style=\"border-top:1px solid #e5e8f0;padding-top:12px;\">\
+            <div style=\"font-weight:700;color:#23272f;font-size:.85rem;margin-bottom:6px;\">Full Name</div>\
+            <div id=\"profileFullName\" style=\"font-weight:800;color:#23272f;font-size:.95rem;padding:10px 12px;background:rgba(139,182,255,.06);border-radius:10px;border:1px solid rgba(139,182,255,.15);\">-</div>\
+          </div>\
+          <div>\
+            <div style=\"font-weight:700;color:#23272f;font-size:.85rem;margin-bottom:6px;\">Email Address</div>\
+            <div id=\"profileEmail\" style=\"font-weight:800;color:#23272f;font-size:.95rem;padding:10px 12px;background:rgba(139,182,255,.06);border-radius:10px;border:1px solid rgba(139,182,255,.15);\">-</div>\
+          </div>\
+        </div>\
+      </div>';
+      document.body.appendChild(panel);
+      function placePanel(){ const rect = btn.getBoundingClientRect(); const width = Math.min(420, Math.max(280, Math.floor(window.innerWidth*0.95))); panel.style.width = width+'px'; const margin=12; const top=rect.bottom+8; let left = rect.right - width; left = Math.max(margin, Math.min(left, window.innerWidth - margin - width)); panel.style.top = top+'px'; panel.style.left = left+'px'; const arrow = panel.querySelector('#profileArrowWrap'); const rightOffset = Math.max(12, Math.min(width - 24, width - (rect.right - left) - 12)); arrow.style.right = rightOffset + 'px'; }
+      function refreshHeaderFromProfile(p){ const nameEl=document.getElementById('userName'); const avatarEl=document.getElementById('userAvatar'); if(nameEl) nameEl.textContent=p.fullname||'User'; if(p.profile_photo){ avatarEl.style.background='transparent'; avatarEl.innerHTML = `<img src="${p.profile_photo}" alt="avatar" style="width:100%;height:100%;object-fit:cover;border-radius:50%;">`; } else { avatarEl.style.backgroundImage='none'; avatarEl.textContent=(p.fullname? p.fullname.split(' ').map(w=>w[0]).slice(0,2).join('').toUpperCase():'U'); avatarEl.style.background='linear-gradient(135deg, var(--accent), var(--accent-2))'; } }
+      function applyAvatarToPreview(url, initials){ const avatarBox=document.getElementById('profileAvatarPreview'); if(url){ avatarBox.style.background='transparent'; avatarBox.innerHTML=`<img src="${url}" alt="avatar" style="width:100%;height:100%;object-fit:cover;">`; } else { avatarBox.style.background='linear-gradient(135deg,var(--accent),var(--accent-2))'; avatarBox.textContent=(initials||'U'); } }
+      function openPanel(){ document.getElementById('profileUsername').value = initialUserData.username||''; document.getElementById('profileFullName').textContent = initialUserData.fullname||'-'; document.getElementById('profileEmail').textContent = initialUserData.email||'-'; applyAvatarToPreview(initialUserData.profile_photo||'', (initialUserData.fullname||'').split(' ').map(w=>w[0]).slice(0,2).join('').toUpperCase()||'U'); panel.style.display='block'; placePanel(); }
+      function closePanel(){ panel.style.display='none'; }
+      btn.addEventListener('click', function(){ const willShow=panel.style.display==='none'; panel.style.display=willShow?'block':'none'; if(willShow) openPanel(); });
+      document.addEventListener('click', function(e){ if(!panel.contains(e.target) && e.target!==btn && !btn.contains(e.target)) closePanel(); });
+      window.addEventListener('resize', ()=>{ if(panel.style.display==='block') placePanel(); });
+      window.addEventListener('scroll', ()=>{ if(panel.style.display==='block') placePanel(); }, { passive:true });
+      document.getElementById('profileAvatarInput').addEventListener('change', function(){ const file=this.files&&this.files[0]; if(!file) return; const reader=new FileReader(); reader.onload=function(ev){ const url=String(ev.target?.result||''); applyAvatarToPreview(url, (initialUserData.fullname||'').split(' ').map(w=>w[0]).slice(0,2).join('').toUpperCase()); }; reader.readAsDataURL(file); const form=new FormData(); form.append('photo', file); fetch('/update_profile_photo', { method:'POST', body: form }).then(r=>r.json()).then(data=>{ if(data.success && data.photo_url){ initialUserData.profile_photo=data.photo_url; refreshHeaderFromProfile(initialUserData); } else { showCustomAlert('Photo upload failed: ' + (data.error||'Unknown error')); } }).catch(err=>{ console.error(err); showCustomAlert('Network error while uploading photo'); }); });
+      document.getElementById('saveProfileBtn').addEventListener('click', function(){ const username=(document.getElementById('profileUsername').value||'').trim(); if(!username){ showCustomAlert('Username is required'); return; } fetch('/update_username', { method:'POST', headers:{ 'Content-Type':'application/json' }, body: JSON.stringify({ username }) }).then(r=>r.json()).then(data=>{ if(data.success){ initialUserData.username=username; showCustomAlert('Changes saved', 'success'); closePanel(); } else { showCustomAlert('Error: ' + (data.error||'Unknown error')); } }).catch(err=>{ console.error(err); showCustomAlert('Network error'); }); });
+      refreshHeaderFromProfile(initialUserData);
+    })();
+    // Handle cart button click
+    document.querySelector('.icon-btn[data-url]').addEventListener('click', function() {
+      window.location.href = this.dataset.url;
+    });
+
+    // Handle navigation clicks
+    document.querySelectorAll('.nav-item[data-url]').forEach(item => {
+      item.addEventListener('click', function() {
+        window.location.href = this.dataset.url;
+      });
+    });
+
+    // Custom confirmation function to replace browser confirm dialogs
+    function showCustomConfirm(message, onConfirm, onCancel = null) {
+      const div = document.createElement('div');
+      div.id = 'customConfirmModal';
+      div.style = 'position:fixed;top:0;left:0;width:100vw;height:100vh;z-index:9999;background:rgba(0,0,0,.25);backdrop-filter:blur(2px);display:flex;align-items:center;justify-content:center;';
+      
+      div.innerHTML = `
+        <div style="background:rgba(255,255,255,.97);border-radius:18px;max-width:500px;width:90vw;box-shadow:0 10px 40px rgba(16,24,40,.22);position:relative;overflow:hidden;">
+          <div style="padding:32px;text-align:center;">
+            <div style="width:64px;height:64px;border-radius:50%;background:rgba(255,184,107,.15);display:flex;align-items:center;justify-content:center;margin:0 auto 20px;border:2px solid var(--warning);">
+              <i class="fa-solid fa-circle-question" style="font-size:2rem;color:var(--warning);"></i>
+            </div>
+            <h3 style="font-size:1.5rem;font-weight:800;color:#23272f;margin-bottom:12px;">Confirm Action</h3>
+            <p style="color:#5b6378;font-weight:600;font-size:1rem;line-height:1.6;margin-bottom:24px;">${message}</p>
+            <div style="display:flex;gap:12px;justify-content:center;">
+              <button id="confirmCancel" style="padding:12px 32px;border-radius:10px;background:#fff;color:#23272f;font-weight:700;border:2px solid rgba(11,15,26,.1);cursor:pointer;font-size:1rem;transition:all .2s ease;">Cancel</button>
+              <button id="confirmOk" style="padding:12px 32px;border-radius:10px;background:linear-gradient(135deg, var(--accent), var(--accent-2));color:#051014;font-weight:700;border:none;cursor:pointer;font-size:1rem;box-shadow:0 8px 26px rgba(139,182,255,.08);transition:all .2s ease;">Confirm</button>
+            </div>
+          </div>
+        </div>
+      `;
+      document.body.appendChild(div);
+      
+      const closeHandler = function(confirmed) {
+        div.remove();
+        if (confirmed && onConfirm) {
+          onConfirm();
+        } else if (!confirmed && onCancel) {
+          onCancel();
+        }
+      };
+      
+      document.getElementById('confirmOk').addEventListener('click', () => closeHandler(true));
+      document.getElementById('confirmCancel').addEventListener('click', () => closeHandler(false));
+      
+      div.addEventListener('click', function(e) {
+        if (e.target === div) closeHandler(false);
+      });
+      
+      const escapeHandler = function(e) {
+        if (e.key === 'Escape') {
+          closeHandler(false);
+          document.removeEventListener('keydown', escapeHandler);
+        }
+      };
+      document.addEventListener('keydown', escapeHandler);
+    }
+
+    // Custom alert function to replace browser alert dialogs
+    function showCustomAlert(message, type = 'error') {
+      const div = document.createElement('div');
+      div.id = 'customAlertModal';
+      div.style = 'position:fixed;top:0;left:0;width:100vw;height:100vh;z-index:9999;background:rgba(0,0,0,.25);backdrop-filter:blur(2px);display:flex;align-items:center;justify-content:center;';
+      
+      const isSuccess = type === 'success';
+      const iconColor = isSuccess ? 'var(--success)' : 'var(--error)';
+      const iconBg = isSuccess ? 'rgba(74,222,128,.15)' : 'rgba(255,107,107,.15)';
+      const iconClass = isSuccess ? 'fa-circle-check' : 'fa-circle-exclamation';
+      const title = isSuccess ? 'Success' : 'Notice';
+      
+      div.innerHTML = `
+        <div style="background:rgba(255,255,255,.97);border-radius:18px;max-width:500px;width:90vw;box-shadow:0 10px 40px rgba(16,24,40,.22);position:relative;overflow:hidden;">
+          <div style="padding:32px;text-align:center;">
+            <div style="width:64px;height:64px;border-radius:50%;background:${iconBg};display:flex;align-items:center;justify-content:center;margin:0 auto 20px;border:2px solid ${iconColor};">
+              <i class="fa-solid ${iconClass}" style="font-size:2rem;color:${iconColor};"></i>
+            </div>
+            <h3 style="font-size:1.5rem;font-weight:800;color:#23272f;margin-bottom:12px;">${title}</h3>
+            <p style="color:#5b6378;font-weight:600;font-size:1rem;line-height:1.6;margin-bottom:24px;">${message}</p>
+            <div style="display:flex;gap:12px;justify-content:center;">
+              <button id="alertOk" style="padding:12px 32px;border-radius:10px;background:linear-gradient(135deg, var(--accent), var(--accent-2));color:#051014;font-weight:700;border:none;cursor:pointer;font-size:1rem;box-shadow:0 8px 26px rgba(139,182,255,.08);transition:all .2s ease;">OK</button>
+            </div>
+          </div>
+        </div>
+      `;
+      document.body.appendChild(div);
+      
+      const closeHandler = function() {
+        div.remove();
+      };
+      
+      document.getElementById('alertOk').addEventListener('click', closeHandler);
+      
+      div.addEventListener('click', function(e) {
+        if (e.target === div) closeHandler();
+      });
+      
+      const escapeHandler = function(e) {
+        if (e.key === 'Escape') {
+          closeHandler();
+          document.removeEventListener('keydown', escapeHandler);
+        }
+      };
+      document.addEventListener('keydown', escapeHandler);
+    }
+
+    // Handle logout click
+    document.querySelector('.nav-item[data-logout]').addEventListener('click', function() {
+      showCustomConfirm('Are you sure you want to log out?', function() {
+        localStorage.removeItem('petopia_session');
+        window.location.href = document.querySelector('.nav-item[data-logout]').dataset.logout;
+      });
+    });
+    document.getElementById('yr').textContent = new Date().getFullYear();
+    const cartBadge = document.getElementById('cartBadge');
+    function updateCartBadge(){
+      fetch('/cart/items')
+        .then(r=>r.json())
+        .then(data=>{
+          if (Array.isArray(data)){
+            const count = data.length;
+            if (cartBadge){
+              cartBadge.textContent = count;
+              cartBadge.style.display = count > 0 ? 'block' : 'none';
+              cartBadge.style.transform = 'scale(1.2)';
+              setTimeout(()=>{ cartBadge.style.transform = 'scale(1)'; }, 200);
+            }
+          }
+        })
+        .catch(()=>{})
+    }
+    updateCartBadge();
+
+    // Notifications API (scoped per user) + polling
+    function currentUserId(){ try{ return document.body && document.body.dataset && document.body.dataset.userId ? String(document.body.dataset.userId) : ''; }catch(e){ return ''; } }
+    function notifKey(){ const uid=currentUserId(); return uid ? ('petopia_notifications_'+uid) : 'petopia_notifications'; }
+    function loadNotifs(){ return JSON.parse(localStorage.getItem(notifKey())||'[]'); }
+    function saveNotifs(n){ localStorage.setItem(notifKey(), JSON.stringify(n)); }
+    function unreadCount(){ return loadNotifs().filter(n=>!n.read).length; }
+    function refreshNotifBadge(){ const b=document.getElementById('notifBadge'); if(!b) return; const c=unreadCount(); b.textContent=c; b.style.display=c>0?'block':'none'; }
+    refreshNotifBadge();
+    function userScopedKey(key){ const uid=currentUserId(); return uid ? (key+'_'+uid) : key; }
+    function getCache(key, fallback){ try{ return JSON.parse(localStorage.getItem(userScopedKey(key))||''); }catch(e){ return fallback; } }
+    function setCache(key, val){ try{ localStorage.setItem(userScopedKey(key), JSON.stringify(val)); }catch(e){} }
+    function addNotificationOnce(nid, title, body){ try{ const list=loadNotifs(); if(list.some(n=> String(n.id)===String(nid))) return; const now=Date.now(); list.push({ id:String(nid), title, body, createdAt: now, read:false }); saveNotifs(list); refreshNotifBadge(); }catch(e){} }
+    (function(){
+      const K_FLASH='petopia_flash_ids';
+      const K_VOUCH='petopia_voucher_ids';
+      const K_PRODS='petopia_product_ids';
+      const K_ORDMAP='petopia_order_status_map';
+      async function pollFlashSales(){ try{ const r=await fetch('/flash_sales/public'); const items=await r.json(); const prev=new Set(getCache(K_FLASH,[])||[]); const nowIds=[]; (Array.isArray(items)?items:[]).forEach(x=>{ nowIds.push(x.id); if(!prev.has(x.id)){ addNotificationOnce('fs-'+x.id,'Flash Sale',`${x.title||'A product'} is now on sale`); } }); setCache(K_FLASH, nowIds);}catch(e){} }
+      async function pollVouchers(){ try{ const r=await fetch('/vouchers/public'); const items=await r.json(); const prev=new Set(getCache(K_VOUCH,[])||[]); const nowIds=[]; (Array.isArray(items)?items:[]).forEach(v=>{ nowIds.push(v.id); if(!prev.has(v.id)){ addNotificationOnce('v-'+v.id,'New voucher',`New voucher from ${v.storeName||'a seller'}: ${v.code||''}`); } }); setCache(K_VOUCH, nowIds);}catch(e){} }
+      function pollNewProducts(){ try{ const products = Array.isArray(window.allProductsData)? window.allProductsData : []; if(!products.length){ setCache(K_PRODS, getCache(K_PRODS,[])||[]); return; } const prev=new Set(getCache(K_PRODS,[])||[]); const nowIds=[]; products.forEach(p=>{ nowIds.push(p.id); if(!prev.has(p.id)){ const name=(p.title||p.name||'New product'); const store=p.store_name?` from ${p.store_name}`:''; addNotificationOnce('np-'+p.id,'New product',`${name}${store}`); } }); setCache(K_PRODS, nowIds);}catch(e){} }
+      async function pollOrders(){ try{ const r=await fetch('/orders/mine'); const orders=await r.json(); const map=getCache(K_ORDMAP,{})||{}; const nextMap={}; const entries=[]; (Array.isArray(orders)?orders:[]).forEach(o=>{ const segs=Array.isArray(o.segments)?o.segments:[]; if(segs.length){ segs.forEach(seg=> entries.push({ key:`${o.id}-${seg.sellerId}`, orderId:o.id, status:String(seg.status||'') })); } else { entries.push({ key:String(o.id), orderId:o.id, status:String(o.status||'') }); } }); entries.forEach(e=>{ const prevStatus=map[e.key]; nextMap[e.key]=e.status; if(prevStatus && prevStatus!==e.status){ addNotificationOnce('ord-'+e.key+'-'+e.status,'Order update',`Order #${e.orderId} status changed to ${e.status.replace('_',' ')}`); } if(e.status==='completed' && prevStatus!=='completed'){ addNotificationOnce('rev-'+e.key,'Review reminder',`Please review your Order #${e.orderId}.`); } }); setCache(K_ORDMAP, nextMap);}catch(e){} }
+      document.addEventListener('DOMContentLoaded', function(){ setTimeout(()=>{ try{ pollNewProducts(); }catch(e){} }, 500); pollFlashSales(); pollVouchers(); pollOrders(); setInterval(pollFlashSales,30000); setInterval(pollVouchers,30000); setInterval(pollNewProducts,30000); setInterval(pollOrders,30000); });
+    })();
+
+    // Messages: e-commerce style inbox (conversation list + chat view) - API-based
+    let conversationsCache = [];
+    let messagesCache = {};
+    
+    async function fetchConvos(){
+      try{
+        const res = await fetch('/messages/conversations', { credentials: 'same-origin' });
+        if (!res.ok) throw new Error('Failed to fetch conversations');
+        const data = await res.json();
+        conversationsCache = Array.isArray(data) ? data : [];
+        return conversationsCache;
+      }catch(e){
+        console.error('Error fetching conversations:', e);
+        return [];
+      }
+    }
+    
+    async function fetchConvMsgs(convId){
+      try{
+        const res = await fetch(`/messages/conversations/${convId}`, { credentials: 'same-origin' });
+        if (!res.ok) throw new Error('Failed to fetch messages');
+        const data = await res.json();
+        messagesCache[convId] = Array.isArray(data) ? data : [];
+        return messagesCache[convId];
+      }catch(e){
+        console.error('Error fetching messages:', e);
+        return [];
+      }
+    }
+    
+    async function sendMessageToAPI(convId, text){
+      try{
+        const res = await fetch('/messages/send', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          credentials: 'same-origin',
+          body: JSON.stringify({ conversationId: convId, message: text })
+        });
+        if (!res.ok) throw new Error('Failed to send message');
+        return await res.json();
+      }catch(e){
+        console.error('Error sending message:', e);
+        throw e;
+      }
+    }
+    
+    async function markMessagesRead(convId){
+      try{
+        await fetch('/messages/mark-read', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          credentials: 'same-origin',
+          body: JSON.stringify({ conversationId: convId })
+        });
+      }catch(e){
+        console.error('Error marking messages as read:', e);
+      }
+    }
+    
+    function totalUnread(){ return conversationsCache.reduce((s,c)=> s + (c.unreadCount||0), 0); }
+    function refreshMsgBadge(){ const b=document.getElementById('msgBadge'); if(!b) return; const c=totalUnread(); b.textContent=c; b.style.display=c>0?'block':'none'; }
+    
+    // Initial badge refresh
+    fetchConvos().then(() => refreshMsgBadge());
+    
+    (function(){
+      const btn = document.getElementById('msgBtn'); if(!btn) return;
+      const panel = document.createElement('div');
+      panel.id='msgPanel'; panel.style.position='fixed'; panel.style.width='420px'; panel.style.maxHeight='70vh'; panel.style.display='none'; panel.style.zIndex='200'; panel.style.background='var(--panel-strong)'; panel.style.border='1px solid rgba(11,15,26,.08)'; panel.style.borderRadius='12px'; panel.style.boxShadow='var(--glass-shadow)'; panel.style.overflow='hidden';
+      panel.innerHTML = '<div id="msgArrowWrap" style="position:absolute;top:-10px;right:20px;width:0;height:0;">\
+        <div style="position:absolute;top:-1px;right:-1px;width:0;height:0;border-left:9px solid transparent;border-right:9px solid transparent;border-bottom:9px solid rgba(11,15,26,.08);"></div>\
+        <div style="position:relative;width:0;height:0;border-left:8px solid transparent;border-right:8px solid transparent;border-bottom:8px solid var(--panel-strong);"></div>\
+      </div>\
+      <div id="msgHeader" style="padding:12px 12px 10px 12px;display:flex;align-items:center;gap:8px;justify-content:space-between;border-bottom:1px solid rgba(11,15,26,.08);">\
+        <div style="display:flex;align-items:center;gap:8px;">\
+          <button id="msgBackBtn" class="btn" style="display:none;padding:6px 10px;border-radius:8px;border:1px solid rgba(11,15,26,.1);background:#fff;font-weight:800;color:#23272f;cursor:pointer">←</button>\
+          <div id="msgTitle" style="font-weight:800;color:#23272f;">Messages</div>\
+        </div>\
+        <div id="msgHeaderActions">\
+          <button id="clearMsgs" class="btn" style="padding:6px 10px;border-radius:8px;border:1px solid rgba(11,15,26,.1);background:#fff;font-weight:700;color:#23272f;cursor:pointer">Clear</button>\
+          <button id="markAllMsgRead" class="btn" style="padding:6px 10px;border-radius:8px;border:1px solid rgba(11,15,26,.1);background:#fff;font-weight:700;color:#23272f;cursor:pointer">Mark all read</button>\
+          <button id="customerServiceBtn" class="icon-btn" title="Customer Service" aria-label="Customer Service" style="font-size:1.2rem;padding:6px;border:none;background:transparent;cursor:pointer;color:var(--text);">\
+            <i class="fa-solid fa-headset"></i>\
+          </button>\
+        </div>\
+      </div>\
+      <div id="inboxView" style="display:grid;gap:0;max-height:calc(70vh - 56px);overflow-y:auto;background:#fff;">\
+        <!-- conversation items injected here -->\
+      </div>\
+      <div id="chatView" style="display:none;max-height:58vh;grid-template-rows:auto 1fr auto;">\
+        <div id="chatList" style="padding:12px;display:grid;gap:8px;overflow-y:auto;background:#fff;max-height:48vh;"></div>\
+        <div style="padding:10px;border-top:1px solid #e5e8f0;background:var(--panel-strong);display:flex;gap:8px;align-items:center;">\
+          <input id="chatInput" class="input" placeholder="Type a message..." style="flex:1;border-radius:999px;">\
+          <button id="sendChatBtn" class="cta" style="min-width:auto;padding:8px 14px;border-radius:999px;">Send</button>\
+        </div>\
+      </div>';
+      document.body.appendChild(panel);
+
+      let currentConvId = null;
+      let bc = null; try { bc = new BroadcastChannel('petopia_msgs'); bc.onmessage = (ev)=>{ if (ev?.data?.type==='msgs_update'){ refreshMsgBadge(); if (panel.style.display==='block'){ if (currentConvId) renderChat(); else renderInbox(); } } }; } catch(e) {}
+
+      function placePanel(){
+        const rect = btn.getBoundingClientRect();
+        const width = Math.min(420, Math.max(280, Math.floor(window.innerWidth * 0.95)));
+        panel.style.width = width + 'px';
+        const margin = 12; const top = rect.bottom + 8; let left = rect.right - width;
+        left = Math.max(margin, Math.min(left, window.innerWidth - margin - width));
+        panel.style.top = top + 'px'; panel.style.left = left + 'px';
+        const arrowWrap = panel.querySelector('#msgArrowWrap');
+        const rightOffset = Math.max(12, Math.min(width - 24, width - (rect.right - left) - 12));
+        arrowWrap.style.right = rightOffset + 'px';
+      }
+
+      function snippet(text){ const t=String(text||''); return t.length>40? t.slice(0,40)+'…' : t; }
+      function timeStr(ts){ return new Date(ts).toLocaleTimeString(); }
+
+      async function renderInbox(){
+        currentConvId = null;
+        document.getElementById('msgTitle').textContent = 'Messages';
+        document.getElementById('msgBackBtn').style.display = 'none';
+        document.getElementById('msgHeaderActions').style.display = 'block';
+        document.getElementById('chatView').style.display = 'none';
+        const wrap = document.getElementById('inboxView');
+        wrap.style.display = 'block';
+        wrap.innerHTML = '<div style="color:var(--muted);font-weight:700;text-align:center;padding:20px;">Loading...</div>';
+        
+        const convos = await fetchConvos();
+        conversationsCache = convos;
+        refreshMsgBadge();
+        
+        if (!convos.length){ 
+          wrap.innerHTML = '<div style="color:var(--muted);font-weight:700;text-align:center;padding:20px;">No conversations</div>'; 
+          return; 
+        }
+        
+        const sorted = convos.slice().sort((a,b)=> (b.updatedAt||0)-(a.updatedAt||0));
+        wrap.innerHTML = sorted.map(c=>{
+          // Replace "Petopia Admin" with "Customer Service"
+          const displayName = (c.name === 'Petopia Admin' || c.name === 'petopia admin') ? 'Customer Service' : c.name;
+          const badge = c.unreadCount>0 ? `<span style="background:#ef4444;color:#fff;border-radius:999px;padding:2px 8px;font-weight:800;font-size:.75rem;">${c.unreadCount}</span>` : '';
+          return `<button class="conv-item" data-id="${c.id}" style="text-align:left;display:flex;gap:10px;align-items:center;width:100%;padding:10px 12px;border:none;background:#fff;cursor:pointer;border-bottom:1px solid #e5e8f0;">\
+            <img src="${c.avatar}" alt="${displayName}" style="width:36px;height:36px;border-radius:50%;object-fit:cover;box-shadow:0 2px 8px #eef;">\
+            <div style="flex:1;min-width:0;">\
+              <div style="display:flex;justify-content:space-between;align-items:center;gap:8px;">\
+                <div style="font-weight:800;color:#23272f;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${displayName}</div>\
+                <div style="color:var(--muted);font-size:.8rem;">${timeStr(c.updatedAt||Date.now())}</div>\
+              </div>\
+              <div style="display:flex;justify-content:space-between;align-items:center;gap:8px;">\
+                <div style="color:${c.unreadCount>0?'#23272f':'var(--muted)'};font-weight:700;font-size:.9rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${snippet(c.lastMessage||'')}</div>\
+                ${badge}\
+              </div>\
+            </div>\
+          </button>`; 
+        }).join('');
+      }
+
+      async function renderChat(){
+        if (!currentConvId) return;
+        const conv = conversationsCache.find(c=>c.id===currentConvId); 
+        if (!conv) { renderInbox(); return; }
+        // Replace "Petopia Admin" with "Customer Service"
+        const displayName = (conv.name === 'Petopia Admin' || conv.name === 'petopia admin') ? 'Customer Service' : conv.name;
+        document.getElementById('msgTitle').textContent = displayName;
+        document.getElementById('msgBackBtn').style.display = 'inline-flex';
+        document.getElementById('msgHeaderActions').style.display = 'none';
+        document.getElementById('inboxView').style.display = 'none';
+        const chat = document.getElementById('chatView'); chat.style.display = 'grid';
+        const list = document.getElementById('chatList');
+        list.innerHTML = '<div style="color:var(--muted);font-weight:700;text-align:center;padding:20px;">Loading...</div>';
+        
+        const items = await fetchConvMsgs(currentConvId);
+        messagesCache[currentConvId] = items;
+        
+        // Mark messages as read
+        await markMessagesRead(currentConvId);
+        
+        // Update conversation unreadCount in cache
+        const idx = conversationsCache.findIndex(c=>c.id===currentConvId);
+        if (idx>-1){ conversationsCache[idx].unreadCount = 0; }
+        refreshMsgBadge();
+        
+        if (!items.length){ 
+          list.innerHTML = '<div style="color:var(--muted);font-weight:700;text-align:center;padding:20px;">No messages yet</div>'; 
+        } else {
+          list.innerHTML = items.map(m=>{
+            const isIn = m.direction==='in';
+            const bubbleBg = isIn ? 'rgba(139,182,255,.12)' : 'rgba(124,244,209,.15)';
+            const border = isIn ? '1px solid rgba(139,182,255,.35)' : '1px solid rgba(124,244,209,.45)';
+            const justify = isIn ? 'flex-start' : 'flex-end';
+            return `<div style="display:flex;justify-content:${justify};">\
+              <div style="max-width:78%;background:${bubbleBg};border:${border};border-radius:12px;padding:8px 10px;overflow:hidden;word-wrap:break-word;overflow-wrap:break-word;word-break:break-word;">\
+                <div style="font-weight:700;font-size:.95rem;color:#23272f;white-space:pre-wrap;word-wrap:break-word;overflow-wrap:break-word;word-break:break-word;">${String(m.body).replace(/</g,'&lt;')}</div>\
+                <div style="color:var(--muted);font-size:.75rem;margin-top:4px;">${timeStr(m.createdAt)}</div>\
+              </div>\
+            </div>`;
+          }).join('');
+        }
+        list.scrollTop = list.scrollHeight;
+      }
+
+      function openConv(id){ currentConvId = id; renderChat(); }
+
+      async function sendChat(text){
+        const t = text.trim(); if (!t || !currentConvId) return;
+        
+        try {
+          // Send message to API
+          await sendMessageToAPI(currentConvId, t);
+          
+          // Refresh messages and conversations
+          await fetchConvMsgs(currentConvId);
+          await fetchConvos();
+          refreshMsgBadge();
+          
+          // Re-render chat
+          await renderChat();
+        } catch(e) {
+          showCustomAlert('Failed to send message. Please try again.');
+          console.error(e);
+        }
+      }
+
+      // wire events
+      btn.addEventListener('click', function(){
+        const willShow = panel.style.display==='none';
+        panel.style.display = willShow ? 'block' : 'none';
+        if (willShow) { placePanel(); }
+        if (panel.style.display==='block'){
+          if (currentConvId) renderChat(); else renderInbox();
+        }
+      });
+      document.addEventListener('click', function(e){ if (!panel.contains(e.target) && e.target !== btn && !btn.contains(e.target)) panel.style.display = 'none'; });
+      window.addEventListener('resize', ()=>{ if (panel.style.display==='block') placePanel(); });
+      window.addEventListener('scroll', ()=>{ if (panel.style.display==='block') placePanel(); }, { passive:true });
+
+      panel.addEventListener('click', function(e){
+        const item = e.target.closest('.conv-item'); if (item){ openConv(Number(item.dataset.id)); return; }
+      });
+      document.getElementById('msgBackBtn').addEventListener('click', function(){ currentConvId=null; renderInbox(); });
+      document.getElementById('markAllMsgRead').addEventListener('click', async function(){
+        // Mark all conversations as read
+        for (const conv of conversationsCache) {
+          await markMessagesRead(conv.id);
+        }
+        await fetchConvos();
+        refreshMsgBadge();
+        renderInbox();
+      });
+      document.getElementById('clearMsgs').addEventListener('click', function(){
+        // Clear is not supported via API (conversations persist in DB)
+        showCustomAlert('Conversations are stored in the database. To clear, please contact support.');
+      });
+      
+      // Customer Service button wiring
+      (function wireCustomerServiceConvo(){
+        const csBtn = panel.querySelector && panel.querySelector('#customerServiceBtn');
+        if (!csBtn) return;
+        let inFlight = false;
+        csBtn.addEventListener('click', async function(e){
+          e.preventDefault(); e.stopPropagation();
+          if (inFlight) return;
+          inFlight = true;
+          const icon = this.querySelector('i');
+          if (icon) icon.classList.add('fa-spin');
+          try {
+            const res = await fetch('/messages/customer-service', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              credentials: 'same-origin'
+            });
+            let data = {};
+            try { data = await res.json(); } catch(_) {}
+            if (!res.ok || !data.success) {
+              throw new Error(data && data.error ? data.error : 'Failed to contact customer service');
+            }
+
+            await fetchConvos();
+            refreshMsgBadge();
+
+            const convId = Number(data.conversationId);
+            if (convId) {
+              placePanel();
+              openConv(convId);
+            } else {
+              await renderInbox();
+            }
+          } catch(err) {
+            console.error('Failed to open customer service conversation:', err);
+            showCustomAlert('Unable to contact Customer Service right now. Please try again later.');
+          } finally {
+            if (icon) icon.classList.remove('fa-spin');
+            inFlight = false;
+          }
+        });
+      })();
+      
+      document.getElementById('sendChatBtn').addEventListener('click', function(){ const inp=document.getElementById('chatInput'); const v=inp.value; inp.value=''; sendChat(v); });
+      document.getElementById('chatInput').addEventListener('keydown', function(e){ if (e.key==='Enter'){ e.preventDefault(); const v=this.value; this.value=''; sendChat(v); }});
+
+      // Poll for new messages every 10 seconds (always, to update badge)
+      let pollInterval = null;
+      function startPolling(){
+        if (pollInterval) return;
+        pollInterval = setInterval(async ()=>{
+          await fetchConvos();
+          refreshMsgBadge();
+          if (panel.style.display==='block'){
+            if (currentConvId) {
+              await fetchConvMsgs(currentConvId);
+              await renderChat();
+            } else {
+              await renderInbox();
+            }
+          }
+        }, 10000);
+      }
+      function stopPolling(){
+        if (pollInterval) {
+          clearInterval(pollInterval);
+          pollInterval = null;
+        }
+      }
+      // Start polling immediately to keep badge updated
+      startPolling();
+      btn.addEventListener('click', function(){
+        if (panel.style.display==='block') {
+          // Ensure polling is active when panel opens
+          if (!pollInterval) startPolling();
+        }
+      });
+    })();
+    (function(){
+      const btn = document.getElementById('notifBtn'); if(!btn) return;
+      const panel = document.createElement('div');
+      panel.id = 'notifPanel'; panel.style.position='fixed'; panel.style.width='360px'; panel.style.maxHeight='60vh'; panel.style.overflowY='auto'; panel.style.background='var(--panel-strong)'; panel.style.border='1px solid rgba(11,15,26,.08)'; panel.style.borderRadius='12px'; panel.style.boxShadow='var(--glass-shadow)'; panel.style.display='none'; panel.style.zIndex='200';
+      panel.innerHTML = '<div id="notifArrowWrap" style="position:absolute;top:-10px;right:20px; width:0;height:0;">\
+        <div style="position:absolute;top:-1px;right:-1px; width:0;height:0;border-left:9px solid transparent;border-right:9px solid transparent;border-bottom:9px solid rgba(11,15,26,.08);"></div>\
+        <div style="position:relative; width:0;height:0;border-left:8px solid transparent;border-right:8px solid transparent;border-bottom:8px solid var(--panel-strong);"></div>\
+      </div>\
+      <div style="padding:12px 12px 8px 12px; display:flex; justify-content:space-between; align-items:center;"><div style="font-weight:800;color:#23272f">Notifications</div><div><button id="clearNotifs" class="btn" style="padding:6px 10px;border-radius:8px;border:1px solid rgba(11,15,26,.1);background:#fff;font-weight:700;color:#23272f;cursor:pointer">Clear</button> <button id="markAllRead" class="btn" style="padding:6px 10px;border-radius:8px;border:1px solid rgba(11,15,26,.1);background:#fff;font-weight:700;color:#23272f;cursor:pointer">Mark all read</button></div></div><div id="notifList" style="padding:8px 12px 12px 12px; display:grid; gap:8px;"></div>';
+      document.body.appendChild(panel);
+      function renderNotifs(){
+        const list = document.getElementById('notifList');
+        const items = loadNotifs().slice().sort((a,b)=>b.createdAt-a.createdAt);
+        if (!items.length){
+          list.innerHTML = '<div style="color:var(--muted);font-weight:700;text-align:center;padding:20px;">No notifications</div>';
+          return;
+        }
+        list.innerHTML = items.map(n=>{
+          const unread = !n.read;
+          const itemStyle = unread
+            ? 'background:rgba(139,182,255,.12);border:1px solid rgba(139,182,255,.35);'
+            : 'background:#fff;border:1px solid #e5e8f0;opacity:.65;';
+          const bodyColor = unread ? '#23272f' : 'var(--muted)';
+          return `<div style="${itemStyle};border-radius:10px;padding:10px;">
+            <div style="font-weight:800;color:#23272f;">${n.title}</div>
+            <div style="color:${bodyColor};font-weight:700;font-size:.9rem;">${n.body}</div>
+            <div style="color:var(--muted);font-size:.8rem;margin-top:4px;">${new Date(n.createdAt).toLocaleString()}</div>
+          </div>`;
+        }).join('');
+      }
+      function placePanelBelowBell(){ const rect = btn.getBoundingClientRect(); const width = Math.min(360, Math.max(260, Math.floor(window.innerWidth * 0.9))); panel.style.width = width + 'px'; const margin = 12; const top = rect.bottom + 8; let left = rect.right - width; left = Math.max(margin, Math.min(left, window.innerWidth - margin - width)); panel.style.top = top + 'px'; panel.style.left = left + 'px'; const arrowWrap = panel.querySelector('#notifArrowWrap'); const rightOffset = Math.max(12, Math.min(width - 24, width - (rect.right - left) - 12)); arrowWrap.style.right = rightOffset + 'px'; }
+      btn.addEventListener('click', function(){
+        const willShow = panel.style.display==='none';
+        panel.style.display = willShow ? 'block' : 'none';
+        if (willShow) { placePanelBelowBell(); }
+        if (panel.style.display==='block'){
+          // Only render; do not auto-mark as read
+          refreshNotifBadge();
+          renderNotifs();
+        }
+      });
+      document.addEventListener('click', function(e){ if (!panel.contains(e.target) && e.target !== btn && !btn.contains(e.target)) panel.style.display = 'none'; });
+      panel.querySelector('#markAllRead').addEventListener('click', function(){ const n = loadNotifs().map(x=>({...x, read:true})); saveNotifs(n); refreshNotifBadge(); renderNotifs(); });
+      panel.querySelector('#clearNotifs').addEventListener('click', function(){ saveNotifs([]); refreshNotifBadge(); renderNotifs(); });
+      window.addEventListener('resize', ()=>{ if (panel.style.display==='block') placePanelBelowBell(); });
+      window.addEventListener('scroll', ()=>{ if (panel.style.display==='block') placePanelBelowBell(); }, { passive:true });
+    })();
+
+    // Address storage via backend
+    let addresses = [];
+    let editId = null;
+    let selectedLabel = null;
+
+    // Full Philippines administrative dataset loader
+    const PH_JSON_URL = "{{ url_for('static', filename='js/philippine_provinces_cities_municipalities_and_barangays_2019v2.json') }}";
+    let PH_RAW = null; // original JSON by region code
+    let PH_READY = false;
+    // Derived fast-access maps
+    const PH_REGIONS = []; // array of region names
+    const REGION_TO_CITIES = new Map(); // regionName -> Array<{value:string, label:string, muni:string, prov:string}>
+    const REGION_CITY_TO_BRGYS = new Map(); // key `${regionName}||${muni}||${prov}` -> barangay array
+
+    function safeTitle(s){ return String(s||'').trim(); }
+
+    function buildDerivedMaps(){
+      PH_REGIONS.length = 0;
+      REGION_TO_CITIES.clear();
+      REGION_CITY_TO_BRGYS.clear();
+      const regionEntries = Object.entries(PH_RAW||{});
+      // preserve file order
+      for(const [regionCode, regionObj] of regionEntries){
+        const regionName = safeTitle(regionObj?.region_name||regionCode);
+        PH_REGIONS.push(regionName);
+        const cityList = [];
+        const seenCityInRegion = new Set(); // track (muni||prov)
+        const provinces = regionObj?.province_list||{};
+        for(const [provName, provObj] of Object.entries(provinces)){
+          const muniList = provObj?.municipality_list||{};
+          for(const [muniName, muniObj] of Object.entries(muniList)){
+            const muni = safeTitle(muniName);
+            const prov = safeTitle(provName);
+            const value = encodeURIComponent(muni) + '||' + encodeURIComponent(prov);
+            if(!seenCityInRegion.has(value)){
+              seenCityInRegion.add(value);
+              // Use label disambiguated by province
+              const label = `${muni} — ${prov}`;
+              cityList.push({ value, label, muni, prov });
+            }
+            const brgys = Array.isArray(muniObj?.barangay_list)? muniObj.barangay_list.map(safeTitle) : [];
+            REGION_CITY_TO_BRGYS.set(regionName + '||' + value, brgys);
+          }
+        }
+        // sort alphabetically by municipality then province for usability
+        cityList.sort((a,b)=> a.muni.localeCompare(b.muni) || a.prov.localeCompare(b.prov));
+        REGION_TO_CITIES.set(regionName, cityList);
+      }
+      // sort regions by name but keep NCR near others; keep original order to match common expectations
+      // PH_REGIONS already in file order
+      PH_READY = true;
+    }
+
+    async function loadPhData(){
+      if(PH_READY) return;
+      try{
+        const res = await fetch(PH_JSON_URL, { cache: 'no-store' });
+        if(!res.ok) throw new Error('Failed to load PH data');
+        PH_RAW = await res.json();
+        buildDerivedMaps();
+        populateRegions();
+      }catch(err){
+        console.error('PH data load error', err);
+        showCustomAlert('Failed to load Philippine address data. Please try reloading the page.');
+      }
+    }
+
+    function populateRegions(){
+      const regionSel = document.getElementById('region');
+      if(!regionSel) return;
+      if(!PH_READY){
+        regionSel.innerHTML = '<option value="" disabled selected>Loading regions…</option>';
+        return;
+      }
+      regionSel.innerHTML = '<option value="" disabled selected>Select region</option>' +
+        PH_REGIONS.map(r=>`<option value="${r}">${r}</option>`).join('');
+    }
+
+    function populateCities(region){
+      const citySel = document.getElementById('city');
+      const brgySel = document.getElementById('barangay');
+      if(!citySel||!brgySel) return;
+      if(!PH_READY || !region){
+        citySel.disabled = true;
+        citySel.innerHTML = '<option value="" disabled selected>Select city</option>';
+        brgySel.disabled = true;
+        brgySel.innerHTML = '<option value="" disabled selected>Select barangay</option>';
+        return;
+      }
+      const cities = REGION_TO_CITIES.get(region)||[];
+      citySel.disabled = cities.length===0;
+      citySel.innerHTML = '<option value="" disabled selected>Select city</option>' +
+        cities.map(c=>`<option value="${c.value}">${c.label}</option>`).join('');
+      brgySel.disabled = true;
+      brgySel.innerHTML = '<option value="" disabled selected>Select barangay</option>';
+    }
+
+    function populateBarangays(region, cityValue){
+      const brgySel = document.getElementById('barangay');
+      if(!brgySel) return;
+      if(!PH_READY || !(region && cityValue)){
+        brgySel.disabled = true;
+        brgySel.innerHTML = '<option value="" disabled selected>Select barangay</option>';
+        return;
+      }
+      const key = region + '||' + cityValue;
+      const brgys = REGION_CITY_TO_BRGYS.get(key)||[];
+      brgySel.disabled = brgys.length===0;
+      brgySel.innerHTML = '<option value="" disabled selected>Select barangay</option>' +
+        brgys.map(b=>`<option value="${b}">${b}</option>`).join('');
+    }
+
+    function composeFullAddress(){
+      const country = (document.getElementById('country')?.value||'').trim();
+      const region = (document.getElementById('region')?.value||'').trim();
+      const cityVal = (document.getElementById('city')?.value||'').trim();
+      const barangay = (document.getElementById('barangay')?.value||'').trim();
+      const houseNo = (document.getElementById('houseNo')?.value||'').trim();
+      const street = (document.getElementById('street')?.value||'').trim();
+      const zip = (document.getElementById('zipCode')?.value||'').trim();
+      const landmark = (document.getElementById('landmark')?.value||'').trim();
+      const parts = [];
+      const line1 = [houseNo, street].filter(Boolean).join(' ');
+      if(line1) parts.push(line1);
+      if(barangay) parts.push(barangay);
+      let cityOut = '';
+      if(cityVal){
+        const [muniEnc] = cityVal.split('||');
+        cityOut = decodeURIComponent(muniEnc||'');
+      }
+      if(cityOut) parts.push(cityOut);
+      if(region) parts.push(region);
+      if(zip) parts.push(zip);
+      if(country) parts.push(country);
+      let full = parts.join(', ');
+      if(landmark) full += ` (Landmark: ${landmark})`;
+      return full;
+    }
+
+    function tryParseAddressToFields(addr){
+      // Best-effort parse for addresses saved previously as free-text
+      if(!addr) return;
+      const countryEl = document.getElementById('country');
+      const regionEl = document.getElementById('region');
+      const cityEl = document.getElementById('city');
+      const brgyEl = document.getElementById('barangay');
+      const zipEl = document.getElementById('zipCode');
+      const houseNoEl = document.getElementById('houseNo');
+      const streetEl = document.getElementById('street');
+      const landmarkEl = document.getElementById('landmark');
+      const m = String(addr).match(/\(Landmark:\s*(.+)\)\s*$/);
+      if(m){ landmarkEl.value = m[1]; addr = addr.replace(m[0],'').trim(); }
+      const parts = addr.split(',').map(s=>s.trim()).filter(Boolean);
+      if(parts.length){
+        if(parts[parts.length-1].match(/Philippines/i)) countryEl.value = 'Philippines';
+        const maybeZip = parts.find(p=>/^\d{4}$/.test(p)); if(maybeZip) zipEl.value = maybeZip;
+        // Region match
+        if(PH_READY){
+          for(const r of PH_REGIONS){ if(parts.includes(r)){ regionEl.value = r; populateCities(r); break; } }
+        const regionVal = regionEl.value;
+        if(regionVal){
+            // City match by option text starting with city name (ignore province suffix)
+            const cityNameFromAddr = parts.find(p=> p && p!==regionVal && !/^\d{4}$/.test(p) && !/Philippines/i.test(p));
+            const options = Array.from(cityEl.options||[]);
+            const match = options.find(opt=> opt.value && opt.text.toLowerCase().startsWith(String(cityNameFromAddr||'').toLowerCase()));
+            if(match){ cityEl.disabled=false; cityEl.value = match.value; populateBarangays(regionVal, match.value); }
+            const brgyFromAddr = parts.find(p=> p && p!==regionVal && p!==cityNameFromAddr && !/^\d{4}$/.test(p) && !/Philippines/i.test(p));
+            if(brgyFromAddr){
+              const brgys = Array.from(brgyEl.options||[]).map(o=>o.value);
+              if(brgys.includes(brgyFromAddr)){ brgyEl.disabled=false; brgyEl.value = brgyFromAddr; }
+            }
+          }
+        }
+        // The remaining leftmost segment(s) assume as line1
+        if(parts.length){
+          const line1 = parts[0];
+          const m2 = line1.match(/^(.*?)(?:\s+)(.+)$/);
+          if(m2){ houseNoEl.value = m2[1]; streetEl.value = m2[2]; }
+          else { streetEl.value = line1; }
+        }
+      }
+    }
+
+    function renderAddresses(){
+      const list = document.getElementById('addrList');
+      const empty = document.getElementById('addrEmpty');
+      if (!addresses.length){ empty.style.display='block'; list.innerHTML=''; return; }
+      empty.style.display='none';
+      let html='';
+      addresses.forEach(a => {
+        html += `
+          <div class="addr-card" data-id="${a.id}">
+            <div>
+              <div style="display:flex; align-items:center; gap:8px;">
+                <div style="font-weight:800; color:#23272f;">${a.fullName}</div>
+                ${a.isDefault ? '<span class="default-badge">Default</span>' : ''}
+                ${a.label ? `<span class=\"chip\" style=\"padding:2px 8px;\">${a.label}</span>` : ''}
+              </div>
+              <div class="muted" style="margin-top:4px;">${a.phone}</div>
+              <div style="font-weight:700; margin-top:4px; color:#23272f;">${a.address}</div>
+            </div>
+            <div class="addr-actions">
+              ${!a.isDefault ? `<button class=\"btn btn-default\" data-id=\"${a.id}\">Set Default</button>` : ''}
+              <button class="btn btn-edit" data-id="${a.id}">Edit</button>
+              <button class="btn btn-delete" data-id="${a.id}">Delete</button>
+            </div>
+          </div>
+        `;
+      });
+      list.innerHTML = html;
+    }
+    function fetchAddresses(){
+      fetch('/addresses')
+        .then(r=>r.json())
+        .then(data=>{ addresses = Array.isArray(data)? data : []; renderAddresses(); })
+        .catch(()=>{ addresses = []; renderAddresses(); });
+    }
+    fetchAddresses();
+
+    function clearForm(){
+      editId = null;
+      selectedLabel = null;
+      document.getElementById('fullName').value = '';
+      document.getElementById('phone').value = '';
+      document.getElementById('country').value = 'Philippines';
+      populateRegions();
+      document.getElementById('city').innerHTML = '<option value="" selected disabled>Select city</option>';
+      document.getElementById('barangay').innerHTML = '<option value="" selected disabled>Select barangay</option>';
+      document.getElementById('city').disabled = true;
+      document.getElementById('barangay').disabled = true;
+      document.getElementById('houseNo').value = '';
+      document.getElementById('street').value = '';
+      document.getElementById('zipCode').value = '';
+      document.getElementById('landmark').value = '';
+      document.getElementById('isDefault').checked = false;
+      document.getElementById('formMode').textContent = 'Mode: Add';
+      document.getElementById('cancelEditBtn').style.display = 'none';
+      document.querySelectorAll('#labelChips .chip').forEach(c => c.classList.remove('active'));
+    }
+
+    document.getElementById('addAddrBtn').addEventListener('click', function(){
+      clearForm();
+      const formEl = document.getElementById('addrForm');
+      window.scrollTo({ top: formEl.getBoundingClientRect().top + window.scrollY - 120, behavior: 'smooth' });
+      setTimeout(()=>{ document.getElementById('fullName').focus(); }, 250);
+    });
+    document.getElementById('cancelEditBtn').addEventListener('click', clearForm);
+
+    document.getElementById('labelChips').addEventListener('click', function(e){
+      const chip = e.target.closest('.chip'); if (!chip) return;
+      document.querySelectorAll('#labelChips .chip').forEach(c => c.classList.remove('active'));
+      chip.classList.add('active');
+      selectedLabel = chip.dataset.label;
+    });
+
+    // Initialize dropdowns on load
+    loadPhData();
+    populateRegions();
+    document.getElementById('region').addEventListener('change', function(){
+      populateCities(this.value);
+      document.getElementById('city').value = '';
+      document.getElementById('barangay').value = '';
+    });
+    document.getElementById('city').addEventListener('change', function(){
+      const region = document.getElementById('region').value;
+      populateBarangays(region, this.value);
+      document.getElementById('barangay').value = '';
+    });
+
+    document.getElementById('saveBtn').addEventListener('click', function(){
+      const fullName = document.getElementById('fullName').value.trim();
+      const phone = document.getElementById('phone').value.trim();
+      const country = (document.getElementById('country')?.value||'').trim();
+      const region = (document.getElementById('region')?.value||'').trim();
+      const city = (document.getElementById('city')?.value||'').trim();
+      const barangay = (document.getElementById('barangay')?.value||'').trim();
+      const street = (document.getElementById('street')?.value||'').trim();
+      const houseNo = (document.getElementById('houseNo')?.value||'').trim();
+      const zip = (document.getElementById('zipCode')?.value||'').trim();
+      const landmark = (document.getElementById('landmark')?.value||'').trim();
+      const address = composeFullAddress();
+      const isDefault = document.getElementById('isDefault').checked;
+      if (!fullName || !phone || !region || !city || !barangay || (!street && !houseNo)){
+        showCustomAlert('Please complete name, phone, region, city, barangay, and street/house no.');
+        return;
+      }
+      const payload = { fullName, phone, address, isDefault };
+      const method = editId ? 'PUT' : 'POST';
+      const url = editId ? ('/addresses/' + editId) : '/addresses';
+      fetch(url, { method, headers: { 'Content-Type':'application/json' }, body: JSON.stringify(payload) })
+        .then(r=>r.json())
+        .then(res=>{
+          if (res && res.success){
+            clearForm();
+            fetchAddresses();
+            showCustomAlert('Address saved.', 'success');
+          } else {
+            showCustomAlert('Error saving address: ' + (res.message||'Unknown error'));
+          }
+        })
+        .catch(err=>{ console.error(err); showCustomAlert('Network error'); });
+    });
+
+    document.getElementById('addrList').addEventListener('click', function(e){
+      const btnDefault = e.target.closest('.btn-default');
+      const btnEdit = e.target.closest('.btn-edit');
+      const btnDelete = e.target.closest('.btn-delete');
+      if (btnDefault){
+        const id = Number(btnDefault.dataset.id);
+        // Mark this as default by updating that address
+        const a = addresses.find(x=>x.id===id);
+        if (!a) return;
+        fetch('/addresses/' + id, { method:'PUT', headers:{ 'Content-Type':'application/json' }, body: JSON.stringify({ fullName: a.fullName, phone: a.phone, address: a.address, isDefault: true }) })
+          .then(r=>r.json()).then(res=>{ if(res.success){ fetchAddresses(); } else { showCustomAlert('Error setting default'); } })
+          .catch(()=> showCustomAlert('Network error'));
+        return;
+      }
+      if (btnEdit){
+        const id = Number(btnEdit.dataset.id);
+        const a = addresses.find(x => x.id===id); if (!a) return;
+        // Reset dropdowns and try to parse existing address into fields
+        clearForm();
+        // Set editId AFTER clearForm() so it doesn't get reset to null
+        editId = id;
+        document.getElementById('fullName').value = a.fullName || '';
+        document.getElementById('phone').value = a.phone || '';
+        tryParseAddressToFields(a.address||'');
+        document.getElementById('isDefault').checked = !!a.isDefault;
+        selectedLabel = a.label || null;
+        document.querySelectorAll('#labelChips .chip').forEach(c => {
+          if (c.dataset.label === selectedLabel) c.classList.add('active'); else c.classList.remove('active');
+        });
+        document.getElementById('formMode').textContent = 'Mode: Edit';
+        document.getElementById('cancelEditBtn').style.display = 'inline-flex';
+        window.scrollTo({ top: document.getElementById('addrForm').getBoundingClientRect().top + window.scrollY - 120, behavior: 'smooth' });
+        return;
+      }
+      if (btnDelete){
+        const id = Number(btnDelete.dataset.id);
+        showCustomConfirm('Delete this address?', function() {
+          fetch('/addresses/' + id, { method:'DELETE' })
+            .then(r=>r.json()).then(res=>{ if(res.success){ fetchAddresses(); } else { showCustomAlert('Error deleting'); } })
+            .catch(()=> showCustomAlert('Network error'));
+        });
+        return;
+      }
+    });
+
+// About Petopia modal function
+function showAboutPetopiaModal() {
+  const div = document.createElement('div');
+  div.id = 'aboutPetopiaModal';
+  div.style = 'position:fixed;top:0;left:0;width:100vw;height:100vh;z-index:9999;background:rgba(0,0,0,.25);backdrop-filter:blur(2px);display:flex;align-items:center;justify-content:center;';
+  div.innerHTML = `
+    <div style="background:rgba(255,255,255,.97);border-radius:18px;max-width:700px;width:90vw;max-height:85vh;box-shadow:0 10px 40px rgba(16,24,40,.22);position:relative;overflow:hidden;display:flex;flex-direction:column;">
+      <button id="closeAboutModal" style="position:absolute;top:16px;right:18px;background:none;border:none;font-size:2rem;cursor:pointer;z-index:2;color:#23272f;">&times;</button>
+      <div style="overflow-y:auto;padding:40px 32px;flex:1;">
+      <div style="text-align:center;margin-bottom:32px;">
+        <div style="width:80px;height:80px;border-radius:16px;background:linear-gradient(135deg,var(--accent),var(--accent-2));display:flex;align-items:center;justify-content:center;margin:0 auto 20px;box-shadow:0 8px 26px rgba(139,182,255,.15);">
+          <img src="{{ url_for('static', filename='logo/PETOPIA_LOGO.png') }}" alt="Petopia Logo" style="width:60px;height:60px;object-fit:contain;">
+        </div>
+        <h2 style="font-size:2rem;font-weight:800;color:#23272f;margin-bottom:8px;">About Petopia</h2>
+        <p style="color:var(--muted);font-weight:600;font-size:1.05rem;">Your trusted pet care marketplace</p>
+      </div>
+      <div style="color:#23272f;line-height:1.8;font-size:1rem;">
+        <div style="margin-bottom:24px;">
+          <h3 style="font-size:1.3rem;font-weight:800;color:#23272f;margin-bottom:12px;display:flex;align-items:center;gap:8px;">
+            <i class="fa-solid fa-heart" style="color:var(--accent-2);"></i>
+            Our Mission
+          </h3>
+          <p style="color:#5b6378;font-weight:600;margin-bottom:12px;">
+            At Petopia, we believe that every pet deserves the best care and products. Our mission is to connect pet owners with quality pet supplies, trusted sellers, and exceptional service, making pet care accessible and convenient for everyone.
+          </p>
+        </div>
+        <div style="margin-bottom:24px;">
+          <h3 style="font-size:1.3rem;font-weight:800;color:#23272f;margin-bottom:12px;display:flex;align-items:center;gap:8px;">
+            <i class="fa-solid fa-star" style="color:var(--accent-2);"></i>
+            What We Offer
+          </h3>
+          <ul style="color:#5b6378;font-weight:600;margin-left:20px;line-height:2;">
+            <li>Wide selection of pet food, treats, and supplies</li>
+            <li>Health and wellness products for all pet types</li>
+            <li>Grooming and hygiene essentials</li>
+            <li>Toys, accessories, and entertainment items</li>
+            <li>Trusted sellers and official stores</li>
+            <li>Fast and reliable delivery service</li>
+          </ul>
+        </div>
+        <div style="margin-bottom:24px;">
+          <h3 style="font-size:1.3rem;font-weight:800;color:#23272f;margin-bottom:12px;display:flex;align-items:center;gap:8px;">
+            <i class="fa-solid fa-shield-halved" style="color:var(--accent-2);"></i>
+            Why Choose Petopia
+          </h3>
+          <p style="color:#5b6378;font-weight:600;margin-bottom:12px;">
+            We are committed to providing a safe, secure, and user-friendly platform where pet owners can find everything they need for their furry, feathered, or scaled friends. With verified sellers, quality products, and excellent customer service, Petopia is your one-stop shop for all pet care needs.
+          </p>
+        </div>
+        <div style="background:rgba(139,182,255,.08);border-radius:12px;padding:20px;margin-top:32px;border:1px solid rgba(139,182,255,.2);">
+          <p style="color:#23272f;font-weight:700;font-size:1.05rem;margin-bottom:8px;text-align:center;">
+            <i class="fa-solid fa-paw" style="color:var(--accent-2);margin-right:8px;"></i>
+            Join thousands of happy pet owners who trust Petopia
+          </p>
+          <p style="color:var(--muted);font-weight:600;font-size:0.95rem;text-align:center;">
+            Start shopping today and give your pet the care they deserve!
+          </p>
+        </div>
+      </div>
+      </div>
+    </div>
+  `;
+  document.body.appendChild(div);
+  
+  // Close button handler
+  document.getElementById('closeAboutModal').addEventListener('click', function() {
+    div.remove();
+  });
+  
+  // Close when clicking outside
+  div.addEventListener('click', function(e) {
+    if (e.target === div) {
+      div.remove();
+    }
+  });
+  
+  // Close on Escape key
+  const escapeHandler = function(e) {
+    if (e.key === 'Escape') {
+      div.remove();
+      document.removeEventListener('keydown', escapeHandler);
+    }
+  };
+  document.addEventListener('keydown', escapeHandler);
+}
+
+// Careers modal function
+function showCareersModal() {
+  const div = document.createElement('div');
+  div.id = 'careersModal';
+  div.style = 'position:fixed;top:0;left:0;width:100vw;height:100vh;z-index:9999;background:rgba(0,0,0,.25);backdrop-filter:blur(2px);display:flex;align-items:center;justify-content:center;';
+  div.innerHTML = `
+    <div style="background:rgba(255,255,255,.97);border-radius:18px;max-width:700px;width:90vw;max-height:85vh;box-shadow:0 10px 40px rgba(16,24,40,.22);position:relative;overflow:hidden;display:flex;flex-direction:column;">
+      <button id="closeCareersModal" style="position:absolute;top:16px;right:18px;background:none;border:none;font-size:2rem;cursor:pointer;z-index:2;color:#23272f;">&times;</button>
+      <div style="overflow-y:auto;padding:40px 32px;flex:1;">
+      <div style="text-align:center;margin-bottom:32px;">
+        <div style="width:80px;height:80px;border-radius:16px;background:linear-gradient(135deg,var(--accent),var(--accent-2));display:flex;align-items:center;justify-content:center;margin:0 auto 20px;box-shadow:0 8px 26px rgba(139,182,255,.15);">
+          <i class="fa-solid fa-briefcase" style="font-size:2.5rem;color:#051014;"></i>
+        </div>
+        <h2 style="font-size:2rem;font-weight:800;color:#23272f;margin-bottom:8px;">Careers at Petopia</h2>
+        <p style="color:var(--muted);font-weight:600;font-size:1.05rem;">Join our growing team</p>
+      </div>
+      <div style="color:#23272f;line-height:1.8;font-size:1rem;">
+        <div style="margin-bottom:24px;">
+          <h3 style="font-size:1.3rem;font-weight:800;color:#23272f;margin-bottom:12px;display:flex;align-items:center;gap:8px;">
+            <i class="fa-solid fa-users" style="color:var(--accent-2);"></i>
+            Why Work With Us
+          </h3>
+          <p style="color:#5b6378;font-weight:600;margin-bottom:12px;">
+            At Petopia, we're building a platform that makes pet care accessible to everyone. We're looking for passionate individuals who share our love for pets and want to make a difference in the pet care industry.
+          </p>
+        </div>
+        <div style="margin-bottom:24px;">
+          <h3 style="font-size:1.3rem;font-weight:800;color:#23272f;margin-bottom:12px;display:flex;align-items:center;gap:8px;">
+            <i class="fa-solid fa-list-check" style="color:var(--accent-2);"></i>
+            Open Positions
+          </h3>
+          <ul style="color:#5b6378;font-weight:600;margin-left:20px;line-height:2;">
+            <li>Software Engineer - Full Stack Development</li>
+            <li>Product Designer - UX/UI Design</li>
+            <li>Marketing Specialist - Digital Marketing</li>
+            <li>Customer Support Representative</li>
+            <li>Business Development Manager</li>
+            <li>Data Analyst - E-commerce Analytics</li>
+          </ul>
+        </div>
+        <div style="margin-bottom:24px;">
+          <h3 style="font-size:1.3rem;font-weight:800;color:#23272f;margin-bottom:12px;display:flex;align-items:center;gap:8px;">
+            <i class="fa-solid fa-gift" style="color:var(--accent-2);"></i>
+            Benefits & Perks
+          </h3>
+          <ul style="color:#5b6378;font-weight:600;margin-left:20px;line-height:2;">
+            <li>Competitive salary and performance bonuses</li>
+            <li>Health insurance and wellness programs</li>
+            <li>Flexible work arrangements</li>
+            <li>Professional development opportunities</li>
+            <li>Pet-friendly office environment</li>
+            <li>Team building activities and events</li>
+          </ul>
+        </div>
+        <div style="background:rgba(139,182,255,.08);border-radius:12px;padding:20px;margin-top:32px;border:1px solid rgba(139,182,255,.2);">
+          <p style="color:#23272f;font-weight:700;font-size:1.05rem;margin-bottom:8px;text-align:center;">
+            <i class="fa-solid fa-envelope" style="color:var(--accent-2);margin-right:8px;"></i>
+            Interested in joining our team?
+          </p>
+          <p style="color:var(--muted);font-weight:600;font-size:0.95rem;text-align:center;">
+            Send your resume to <strong>vpetopia@gmail.com</strong>
+          </p>
+        </div>
+      </div>
+      </div>
+    </div>
+  `;
+  document.body.appendChild(div);
+  
+  // Close button handler
+  document.getElementById('closeCareersModal').addEventListener('click', function() {
+    div.remove();
+  });
+  
+  // Close when clicking outside
+  div.addEventListener('click', function(e) {
+    if (e.target === div) {
+      div.remove();
+    }
+  });
+  
+  // Close on Escape key
+  const escapeHandler = function(e) {
+    if (e.key === 'Escape') {
+      div.remove();
+      document.removeEventListener('keydown', escapeHandler);
+    }
+  };
+  document.addEventListener('keydown', escapeHandler);
+}
+
+// Blog modal function
+function showBlogModal() {
+  const div = document.createElement('div');
+  div.id = 'blogModal';
+  div.style = 'position:fixed;top:0;left:0;width:100vw;height:100vh;z-index:9999;background:rgba(0,0,0,.25);backdrop-filter:blur(2px);display:flex;align-items:center;justify-content:center;';
+  div.innerHTML = `
+    <div style="background:rgba(255,255,255,.97);border-radius:18px;max-width:700px;width:90vw;max-height:85vh;box-shadow:0 10px 40px rgba(16,24,40,.22);position:relative;overflow:hidden;display:flex;flex-direction:column;">
+      <button id="closeBlogModal" style="position:absolute;top:16px;right:18px;background:none;border:none;font-size:2rem;cursor:pointer;z-index:2;color:#23272f;">&times;</button>
+      <div style="overflow-y:auto;padding:40px 32px;flex:1;">
+      <div style="text-align:center;margin-bottom:32px;">
+        <div style="width:80px;height:80px;border-radius:16px;background:linear-gradient(135deg,var(--accent),var(--accent-2));display:flex;align-items:center;justify-content:center;margin:0 auto 20px;box-shadow:0 8px 26px rgba(139,182,255,.15);">
+          <i class="fa-solid fa-blog" style="font-size:2.5rem;color:#051014;"></i>
+        </div>
+        <h2 style="font-size:2rem;font-weight:800;color:#23272f;margin-bottom:8px;">Petopia Blog</h2>
+        <p style="color:var(--muted);font-weight:600;font-size:1.05rem;">Pet care tips, news, and insights</p>
+      </div>
+      <div style="color:#23272f;line-height:1.8;font-size:1rem;">
+        <div style="margin-bottom:24px;">
+          <h3 style="font-size:1.3rem;font-weight:800;color:#23272f;margin-bottom:12px;display:flex;align-items:center;gap:8px;">
+            <i class="fa-solid fa-book-open" style="color:var(--accent-2);"></i>
+            Latest Articles
+          </h3>
+          <div style="display:grid;gap:16px;margin-bottom:16px;">
+            <div style="background:rgba(139,182,255,.05);border-radius:10px;padding:16px;border-left:4px solid var(--accent-2);">
+              <h4 style="font-weight:800;color:#23272f;margin-bottom:6px;font-size:1.1rem;">10 Essential Pet Care Tips for New Pet Owners</h4>
+              <p style="color:#5b6378;font-weight:600;font-size:0.95rem;margin-bottom:8px;">Learn the basics of pet care to ensure your furry friend stays healthy and happy.</p>
+              <span style="color:var(--muted);font-size:0.85rem;font-weight:600;">Published: January 15, 2024</span>
+            </div>
+            <div style="background:rgba(139,182,255,.05);border-radius:10px;padding:16px;border-left:4px solid var(--accent-2);">
+              <h4 style="font-weight:800;color:#23272f;margin-bottom:6px;font-size:1.1rem;">Understanding Your Pet's Nutritional Needs</h4>
+              <p style="color:#5b6378;font-weight:600;font-size:0.95rem;margin-bottom:8px;">A comprehensive guide to choosing the right food for your pet's age and breed.</p>
+              <span style="color:var(--muted);font-size:0.85rem;font-weight:600;">Published: January 8, 2024</span>
+            </div>
+            <div style="background:rgba(139,182,255,.05);border-radius:10px;padding:16px;border-left:4px solid var(--accent-2);">
+              <h4 style="font-weight:800;color:#23272f;margin-bottom:6px;font-size:1.1rem;">Pet Grooming: A Complete Guide</h4>
+              <p style="color:#5b6378;font-weight:600;font-size:0.95rem;margin-bottom:8px;">Everything you need to know about keeping your pet clean and well-groomed.</p>
+              <span style="color:var(--muted);font-size:0.85rem;font-weight:600;">Published: January 1, 2024</span>
+            </div>
+          </div>
+        </div>
+        <div style="margin-bottom:24px;">
+          <h3 style="font-size:1.3rem;font-weight:800;color:#23272f;margin-bottom:12px;display:flex;align-items:center;gap:8px;">
+            <i class="fa-solid fa-tags" style="color:var(--accent-2);"></i>
+            Popular Topics
+          </h3>
+          <div style="display:flex;flex-wrap:wrap;gap:8px;">
+            <span style="background:rgba(139,182,255,.1);color:#23272f;padding:6px 14px;border-radius:20px;font-weight:600;font-size:0.9rem;">Pet Health</span>
+            <span style="background:rgba(139,182,255,.1);color:#23272f;padding:6px 14px;border-radius:20px;font-weight:600;font-size:0.9rem;">Training Tips</span>
+            <span style="background:rgba(139,182,255,.1);color:#23272f;padding:6px 14px;border-radius:20px;font-weight:600;font-size:0.9rem;">Nutrition</span>
+            <span style="background:rgba(139,182,255,.1);color:#23272f;padding:6px 14px;border-radius:20px;font-weight:600;font-size:0.9rem;">Grooming</span>
+            <span style="background:rgba(139,182,255,.1);color:#23272f;padding:6px 14px;border-radius:20px;font-weight:600;font-size:0.9rem;">Pet Products</span>
+            <span style="background:rgba(139,182,255,.1);color:#23272f;padding:6px 14px;border-radius:20px;font-weight:600;font-size:0.9rem;">Pet Care</span>
+          </div>
+        </div>
+        <div style="background:rgba(139,182,255,.08);border-radius:12px;padding:20px;margin-top:32px;border:1px solid rgba(139,182,255,.2);">
+          <p style="color:#23272f;font-weight:700;font-size:1.05rem;margin-bottom:8px;text-align:center;">
+            <i class="fa-solid fa-rss" style="color:var(--accent-2);margin-right:8px;"></i>
+            Stay Updated
+          </p>
+          <p style="color:var(--muted);font-weight:600;font-size:0.95rem;text-align:center;">
+            Subscribe to our newsletter for the latest pet care tips and updates!
+          </p>
+        </div>
+      </div>
+      </div>
+    </div>
+  `;
+  document.body.appendChild(div);
+  
+  // Close button handler
+  document.getElementById('closeBlogModal').addEventListener('click', function() {
+    div.remove();
+  });
+  
+  // Close when clicking outside
+  div.addEventListener('click', function(e) {
+    if (e.target === div) {
+      div.remove();
+    }
+  });
+  
+  // Close on Escape key
+  const escapeHandler = function(e) {
+    if (e.key === 'Escape') {
+      div.remove();
+      document.removeEventListener('keydown', escapeHandler);
+    }
+  };
+  document.addEventListener('keydown', escapeHandler);
+}
+
+// Help Center modal function
+function showHelpCenterModal() {
+  const div = document.createElement('div');
+  div.id = 'helpCenterModal';
+  div.style = 'position:fixed;top:0;left:0;width:100vw;height:100vh;z-index:9999;background:rgba(0,0,0,.25);backdrop-filter:blur(2px);display:flex;align-items:center;justify-content:center;';
+  div.innerHTML = `
+    <div style="background:rgba(255,255,255,.97);border-radius:18px;max-width:700px;width:90vw;max-height:85vh;box-shadow:0 10px 40px rgba(16,24,40,.22);position:relative;overflow:hidden;display:flex;flex-direction:column;">
+      <button id="closeHelpCenterModal" style="position:absolute;top:16px;right:18px;background:none;border:none;font-size:2rem;cursor:pointer;z-index:2;color:#23272f;">&times;</button>
+      <div style="overflow-y:auto;padding:40px 32px;flex:1;">
+      <div style="text-align:center;margin-bottom:32px;">
+        <div style="width:80px;height:80px;border-radius:16px;background:linear-gradient(135deg,var(--accent),var(--accent-2));display:flex;align-items:center;justify-content:center;margin:0 auto 20px;box-shadow:0 8px 26px rgba(139,182,255,.15);">
+          <i class="fa-solid fa-circle-question" style="font-size:2.5rem;color:#051014;"></i>
+        </div>
+        <h2 style="font-size:2rem;font-weight:800;color:#23272f;margin-bottom:8px;">Help Center</h2>
+        <p style="color:var(--muted);font-weight:600;font-size:1.05rem;">We're here to help you</p>
+      </div>
+      <div style="color:#23272f;line-height:1.8;font-size:1rem;">
+        <div style="margin-bottom:24px;">
+          <h3 style="font-size:1.3rem;font-weight:800;color:#23272f;margin-bottom:12px;display:flex;align-items:center;gap:8px;">
+            <i class="fa-solid fa-question-circle" style="color:var(--accent-2);"></i>
+            Frequently Asked Questions
+          </h3>
+          <div style="display:grid;gap:12px;">
+            <div style="background:rgba(139,182,255,.05);border-radius:10px;padding:16px;border-left:4px solid var(--accent-2);">
+              <h4 style="font-weight:800;color:#23272f;margin-bottom:6px;font-size:1.05rem;">How do I place an order?</h4>
+              <p style="color:#5b6378;font-weight:600;font-size:0.95rem;">Browse our products, add items to your cart, and proceed to checkout. You'll need to create an account or log in to complete your purchase.</p>
+            </div>
+            <div style="background:rgba(139,182,255,.05);border-radius:10px;padding:16px;border-left:4px solid var(--accent-2);">
+              <h4 style="font-weight:800;color:#23272f;margin-bottom:6px;font-size:1.05rem;">What payment methods do you accept?</h4>
+              <p style="color:#5b6378;font-weight:600;font-size:0.95rem;">We accept major credit cards, debit cards, and digital payment methods. All transactions are secure and encrypted.</p>
+            </div>
+            <div style="background:rgba(139,182,255,.05);border-radius:10px;padding:16px;border-left:4px solid var(--accent-2);">
+              <h4 style="font-weight:800;color:#23272f;margin-bottom:6px;font-size:1.05rem;">How long does shipping take?</h4>
+              <p style="color:#5b6378;font-weight:600;font-size:0.95rem;">Standard shipping typically takes 3-5 business days. Express shipping options are available for faster delivery.</p>
+            </div>
+            <div style="background:rgba(139,182,255,.05);border-radius:10px;padding:16px;border-left:4px solid var(--accent-2);">
+              <h4 style="font-weight:800;color:#23272f;margin-bottom:6px;font-size:1.05rem;">Can I modify or cancel my order?</h4>
+              <p style="color:#5b6378;font-weight:600;font-size:0.95rem;">You can modify or cancel your order within 24 hours of placing it, as long as it hasn't been shipped yet.</p>
+            </div>
+          </div>
+        </div>
+        <div style="margin-bottom:24px;">
+          <h3 style="font-size:1.3rem;font-weight:800;color:#23272f;margin-bottom:12px;display:flex;align-items:center;gap:8px;">
+            <i class="fa-solid fa-headset" style="color:var(--accent-2);"></i>
+            Contact Support
+          </h3>
+          <p style="color:#5b6378;font-weight:600;margin-bottom:12px;">
+            Need more help? Our customer support team is available to assist you with any questions or concerns.
+          </p>
+          <ul style="color:#5b6378;font-weight:600;margin-left:20px;line-height:2;">
+            <li>Email: vpetopia@gmail.com</li>
+            <li>Phone: +63 917 123 4567</li>
+            <li>Live Chat: Available 24/7 on our website</li>
+            <li>Response Time: Within 24 hours</li>
+          </ul>
+        </div>
+        <div style="background:rgba(139,182,255,.08);border-radius:12px;padding:20px;margin-top:32px;border:1px solid rgba(139,182,255,.2);">
+          <p style="color:#23272f;font-weight:700;font-size:1.05rem;margin-bottom:8px;text-align:center;">
+            <i class="fa-solid fa-envelope-circle-check" style="color:var(--accent-2);margin-right:8px;"></i>
+            Still have questions?
+          </p>
+          <p style="color:var(--muted);font-weight:600;font-size:0.95rem;text-align:center;">
+            Reach out to our support team and we'll be happy to help!
+          </p>
+        </div>
+      </div>
+      </div>
+    </div>
+  `;
+  document.body.appendChild(div);
+  
+  // Close button handler
+  document.getElementById('closeHelpCenterModal').addEventListener('click', function() {
+    div.remove();
+  });
+  
+  // Close when clicking outside
+  div.addEventListener('click', function(e) {
+    if (e.target === div) {
+      div.remove();
+    }
+  });
+  
+  // Close on Escape key
+  const escapeHandler = function(e) {
+    if (e.key === 'Escape') {
+      div.remove();
+      document.removeEventListener('keydown', escapeHandler);
+    }
+  };
+  document.addEventListener('keydown', escapeHandler);
+}
+
+// Track Order modal function
+function showTrackOrderModal() {
+  const div = document.createElement('div');
+  div.id = 'trackOrderModal';
+  div.style = 'position:fixed;top:0;left:0;width:100vw;height:100vh;z-index:9999;background:rgba(0,0,0,.25);backdrop-filter:blur(2px);display:flex;align-items:center;justify-content:center;';
+  div.innerHTML = `
+    <div style="background:rgba(255,255,255,.97);border-radius:18px;max-width:700px;width:90vw;max-height:85vh;box-shadow:0 10px 40px rgba(16,24,40,.22);position:relative;overflow:hidden;display:flex;flex-direction:column;">
+      <button id="closeTrackOrderModal" style="position:absolute;top:16px;right:18px;background:none;border:none;font-size:2rem;cursor:pointer;z-index:2;color:#23272f;">&times;</button>
+      <div style="overflow-y:auto;padding:40px 32px;flex:1;">
+      <div style="text-align:center;margin-bottom:32px;">
+        <div style="width:80px;height:80px;border-radius:16px;background:linear-gradient(135deg,var(--accent),var(--accent-2));display:flex;align-items:center;justify-content:center;margin:0 auto 20px;box-shadow:0 8px 26px rgba(139,182,255,.15);">
+          <i class="fa-solid fa-truck-fast" style="font-size:2.5rem;color:#051014;"></i>
+        </div>
+        <h2 style="font-size:2rem;font-weight:800;color:#23272f;margin-bottom:8px;">Track Your Order</h2>
+        <p style="color:var(--muted);font-weight:600;font-size:1.05rem;">Monitor your order status in real-time</p>
+      </div>
+      <div style="color:#23272f;line-height:1.8;font-size:1rem;">
+        <div style="margin-bottom:24px;">
+          <h3 style="font-size:1.3rem;font-weight:800;color:#23272f;margin-bottom:12px;display:flex;align-items:center;gap:8px;">
+            <i class="fa-solid fa-magnifying-glass" style="color:var(--accent-2);"></i>
+            How to Track Your Order
+          </h3>
+          <p style="color:#5b6378;font-weight:600;margin-bottom:12px;">
+            To track your order, you'll need your order number and email address. Once your order is confirmed, you'll receive a tracking number via email.
+          </p>
+          <div style="background:rgba(139,182,255,.08);border-radius:12px;padding:20px;margin-top:16px;border:1px solid rgba(139,182,255,.2);">
+            <div style="margin-bottom:16px;">
+              <label style="display:block;font-weight:700;color:#23272f;margin-bottom:8px;font-size:1rem;">Order Number</label>
+              <input type="text" placeholder="Enter your order number" style="width:100%;padding:12px;border-radius:8px;border:1px solid rgba(11,15,26,.1);font-size:1rem;font-weight:600;">
+            </div>
+            <div style="margin-bottom:16px;">
+              <label style="display:block;font-weight:700;color:#23272f;margin-bottom:8px;font-size:1rem;">Email Address</label>
+              <input type="email" placeholder="Enter your email" style="width:100%;padding:12px;border-radius:8px;border:1px solid rgba(11,15,26,.1);font-size:1rem;font-weight:600;">
+            </div>
+            <button style="width:100%;padding:12px;border-radius:8px;background:linear-gradient(135deg,var(--accent),var(--accent-2));color:#051014;font-weight:700;border:none;cursor:pointer;font-size:1rem;box-shadow:0 8px 26px rgba(139,182,255,.08);">
+              Track Order
+            </button>
+          </div>
+        </div>
+        <div style="margin-bottom:24px;">
+          <h3 style="font-size:1.3rem;font-weight:800;color:#23272f;margin-bottom:12px;display:flex;align-items:center;gap:8px;">
+            <i class="fa-solid fa-list-check" style="color:var(--accent-2);"></i>
+            Order Status
+          </h3>
+          <div style="display:grid;gap:12px;">
+            <div style="display:flex;align-items:center;gap:12px;padding:12px;background:rgba(139,182,255,.05);border-radius:8px;">
+              <i class="fa-solid fa-circle-check" style="color:var(--accent-2);font-size:1.5rem;"></i>
+              <div>
+                <div style="font-weight:800;color:#23272f;">Order Confirmed</div>
+                <div style="color:#5b6378;font-weight:600;font-size:0.9rem;">Your order has been received</div>
+              </div>
+            </div>
+            <div style="display:flex;align-items:center;gap:12px;padding:12px;background:rgba(139,182,255,.05);border-radius:8px;">
+              <i class="fa-solid fa-box" style="color:var(--accent-2);font-size:1.5rem;"></i>
+              <div>
+                <div style="font-weight:800;color:#23272f;">Processing</div>
+                <div style="color:#5b6378;font-weight:600;font-size:0.9rem;">Your order is being prepared</div>
+              </div>
+            </div>
+            <div style="display:flex;align-items:center;gap:12px;padding:12px;background:rgba(139,182,255,.05);border-radius:8px;">
+              <i class="fa-solid fa-truck" style="color:var(--accent-2);font-size:1.5rem;"></i>
+              <div>
+                <div style="font-weight:800;color:#23272f;">Shipped</div>
+                <div style="color:#5b6378;font-weight:600;font-size:0.9rem;">Your order is on the way</div>
+              </div>
+            </div>
+            <div style="display:flex;align-items:center;gap:12px;padding:12px;background:rgba(139,182,255,.05);border-radius:8px;">
+              <i class="fa-solid fa-house" style="color:var(--accent-2);font-size:1.5rem;"></i>
+              <div>
+                <div style="font-weight:800;color:#23272f;">Delivered</div>
+                <div style="color:#5b6378;font-weight:600;font-size:0.9rem;">Your order has been delivered</div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div style="background:rgba(139,182,255,.08);border-radius:12px;padding:20px;margin-top:32px;border:1px solid rgba(139,182,255,.2);">
+          <p style="color:#23272f;font-weight:700;font-size:1.05rem;margin-bottom:8px;text-align:center;">
+            <i class="fa-solid fa-info-circle" style="color:var(--accent-2);margin-right:8px;"></i>
+            Need Help?
+          </p>
+          <p style="color:var(--muted);font-weight:600;font-size:0.95rem;text-align:center;">
+            Contact us at vpetopia@gmail.com if you have any questions about your order.
+          </p>
+        </div>
+      </div>
+      </div>
+    </div>
+  `;
+  document.body.appendChild(div);
+  
+  // Close button handler
+  document.getElementById('closeTrackOrderModal').addEventListener('click', function() {
+    div.remove();
+  });
+  
+  // Close when clicking outside
+  div.addEventListener('click', function(e) {
+    if (e.target === div) {
+      div.remove();
+    }
+  });
+  
+  // Close on Escape key
+  const escapeHandler = function(e) {
+    if (e.key === 'Escape') {
+      div.remove();
+      document.removeEventListener('keydown', escapeHandler);
+    }
+  };
+  document.addEventListener('keydown', escapeHandler);
+}
+
+// Returns & Refunds modal function
+function showReturnsRefundsModal() {
+  const div = document.createElement('div');
+  div.id = 'returnsRefundsModal';
+  div.style = 'position:fixed;top:0;left:0;width:100vw;height:100vh;z-index:9999;background:rgba(0,0,0,.25);backdrop-filter:blur(2px);display:flex;align-items:center;justify-content:center;';
+  div.innerHTML = `
+    <div style="background:rgba(255,255,255,.97);border-radius:18px;max-width:700px;width:90vw;max-height:85vh;box-shadow:0 10px 40px rgba(16,24,40,.22);position:relative;overflow:hidden;display:flex;flex-direction:column;">
+      <button id="closeReturnsRefundsModal" style="position:absolute;top:16px;right:18px;background:none;border:none;font-size:2rem;cursor:pointer;z-index:2;color:#23272f;">&times;</button>
+      <div style="overflow-y:auto;padding:40px 32px;flex:1;">
+      <div style="text-align:center;margin-bottom:32px;">
+        <div style="width:80px;height:80px;border-radius:16px;background:linear-gradient(135deg,var(--accent),var(--accent-2));display:flex;align-items:center;justify-content:center;margin:0 auto 20px;box-shadow:0 8px 26px rgba(139,182,255,.15);">
+          <i class="fa-solid fa-rotate-left" style="font-size:2.5rem;color:#051014;"></i>
+        </div>
+        <h2 style="font-size:2rem;font-weight:800;color:#23272f;margin-bottom:8px;">Returns & Refunds</h2>
+        <p style="color:var(--muted);font-weight:600;font-size:1.05rem;">Our return and refund policy</p>
+      </div>
+      <div style="color:#23272f;line-height:1.8;font-size:1rem;">
+        <div style="margin-bottom:24px;">
+          <h3 style="font-size:1.3rem;font-weight:800;color:#23272f;margin-bottom:12px;display:flex;align-items:center;gap:8px;">
+            <i class="fa-solid fa-clock" style="color:var(--accent-2);"></i>
+            Return Policy
+          </h3>
+          <p style="color:#5b6378;font-weight:600;margin-bottom:12px;">
+            We want you to be completely satisfied with your purchase. If you're not happy with your order, you can return it within 7 days of delivery.
+          </p>
+          <ul style="color:#5b6378;font-weight:600;margin-left:20px;line-height:2;">
+            <li>Items must be unused and in original packaging</li>
+            <li>Return request must be made within 7 days of delivery</li>
+            <li>Original receipt or order confirmation required</li>
+            <li>Some items may be non-returnable (e.g., perishable goods)</li>
+          </ul>
+        </div>
+        <div style="margin-bottom:24px;">
+          <h3 style="font-size:1.3rem;font-weight:800;color:#23272f;margin-bottom:12px;display:flex;align-items:center;gap:8px;">
+            <i class="fa-solid fa-money-bill-wave" style="color:var(--accent-2);"></i>
+            Refund Process
+          </h3>
+          <div style="display:grid;gap:12px;">
+            <div style="background:rgba(139,182,255,.05);border-radius:10px;padding:16px;border-left:4px solid var(--accent-2);">
+              <h4 style="font-weight:800;color:#23272f;margin-bottom:6px;font-size:1.05rem;">Step 1: Request Return</h4>
+              <p style="color:#5b6378;font-weight:600;font-size:0.95rem;">Contact our support team or use the return form in your account to initiate a return request.</p>
+            </div>
+            <div style="background:rgba(139,182,255,.05);border-radius:10px;padding:16px;border-left:4px solid var(--accent-2);">
+              <h4 style="font-weight:800;color:#23272f;margin-bottom:6px;font-size:1.05rem;">Step 2: Ship Item Back</h4>
+              <p style="color:#5b6378;font-weight:600;font-size:0.95rem;">Once approved, you'll receive a return shipping label. Package the item securely and send it back.</p>
+            </div>
+            <div style="background:rgba(139,182,255,.05);border-radius:10px;padding:16px;border-left:4px solid var(--accent-2);">
+              <h4 style="font-weight:800;color:#23272f;margin-bottom:6px;font-size:1.05rem;">Step 3: Receive Refund</h4>
+              <p style="color:#5b6378;font-weight:600;font-size:0.95rem;">After we receive and inspect the item, your refund will be processed within 5-7 business days.</p>
+            </div>
+          </div>
+        </div>
+        <div style="margin-bottom:24px;">
+          <h3 style="font-size:1.3rem;font-weight:800;color:#23272f;margin-bottom:12px;display:flex;align-items:center;gap:8px;">
+            <i class="fa-solid fa-info-circle" style="color:var(--accent-2);"></i>
+            Important Information
+          </h3>
+          <ul style="color:#5b6378;font-weight:600;margin-left:20px;line-height:2;">
+            <li>Refunds will be issued to the original payment method</li>
+            <li>Shipping costs are non-refundable unless the item is defective</li>
+            <li>Damaged or defective items will be replaced or refunded immediately</li>
+            <li>Refund processing time: 5-7 business days after item receipt</li>
+          </ul>
+        </div>
+        <div style="background:rgba(139,182,255,.08);border-radius:12px;padding:20px;margin-top:32px;border:1px solid rgba(139,182,255,.2);">
+          <p style="color:#23272f;font-weight:700;font-size:1.05rem;margin-bottom:8px;text-align:center;">
+            <i class="fa-solid fa-envelope" style="color:var(--accent-2);margin-right:8px;"></i>
+            Need Help with Returns?
+          </p>
+          <p style="color:var(--muted);font-weight:600;font-size:0.95rem;text-align:center;">
+            Contact us at vpetopia@gmail.com or call +63 917 123 4567
+          </p>
+        </div>
+      </div>
+      </div>
+    </div>
+  `;
+  document.body.appendChild(div);
+  
+  // Close button handler
+  document.getElementById('closeReturnsRefundsModal').addEventListener('click', function() {
+    div.remove();
+  });
+  
+  // Close when clicking outside
+  div.addEventListener('click', function(e) {
+    if (e.target === div) {
+      div.remove();
+    }
+  });
+  
+  // Close on Escape key
+  const escapeHandler = function(e) {
+    if (e.key === 'Escape') {
+      div.remove();
+      document.removeEventListener('keydown', escapeHandler);
+    }
+  };
+  document.addEventListener('keydown', escapeHandler);
+}
+
+// Attach event listeners for footer buttons
+document.addEventListener('DOMContentLoaded', function() {
+  const aboutPetopiaLink = document.getElementById('aboutPetopiaLink');
+  const careersLink = document.getElementById('careersLink');
+  const blogLink = document.getElementById('blogLink');
+  const helpCenterLink = document.getElementById('helpCenterLink');
+  const trackOrderLink = document.getElementById('trackOrderLink');
+  const returnsRefundsLink = document.getElementById('returnsRefundsLink');
+  
+  if (aboutPetopiaLink) {
+    aboutPetopiaLink.addEventListener('click', function(e) {
+      e.preventDefault();
+      showAboutPetopiaModal();
+    });
+  }
+  
+  if (careersLink) {
+    careersLink.addEventListener('click', function(e) {
+      e.preventDefault();
+      showCareersModal();
+    });
+  }
+  
+  if (blogLink) {
+    blogLink.addEventListener('click', function(e) {
+      e.preventDefault();
+      showBlogModal();
+    });
+  }
+  
+  if (helpCenterLink) {
+    helpCenterLink.addEventListener('click', function(e) {
+      e.preventDefault();
+      showHelpCenterModal();
+    });
+  }
+  
+  if (trackOrderLink) {
+    trackOrderLink.addEventListener('click', function(e) {
+      e.preventDefault();
+      showTrackOrderModal();
+    });
+  }
+  
+  if (returnsRefundsLink) {
+    returnsRefundsLink.addEventListener('click', function(e) {
+      e.preventDefault();
+      showReturnsRefundsModal();
+    });
+  }
+});
+  </script>
+</body>
+</html>
+
+

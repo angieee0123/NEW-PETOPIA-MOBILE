@@ -1,0 +1,341 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Petopia • Archived Products</title>
+
+  <!-- Fonts + Icons -->
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+
+  <style>
+    :root{
+      --bg: #f6f8ff;
+      --panel: rgba(255,255,255,.60);
+      --panel-strong: rgba(255,255,255,.95);
+      --text: #0b0f1a;
+      --muted: #5b6378;
+      --accent: #7cf4d1;
+      --accent-2: #8bb6ff;
+      --glass-shadow: 0 10px 30px rgba(16,24,40,.08);
+      --card-radius: 12px;
+      --gap: 18px;
+      --sidebar-w: 260px;
+    }
+    /* Auto-numbering for product table */
+    table.auto-num { counter-reset: rowNumber; }
+    table.auto-num tbody tr { counter-increment: rowNumber; }
+    table.auto-num tbody tr td:first-child::before {
+      content: counter(rowNumber);
+      font-weight:600;
+    }
+    table.auto-num tbody tr td[colspan]::before{content:none;}
+
+    *{box-sizing:border-box}
+    body{ margin:0; font-family:"Inter",system-ui,-apple-system,"Segoe UI",Roboto,"Helvetica Neue",Arial;
+      background:var(--bg); color:var(--text); min-height:100vh; display:flex;}
+    .sidebar{ width:var(--sidebar-w); position:fixed; top:0; left:0; bottom:0; padding:22px 18px;
+      background:var(--panel-strong); backdrop-filter:blur(10px); box-shadow:var(--glass-shadow);
+      display:flex; flex-direction:column; gap:14px; z-index:50; }
+    .brand{ display:flex; align-items:center; gap:10px; margin-bottom:6px; }
+    .brand .logo{ width:44px; height:44px; border-radius:10px;
+      background:linear-gradient(135deg,var(--accent),var(--accent-2)); display:flex; align-items:center; justify-content:center;
+      color:#051014; font-weight:800; font-size:1.05rem; }
+    .brand .title{ font-weight:800; color:#23272f; font-size:1.05rem; }
+    nav.side-nav{ display:flex; flex-direction:column; gap:6px; margin-top:8px; padding-top:6px; }
+    nav.side-nav a{ display:flex; gap:12px; align-items:center; padding:10px 12px; border-radius:10px;
+      color:var(--text); text-decoration:none; font-weight:600; transition:all .16s ease; }
+    nav.side-nav a i{ width:20px; text-align:center; color:#5b6378; }
+    nav.side-nav a:hover, nav.side-nav a.active{ background:linear-gradient(135deg,var(--accent),var(--accent-2)); color:#051014; }
+    .sidebar .spacer{ flex:1 }
+    .sidebar .small{ font-size:0.85rem; color:var(--muted); text-align:center; padding:6px 8px; }
+
+    .main{ margin-left:calc(var(--sidebar-w) + 20px); padding:26px; flex:1; display:flex; flex-direction:column; gap:var(--gap); }
+    header.topbar{ display:flex; justify-content:space-between; align-items:center; gap:12px;
+      background:var(--panel); padding:12px 16px; border-radius:12px; box-shadow:var(--glass-shadow); flex-wrap:wrap; }
+    .search{ display:flex; align-items:center; gap:8px; flex:1; max-width:500px; }
+    .search input{ flex:1; padding:10px 12px; border-radius:10px; border:1px solid rgba(11,15,26,.06); background:#fff; }
+    .icon-btn{ border:none; background:transparent; font-size:1.05rem; padding:8px; border-radius:8px; cursor:pointer; color:var(--text); }
+    .btn{ border:none; padding:10px 16px; border-radius:8px; cursor:pointer; font-weight:600; box-shadow:var(--glass-shadow); }
+    .btn-accent{ background:var(--accent); color:#051014; }
+
+    .panel{ background:var(--panel-strong); border-radius:12px; padding:14px; box-shadow:var(--glass-shadow); overflow-x:auto; }
+    .panel h4{ margin:0 0 12px 0; font-size:1.05rem; color:#23272f; }
+    table.clean{ width:100%; border-collapse:collapse; font-size:0.95rem; }
+    table.clean thead th{ text-align:left; padding:10px; background:rgba(11,15,26,.03); font-weight:700; }
+    table.clean tbody td{ padding:10px; border-bottom:1px solid rgba(11,15,26,.04); vertical-align:middle; }
+    table.clean tbody td img{ width:50px; height:50px; object-fit:cover; border-radius:6px; }
+
+    .btn-restore {   background:#7cf4d1; border:none; border-radius:6px; padding:0.3rem 0.6rem; cursor:pointer; font-size:0.8rem;}
+    .btn-restore:hover { background: #4bb8a1; }
+    footer{ margin-top:16px; padding:18px; text-align:center; color:var(--muted); font-size:0.9rem; }
+    .btn-accent{  margin-right:6px; padding:6px 10px;text-decoration: none; font-size:0.85rem; border:none; border-radius:6px; cursor:pointer;}
+  </style>
+</head>
+<body>
+  <!-- SIDEBAR -->
+  <aside class="sidebar">
+    <div class="brand"><div class="logo">P</div><div class="title">Petopia</div></div>
+    <nav class="side-nav">
+      <a href="{{ url_for('seller_dashboard') }}"><i class="fa-solid fa-chart-line"></i><span>Dashboard</span></a>
+      <a href="{{ url_for('seller_products') }}" class="active"><i class="fa-solid fa-box"></i><span>My Products</span></a>
+      <a href="{{ url_for('seller_orders') }}"><i class="fa-solid fa-cart-shopping"></i><span>My Orders</span></a>
+      <a href="{{ url_for('seller_earnings_commission') }}"><i class="fa-solid fa-sack-dollar"></i><span>Earnings & Commission</span></a>
+      <a href="{{ url_for('seller_promotions') }}"><i class="fa-solid fa-bullhorn"></i><span>Promotions</span></a>
+      <a href="{{ url_for('seller_reports') }}"><i class="fa-solid fa-chart-pie"></i><span>Reports & Analytics</span></a>
+      <a href="#" onclick="confirmLogout()"><i class="fa-solid fa-right-from-bracket"></i><span>Logout</span></a>
+    </nav>
+    <div class="spacer"></div>
+    <div class="small">Signed in as <strong>Seller</strong></div>
+  </aside>
+
+  <!-- MAIN -->
+  <main class="main">
+    <header class="topbar">
+      <div>
+        <div style="font-weight:800;font-size:1.05rem">Archived Products</div>
+        <div style="font-size:0.88rem;color:var(--muted)">Products you archived</div>
+      </div>
+            <div class="search">
+        <input type="text" placeholder="Search products..." />
+        <button class="icon-btn"><i class="fa-solid fa-magnifying-glass"></i></button>
+      </div>
+<div style="display:flex; gap:8px;">
+<a href="{{ url_for('seller_products') }}" class="btn btn-accent">Back to Products</a>
+</div>
+
+
+    </header>
+
+    <div class="panel">
+      <h4>Archived Products</h4>
+      <table class="clean auto-num">
+        <thead>
+          <tr>
+            <th>#</th>
+            <th>Image</th>
+            <th>Product</th>
+            <th>Category</th>
+            <th>Stock</th>
+            <th>Sales</th>
+            <th>Action</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for product in archived_products %}
+          <tr data-product-id="{{ product.id }}">
+            <td></td>
+            <td>
+              {% if product.image_url %}
+                <img src="{{ url_for('static', filename='uploads/' + product.image_url) }}" alt="{{ product.name }}" style="width:50px;height:50px;object-fit:cover;border-radius:6px;">
+              {% else %}
+                <img src="https://via.placeholder.com/50" alt="{{ product.name }}">
+              {% endif %}
+            </td>
+            <td>{{ product.name }}</td>
+            <td>{{ product.category }}</td>
+            <td>{{ product.stock }}</td>
+            <td>{{ product.sales_count }}</td>
+            <td>
+              <button class="btn-restore" data-product-id="{{ product.id }}" onclick="restoreProduct(this.dataset.productId)">
+                <i class="fa-solid fa-rotate-left"></i> Restore
+              </button>
+            </td>
+          </tr>
+          {% endfor %}
+          {% if not archived_products %}
+          <tr>
+            <td colspan="7" style="text-align:center;padding:20px;color:var(--muted);">
+              No archived products found.
+            </td>
+          </tr>
+          {% endif %}
+        </tbody>
+      </table>
+    </div>
+
+    <footer>© 2025 Petopia — Archived Products</footer>
+  </main>
+
+  <script>
+    // Custom alert function to replace browser alert dialogs
+    function showCustomAlert(message, type = 'error', title = null) {
+      const div = document.createElement('div');
+      div.id = 'customAlertModal';
+      div.style = 'position:fixed;top:0;left:0;width:100vw;height:100vh;z-index:9999;background:rgba(0,0,0,.25);backdrop-filter:blur(2px);display:flex;align-items:center;justify-content:center;';
+      
+      // Determine icon and colors based on type
+      let iconBg, iconColor, iconClass, alertTitle, borderColor;
+      const errorColor = '#ff6b6b';
+      const successColor = '#4ade80';
+      const warningColor = '#fbbf24';
+      const infoColor = '#8bb6ff';
+      
+      if (type === 'success') {
+        iconBg = 'rgba(74,222,128,.15)';
+        iconColor = successColor;
+        iconClass = 'fa-circle-check';
+        alertTitle = title || 'Success';
+        borderColor = successColor;
+      } else if (type === 'warning') {
+        iconBg = 'rgba(251,191,36,.15)';
+        iconColor = warningColor;
+        iconClass = 'fa-triangle-exclamation';
+        alertTitle = title || 'Warning';
+        borderColor = warningColor;
+      } else if (type === 'info') {
+        iconBg = 'rgba(139,182,255,.15)';
+        iconColor = infoColor;
+        iconClass = 'fa-circle-info';
+        alertTitle = title || 'Notice';
+        borderColor = infoColor;
+      } else {
+        // error (default)
+        iconBg = 'rgba(255,107,107,.15)';
+        iconColor = errorColor;
+        iconClass = 'fa-circle-exclamation';
+        alertTitle = title || 'Error';
+        borderColor = errorColor;
+      }
+      
+      // Remove emoji from message for cleaner display
+      const cleanMessage = message.replace(/[✅❌⚠️]/g, '').trim();
+      
+      div.innerHTML = `
+        <div style="background:rgba(255,255,255,.97);border-radius:18px;max-width:500px;width:90vw;box-shadow:0 10px 40px rgba(16,24,40,.22);position:relative;overflow:hidden;">
+          <div style="padding:32px;text-align:center;">
+            <div style="width:64px;height:64px;border-radius:50%;background:${iconBg};display:flex;align-items:center;justify-content:center;margin:0 auto 20px;border:2px solid ${borderColor};">
+              <i class="fa-solid ${iconClass}" style="font-size:2rem;color:${iconColor};"></i>
+            </div>
+            <h3 style="font-size:1.5rem;font-weight:800;color:#23272f;margin-bottom:12px;">${alertTitle}</h3>
+            <p style="color:#5b6378;font-weight:600;font-size:1rem;line-height:1.6;margin-bottom:24px;">${cleanMessage}</p>
+            <div style="display:flex;gap:12px;justify-content:center;">
+              <button id="alertOk" style="padding:12px 32px;border-radius:10px;background:linear-gradient(135deg, var(--accent), var(--accent-2));color:#051014;font-weight:700;border:none;cursor:pointer;font-size:1rem;box-shadow:0 8px 26px rgba(139,182,255,.08);transition:all .2s ease;">OK</button>
+            </div>
+          </div>
+        </div>
+      `;
+      document.body.appendChild(div);
+      
+      const closeHandler = function() {
+        div.remove();
+      };
+      
+      document.getElementById('alertOk').addEventListener('click', closeHandler);
+      
+      div.addEventListener('click', function(e) {
+        if (e.target === div) closeHandler();
+      });
+      
+      const escapeHandler = function(e) {
+        if (e.key === 'Escape') {
+          closeHandler();
+          document.removeEventListener('keydown', escapeHandler);
+        }
+      };
+      document.addEventListener('keydown', escapeHandler);
+    }
+
+    // Custom confirmation function to replace browser confirm dialogs
+    function showCustomConfirm(message, onConfirm, onCancel = null) {
+      const div = document.createElement('div');
+      div.id = 'customConfirmModal';
+      div.style = 'position:fixed;top:0;left:0;width:100vw;height:100vh;z-index:9999;background:rgba(0,0,0,.25);backdrop-filter:blur(2px);display:flex;align-items:center;justify-content:center;';
+      
+      div.innerHTML = `
+        <div style="background:rgba(255,255,255,.97);border-radius:18px;max-width:500px;width:90vw;box-shadow:0 10px 40px rgba(16,24,40,.22);position:relative;overflow:hidden;">
+          <div style="padding:32px;text-align:center;">
+            <div style="width:64px;height:64px;border-radius:50%;background:rgba(251,191,36,.15);display:flex;align-items:center;justify-content:center;margin:0 auto 20px;border:2px solid #fbbf24;">
+              <i class="fa-solid fa-circle-question" style="font-size:2rem;color:#fbbf24;"></i>
+            </div>
+            <h3 style="font-size:1.5rem;font-weight:800;color:#23272f;margin-bottom:12px;">Confirm Action</h3>
+            <p style="color:#5b6378;font-weight:600;font-size:1rem;line-height:1.6;margin-bottom:24px;">${message}</p>
+            <div style="display:flex;gap:12px;justify-content:center;">
+              <button id="confirmCancel" style="padding:12px 24px;border-radius:10px;background:#e5e8f0;color:#23272f;font-weight:700;border:none;cursor:pointer;font-size:1rem;transition:all .2s ease;">Cancel</button>
+              <button id="confirmOk" style="padding:12px 24px;border-radius:10px;background:linear-gradient(135deg, var(--accent), var(--accent-2));color:#051014;font-weight:700;border:none;cursor:pointer;font-size:1rem;box-shadow:0 8px 26px rgba(139,182,255,.08);transition:all .2s ease;">Confirm</button>
+            </div>
+          </div>
+        </div>
+      `;
+      document.body.appendChild(div);
+      
+      const closeHandler = function() {
+        div.remove();
+      };
+      
+      document.getElementById('confirmOk').addEventListener('click', function() {
+        closeHandler();
+        if (onConfirm) onConfirm();
+      });
+      
+      document.getElementById('confirmCancel').addEventListener('click', function() {
+        closeHandler();
+        if (onCancel) onCancel();
+      });
+      
+      div.addEventListener('click', function(e) {
+        if (e.target === div) {
+          closeHandler();
+          if (onCancel) onCancel();
+        }
+      });
+      
+      const escapeHandler = function(e) {
+        if (e.key === 'Escape') {
+          closeHandler();
+          if (onCancel) onCancel();
+          document.removeEventListener('keydown', escapeHandler);
+        }
+      };
+      document.addEventListener('keydown', escapeHandler);
+    }
+
+    const searchInput = document.querySelector(".search input");
+
+      // 🔍 Search filter
+  searchInput.addEventListener("keyup", () => {
+    const searchText = searchInput.value.toLowerCase();
+      const tableRows = document.querySelectorAll("table.clean tbody tr");
+    tableRows.forEach(row => {
+        if (row.querySelector('td[colspan]')) return; // Skip "no products" row
+      const productName = row.cells[2].textContent.toLowerCase();
+      const category = row.cells[3].textContent.toLowerCase();
+      row.style.display = (productName.includes(searchText) || category.includes(searchText)) ? "" : "none";
+    });
+  });
+
+    // ♻ Restore product
+    function restoreProduct(productId) {
+      showCustomConfirm('Are you sure you want to restore this product?', function() {
+        fetch(`/restore_product/${productId}`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          }
+        })
+        .then(response => response.json())
+        .then(data => {
+          if (data.success) {
+            showCustomAlert('Product restored successfully!', 'success', 'Restored');
+            location.reload(); // Refresh the page to show updated list
+          } else {
+            showCustomAlert('Error: ' + data.message, 'error', 'Restore Error');
+          }
+        })
+        .catch(error => {
+          console.error('Error:', error);
+          showCustomAlert('An error occurred while restoring the product.', 'error', 'Network Error');
+        });
+      });
+    }
+
+    // Logout confirmation
+    function confirmLogout() {
+      showCustomConfirm('Are you sure you want to logout?', function() {
+        window.location.href = "{{ url_for('logout') }}";
+      });
+    }
+  </script>
+</body>
+</html>

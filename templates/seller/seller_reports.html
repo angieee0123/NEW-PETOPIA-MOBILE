@@ -1,0 +1,712 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Petopia • Seller Reports & Analytics</title>
+
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+
+  <style>
+    :root{
+      --bg: #f6f8ff; --panel: rgba(255,255,255,.60); --panel-strong: rgba(255,255,255,.95);
+      --text: #0b0f1a; --muted: #5b6378; --accent: #7cf4d1; --accent-2: #8bb6ff;
+      --glass-shadow: 0 10px 30px rgba(16,24,40,.08); --card-radius: 12px; --gap: 18px; --sidebar-w: 260px;
+    }
+    *{box-sizing:border-box}
+    body{ margin:0; font-family:"Inter",system-ui,-apple-system,"Segoe UI",Roboto,"Helvetica Neue",Arial; background:var(--bg); color:var(--text); min-height:100vh; display:flex; }
+
+    .sidebar{ width:var(--sidebar-w); position:fixed; top:0; left:0; bottom:0; padding:22px 18px; background:var(--panel-strong); backdrop-filter:blur(10px); box-shadow:var(--glass-shadow); display:flex; flex-direction:column; gap:14px; z-index:50; }
+    .brand{ display:flex; align-items:center; gap:10px; margin-bottom:6px; }
+    .brand .logo{ width:44px; height:44px; border-radius:10px; background:linear-gradient(135deg,var(--accent),var(--accent-2)); display:flex; align-items:center; justify-content:center; color:#051014; font-weight:800; font-size:1.05rem; }
+    .brand .title{ font-weight:800; color:#23272f; font-size:1.05rem; }
+    nav.side-nav{ display:flex; flex-direction:column; gap:6px; margin-top:8px; padding-top:6px; }
+    nav.side-nav a{ display:flex; gap:12px; align-items:center; padding:10px 12px; border-radius:10px; color:var(--text); text-decoration:none; font-weight:600; transition:all .16s ease; }
+    nav.side-nav a i{ width:20px; text-align:center; color:#5b6378; }
+    nav.side-nav a:hover, nav.side-nav a.active{ background:linear-gradient(135deg,var(--accent),var(--accent-2)); color:#051014; }
+    .sidebar .spacer{ flex:1 }
+    .sidebar .small{ font-size:0.85rem; color:var(--muted); text-align:center; padding:6px 8px; }
+
+    .main{ margin-left:calc(var(--sidebar-w) + 20px); padding:26px; flex:1; display:flex; flex-direction:column; gap:var(--gap); }
+    header.topbar{ display:flex; justify-content:space-between; align-items:center; gap:12px; background:var(--panel); padding:12px 16px; border-radius:12px; box-shadow:var(--glass-shadow); }
+    .filters{ display:flex; gap:8px; flex-wrap:wrap; align-items:center; }
+    .filters input, .filters select{ padding:10px 12px; border-radius:10px; border:1px solid rgba(11,15,26,.1); background:#fff; }
+    .btn{ padding:10px 12px; border-radius:10px; border:1px solid rgba(11,15,26,.1); background:#fff; font-weight:700; cursor:pointer; }
+    .btn-primary{ background:linear-gradient(135deg,var(--accent),var(--accent-2)); color:#051014; border:none; }
+
+    .grid{ display:grid; grid-template-columns:1fr 1fr; gap:var(--gap); }
+    .panel{ background:var(--panel-strong); border-radius:12px; padding:14px; box-shadow:var(--glass-shadow); }
+    .panel h4{ margin:0 0 12px 0; font-size:1.05rem; color:#23272f; }
+    .kpi-grid{ display:grid; grid-template-columns:repeat(5, minmax(140px,1fr)); gap:12px; }
+    .kpi{ background:#fff; border:1px solid #e5e8f0; border-radius:10px; padding:12px; box-shadow:0 6px 18px rgba(16,24,40,.04); }
+    .kpi small{ color:var(--muted); font-weight:700; display:block; margin-bottom:6px; }
+    .kpi strong{ font-size:1.05rem; }
+    .table-wrap{ width:100%; overflow:auto; border-radius:10px; background:#fff; border:1px solid #e5e8f0; }
+    /* Limit Orders table to ~10 rows in view; computed height set via JS */
+    #ordersWrap{ overflow-y:auto; }
+    table.clean{ width:100%; border-collapse:separate; border-spacing:0; font-size:0.95rem; }
+    table.clean thead th{ position:sticky; top:0; text-align:left; padding:10px; background:#f8faff; font-weight:700; border-bottom:1px solid #e5e8f0; z-index:1; }
+    table.clean tbody td{ padding:10px; border-bottom:1px solid #eef1f7; }
+    table.clean tbody tr:hover td{ background:rgba(139,182,255,.06); }
+    .chart-box{ background:#fff; padding:12px; border-radius:10px; height:340px; }
+    footer{ margin-top:16px; padding:18px; text-align:center; color:var(--muted); font-size:0.9rem; }
+    
+    /* Status pill styling to match seller dashboard */
+    .status-pill{ display:inline-block; padding:4px 10px; border-radius:999px; font-weight:800; font-size:.78rem; border:1px solid transparent; }
+    .status-pending{ background: rgba(255,184,107,.2); color: #ffb86b; border-color: rgba(255,184,107,.45); }
+    .status-processing{ background: rgba(139,182,255,.2); color: var(--accent-2); border-color: rgba(139,182,255,.45); }
+    .status-shipped{ background: rgba(124,244,209,.2); color: var(--accent); border-color: rgba(124,244,209,.45); }
+    .status-delivered{ background: rgba(74,222,128,.2); color: #4ade80; border-color: rgba(74,222,128,.45); }
+    .status-cancelled{ background: rgba(239,68,68,.15); color: #ef4444; border-color: rgba(239,68,68,.35); }
+    
+    @media(max-width:1080px){ .grid{ grid-template-columns:1fr; } }
+    /* Print/PDF: hide sidebar and expand content */
+    @media print{
+      .sidebar{ display:none !important; }
+      .main{ margin:0 !important; padding:0 !important; }
+      header.topbar{ box-shadow:none !important; background:#fff !important; }
+      /* Hide interactive filter controls in print */
+      .filters{ display:none !important; }
+      #statusFilter, #refreshBtn, #csvBtn, #pdfBtn{ display:none !important; }
+    }
+    /* Ensure PDF shows all rows (no scroll clipping) */
+    @media print{ #ordersWrap{ max-height:none !important; overflow:visible !important; } table.clean thead th{ position:static !important; top:auto !important; } }
+  </style>
+</head>
+<body>
+  <aside class="sidebar">
+    <div class="brand"><div class="logo">P</div><div class="title">Petopia</div></div>
+    <nav class="side-nav">
+      <a href="{{ url_for('seller_dashboard') }}"><i class="fa-solid fa-chart-line"></i><span>Dashboard</span></a>
+      <a href="{{ url_for('seller_products') }}"><i class="fa-solid fa-box"></i><span>My Products</span></a>
+      <a href="{{ url_for('seller_orders') }}"><i class="fa-solid fa-cart-shopping"></i><span>My Orders</span></a>
+      <a href="{{ url_for('seller_earnings_commission') }}"><i class="fa-solid fa-sack-dollar"></i><span>Earnings & Commission</span></a>
+      <a href="{{ url_for('seller_promotions') }}"><i class="fa-solid fa-bullhorn"></i><span>Promotions</span></a>
+      <a href="{{ url_for('seller_reports') }}" class="active"><i class="fa-solid fa-chart-pie"></i><span>Reports & Analytics</span></a>
+      <a href="{{ url_for('logout') }}" id="logoutLink"><i class="fa-solid fa-right-from-bracket"></i><span>Logout</span></a>
+    </nav>
+    <div class="spacer"></div>
+    <div class="small">Signed in as <strong>Seller</strong></div>
+  </aside>
+
+  <main class="main">
+    <header class="topbar">
+      <div>
+        <div style="font-weight:800;font-size:1.05rem">Reports & Analytics 📊</div>
+        <div style="font-size:0.88rem;color:var(--muted)">Export sales, orders, and commission data</div>
+      </div>
+      <div class="filters">
+        <input type="date" id="fromDate">
+        <input type="date" id="toDate">
+        <select id="statusFilter">
+          <option value="all">All Status</option>
+          <option value="to_pay">Pending</option>
+          <option value="to_ship">Processing</option>
+          <option value="to_receive">Shipped</option>
+          <option value="completed">Delivered</option>
+          <option value="cancelled">Cancelled</option>
+        </select>
+        <button class="btn" id="refreshBtn"><i class="fa-solid fa-rotate"></i> Refresh</button>
+        <button class="btn" id="csvBtn"><i class="fa-solid fa-file-csv"></i> CSV</button>
+        <button class="btn" id="pdfBtn"><i class="fa-solid fa-file-pdf"></i> PDF</button>
+      </div>
+    </header>
+
+    <section class="grid">
+      <div class="panel" style="grid-column:1/-1;">
+        <h4>Overview</h4>
+        <div class="kpi-grid">
+          <div class="kpi"><small>Total Orders</small><strong id="kpiOrders">0</strong></div>
+          <div class="kpi"><small>Gross Subtotal</small><strong id="kpiGross">₱ 0</strong></div>
+          <div class="kpi"><small>Shipping Collected</small><strong id="kpiShipping">₱ 0</strong></div>
+          <div class="kpi"><small>Fees (10%)</small><strong id="kpiAdmin">₱ 0</strong></div>
+          <div class="kpi"><small>Net to Seller</small><strong id="kpiNet">₱ 0</strong></div>
+        </div>
+        <div style="margin-top:10px;color:var(--muted);font-weight:600;">
+          Net to Seller = Gross Subtotal − Fees. Shipping is paid to rider.
+        </div>
+      </div>
+      <div class="panel chart-box">
+        <div style="display:flex;justify-content:space-between;align-items:center;gap:10px;">
+          <h4 id="salesChartTitle" style="margin:0;">Sales Trend (7 days)</h4>
+          <select id="salesRange" style="padding:6px 10px;border-radius:8px;border:1px solid rgba(11,15,26,.1);background:#fff;font-weight:700;">
+            <option value="7d" selected>Last 7 days</option>
+            <option value="monthly">Monthly</option>
+            <option value="yearly">Yearly</option>
+          </select>
+        </div>
+        <canvas id="salesChart"></canvas>
+      </div>
+      <div class="panel">
+        <h4>Summary</h4>
+        <div class="table-wrap">
+          <table class="clean" id="summaryTable">
+            <thead><tr><th>Metric</th><th>Value</th></tr></thead>
+            <tbody>
+              <tr><td>Total Orders</td><td id="sumOrders">0</td></tr>
+              <tr><td>Delivered Orders</td><td id="sumDelivered">0</td></tr>
+              <tr><td>Gross Subtotal</td><td id="sumSubtotal">₱ 0</td></tr>
+              <tr><td>Shipping Collected</td><td id="sumShipping">₱ 0</td></tr>
+              <tr><td>Admin Commission (10%)</td><td id="sumAdmin">₱ 0</td></tr>
+              <tr><td>Seller Net</td><td id="sumSeller">₱ 0</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+      <div class="panel">
+        <h4>Orders</h4>
+        <div class="table-wrap" id="ordersWrap">
+          <table class="clean" id="ordersTable">
+            <thead>
+              <tr><th>ID</th><th>Status</th><th>Customer</th><th>Subtotal</th><th>Shipping</th><th>Admin</th><th>Seller Net</th><th>Date</th></tr>
+            </thead>
+            <tbody></tbody>
+          </table>
+        </div>
+      </div>
+      <div class="panel">
+        <h4>Top Products (by sales)</h4>
+        <div class="table-wrap">
+          <table class="clean" id="productsTable">
+            <thead><tr><th>Product</th><th>Qty</th><th>Sales (₱)</th></tr></thead>
+            <tbody></tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <footer>© <span id="yr"></span> Petopia — Seller Reports</footer>
+  </main>
+
+  <script>
+    document.getElementById('yr').textContent = new Date().getFullYear();
+
+    // Custom alert function to replace browser alert dialogs
+    function showCustomAlert(message, type = 'error', title = null) {
+      const div = document.createElement('div');
+      div.id = 'customAlertModal';
+      div.style = 'position:fixed;top:0;left:0;width:100vw;height:100vh;z-index:9999;background:rgba(0,0,0,.25);backdrop-filter:blur(2px);display:flex;align-items:center;justify-content:center;';
+      
+      // Determine icon and colors based on type
+      let iconBg, iconColor, iconClass, alertTitle, borderColor;
+      const errorColor = '#ff6b6b';
+      const successColor = '#4ade80';
+      const warningColor = '#fbbf24';
+      const infoColor = '#8bb6ff';
+      
+      if (type === 'success') {
+        iconBg = 'rgba(74,222,128,.15)';
+        iconColor = successColor;
+        iconClass = 'fa-circle-check';
+        alertTitle = title || 'Success';
+        borderColor = successColor;
+      } else if (type === 'warning') {
+        iconBg = 'rgba(251,191,36,.15)';
+        iconColor = warningColor;
+        iconClass = 'fa-triangle-exclamation';
+        alertTitle = title || 'Warning';
+        borderColor = warningColor;
+      } else if (type === 'info') {
+        iconBg = 'rgba(139,182,255,.15)';
+        iconColor = infoColor;
+        iconClass = 'fa-circle-info';
+        alertTitle = title || 'Notice';
+        borderColor = infoColor;
+      } else {
+        // error (default)
+        iconBg = 'rgba(255,107,107,.15)';
+        iconColor = errorColor;
+        iconClass = 'fa-circle-exclamation';
+        alertTitle = title || 'Error';
+        borderColor = errorColor;
+      }
+      
+      div.innerHTML = `
+        <div style="background:rgba(255,255,255,.97);border-radius:18px;max-width:500px;width:90vw;box-shadow:0 10px 40px rgba(16,24,40,.22);position:relative;overflow:hidden;">
+          <div style="padding:32px;text-align:center;">
+            <div style="width:64px;height:64px;border-radius:50%;background:${iconBg};display:flex;align-items:center;justify-content:center;margin:0 auto 20px;border:2px solid ${borderColor};">
+              <i class="fa-solid ${iconClass}" style="font-size:2rem;color:${iconColor};"></i>
+            </div>
+            <h3 style="font-size:1.5rem;font-weight:800;color:#23272f;margin-bottom:12px;">${alertTitle}</h3>
+            <p style="color:#5b6378;font-weight:600;font-size:1rem;line-height:1.6;margin-bottom:24px;">${message}</p>
+            <div style="display:flex;gap:12px;justify-content:center;">
+              <button id="alertOk" style="padding:12px 32px;border-radius:10px;background:linear-gradient(135deg, var(--accent), var(--accent-2));color:#051014;font-weight:700;border:none;cursor:pointer;font-size:1rem;box-shadow:0 8px 26px rgba(139,182,255,.08);transition:all .2s ease;">OK</button>
+            </div>
+          </div>
+        </div>
+      `;
+      document.body.appendChild(div);
+      
+      const closeHandler = function() {
+        div.remove();
+      };
+      
+      document.getElementById('alertOk').addEventListener('click', closeHandler);
+      
+      div.addEventListener('click', function(e) {
+        if (e.target === div) closeHandler();
+      });
+      
+      const escapeHandler = function(e) {
+        if (e.key === 'Escape') {
+          closeHandler();
+          document.removeEventListener('keydown', escapeHandler);
+        }
+      };
+      document.addEventListener('keydown', escapeHandler);
+    }
+
+    // Custom confirmation function to replace browser confirm dialogs
+    function showCustomConfirm(message, onConfirm, onCancel = null) {
+      const div = document.createElement('div');
+      div.id = 'customConfirmModal';
+      div.style = 'position:fixed;top:0;left:0;width:100vw;height:100vh;z-index:9999;background:rgba(0,0,0,.25);backdrop-filter:blur(2px);display:flex;align-items:center;justify-content:center;';
+      
+      div.innerHTML = `
+        <div style="background:rgba(255,255,255,.97);border-radius:18px;max-width:500px;width:90vw;box-shadow:0 10px 40px rgba(16,24,40,.22);position:relative;overflow:hidden;">
+          <div style="padding:32px;text-align:center;">
+            <div style="width:64px;height:64px;border-radius:50%;background:rgba(251,191,36,.15);display:flex;align-items:center;justify-content:center;margin:0 auto 20px;border:2px solid #fbbf24;">
+              <i class="fa-solid fa-circle-question" style="font-size:2rem;color:#fbbf24;"></i>
+            </div>
+            <h3 style="font-size:1.5rem;font-weight:800;color:#23272f;margin-bottom:12px;">Confirm Action</h3>
+            <p style="color:#5b6378;font-weight:600;font-size:1rem;line-height:1.6;margin-bottom:24px;">${message}</p>
+            <div style="display:flex;gap:12px;justify-content:center;">
+              <button id="confirmCancel" style="padding:12px 24px;border-radius:10px;background:#e5e8f0;color:#23272f;font-weight:700;border:none;cursor:pointer;font-size:1rem;transition:all .2s ease;">Cancel</button>
+              <button id="confirmOk" style="padding:12px 24px;border-radius:10px;background:linear-gradient(135deg, var(--accent), var(--accent-2));color:#051014;font-weight:700;border:none;cursor:pointer;font-size:1rem;box-shadow:0 8px 26px rgba(139,182,255,.08);transition:all .2s ease;">Confirm</button>
+            </div>
+          </div>
+        </div>
+      `;
+      document.body.appendChild(div);
+      
+      const closeHandler = function() {
+        div.remove();
+      };
+      
+      document.getElementById('confirmOk').addEventListener('click', function() {
+        closeHandler();
+        if (onConfirm) onConfirm();
+      });
+      
+      document.getElementById('confirmCancel').addEventListener('click', function() {
+        closeHandler();
+        if (onCancel) onCancel();
+      });
+      
+      div.addEventListener('click', function(e) {
+        if (e.target === div) {
+          closeHandler();
+          if (onCancel) onCancel();
+        }
+      });
+      
+      const escapeHandler = function(e) {
+        if (e.key === 'Escape') {
+          closeHandler();
+          if (onCancel) onCancel();
+          document.removeEventListener('keydown', escapeHandler);
+        }
+      };
+      document.addEventListener('keydown', escapeHandler);
+    }
+
+    document.getElementById('logoutLink').addEventListener('click', function(e){
+      e.preventDefault();
+      showCustomConfirm('Are you sure you want to logout?', function() {
+        window.location.href = "{{ url_for('logout') }}";
+      });
+    });
+
+    function peso(n){ return '₱ ' + Number(n||0).toLocaleString(); }
+    
+    // Global variables to store current data
+    let currentData = null;
+    let isLoading = false;
+
+    // Fetch data from API
+    async function fetchReportsData() {
+      if (isLoading) return currentData;
+      
+      isLoading = true;
+      // Show loading state
+      const tbody = document.querySelector('#ordersTable tbody');
+      if (tbody) {
+        tbody.innerHTML = '<tr><td colspan="8" style="text-align:center;color:#5b6378;font-weight:700;padding:20px;"><i class="fa-solid fa-spinner fa-spin"></i> Loading...</td></tr>';
+      }
+      
+      try {
+        const fromDate = document.getElementById('fromDate').value || '';
+        const toDate = document.getElementById('toDate').value || '';
+        const status = document.getElementById('statusFilter').value || 'all';
+        
+        const params = new URLSearchParams();
+        if (fromDate) params.append('from_date', fromDate);
+        if (toDate) params.append('to_date', toDate);
+        if (status !== 'all') params.append('status', status);
+        
+        const response = await fetch(`/seller/reports/data?${params.toString()}`, {
+          credentials: 'same-origin',
+          headers: {
+            'Content-Type': 'application/json'
+          }
+        });
+        
+        if (!response.ok) {
+          const errorData = await response.json().catch(() => ({}));
+          throw new Error(errorData.error || `Failed to fetch data: ${response.status}`);
+        }
+        
+        const jsonData = await response.json();
+        // Validate response structure
+        if (!jsonData || typeof jsonData !== 'object') {
+          throw new Error('Invalid response format from server');
+        }
+        // Debug: log the response to see what we're getting
+        console.log('API Response:', jsonData);
+        console.log('Orders count:', jsonData.orders?.length || 0);
+        console.log('Summary:', jsonData.summary);
+        console.log('Top products count:', jsonData.top_products?.length || 0);
+        currentData = jsonData;
+        return currentData;
+      } catch (error) {
+        console.error('Error fetching reports data:', error);
+        const tbody = document.querySelector('#ordersTable tbody');
+        if (tbody) {
+          tbody.innerHTML = `<tr><td colspan="8" style="text-align:center;color:#ef4444;font-weight:700;padding:20px;">Error: ${error.message}</td></tr>`;
+        }
+        return null;
+      } finally {
+        isLoading = false;
+      }
+    }
+
+    async function refreshTables(){
+      const data = await fetchReportsData();
+      if (!data) {
+        // Show empty state if no data
+        document.querySelector('#ordersTable tbody').innerHTML = '<tr><td colspan="8" style="text-align:center;color:#5b6378;font-weight:700;">No data available</td></tr>';
+        // Reset all displays to zero
+        document.getElementById('sumOrders').textContent = '0';
+        document.getElementById('sumDelivered').textContent = '0';
+        document.getElementById('sumSubtotal').textContent = peso(0);
+        document.getElementById('sumShipping').textContent = peso(0);
+        document.getElementById('sumAdmin').textContent = peso(0);
+        document.getElementById('sumSeller').textContent = peso(0);
+        const kpiOrders = document.getElementById('kpiOrders'); if (kpiOrders) kpiOrders.textContent = '0';
+        const kpiGross = document.getElementById('kpiGross'); if (kpiGross) kpiGross.textContent = peso(0);
+        const kpiShipping = document.getElementById('kpiShipping'); if (kpiShipping) kpiShipping.textContent = peso(0);
+        const kpiAdmin = document.getElementById('kpiAdmin'); if (kpiAdmin) kpiAdmin.textContent = peso(0);
+        const kpiNet = document.getElementById('kpiNet'); if (kpiNet) kpiNet.textContent = peso(0);
+        const pbody = document.querySelector('#productsTable tbody');
+        if (pbody) {
+          pbody.innerHTML = '<tr><td colspan="3" style="text-align:center;color:#5b6378;font-weight:700;">No data</td></tr>';
+        }
+        return;
+      }
+
+      const rows = data.orders || [];
+      const summary = data.summary || {};
+      const topProducts = data.top_products || [];
+      const salesByDay = data.sales_by_day || [];
+      
+      console.log('Processing data - Rows:', rows.length, 'Summary:', summary, 'Top Products:', topProducts.length);
+      console.log('Sample order row:', rows.length > 0 ? rows[0] : 'No rows');
+      
+      // Orders table
+      const tbody = document.querySelector('#ordersTable tbody');
+      if (!tbody) {
+        console.error('Orders table tbody element not found');
+        return;
+      }
+      
+      if (rows.length === 0) {
+        console.log('No orders to display - showing empty message');
+        tbody.innerHTML = '<tr><td colspan="8" style="text-align:center;color:#5b6378;font-weight:700;">No orders found</td></tr>';
+      } else {
+        console.log('Rendering', rows.length, 'orders');
+        try {
+          const html = rows.map(r=>{
+        const raw = String(r.status||'').toLowerCase();
+        // Map backend statuses to UI labels and classes (same as dashboard)
+        const statusMap = {
+          'to_pay': { label: 'Pending', cls: 'status-pending' },
+          'pending': { label: 'Pending', cls: 'status-pending' },
+          'to_ship': { label: 'Processing', cls: 'status-processing' },
+          'processing': { label: 'Processing', cls: 'status-processing' },
+          'to_receive': { label: 'Shipped', cls: 'status-shipped' },
+          'shipped': { label: 'Shipped', cls: 'status-shipped' },
+          'completed': { label: 'Delivered', cls: 'status-delivered' },
+          'delivered': { label: 'Delivered', cls: 'status-delivered' },
+          'cancelled': { label: 'Cancelled', cls: 'status-cancelled' }
+        };
+        const mapped = statusMap[raw] || { label: (r.status||'').toString(), cls: '' };
+        
+        // Handle date formatting - createdAt can be timestamp (ms) or ISO string
+        let dateStr = 'N/A';
+        try {
+          if (r.createdAt) {
+            const date = typeof r.createdAt === 'number' ? new Date(r.createdAt) : new Date(r.createdAt);
+            if (!isNaN(date.getTime())) {
+              dateStr = date.toLocaleDateString('en-PH', {month:'short', day:'numeric', year:'numeric'});
+            }
+          }
+        } catch(e) {
+          console.warn('Date parsing error:', e, r.createdAt);
+        }
+        
+            return `<tr>
+              <td>${r.id || 'N/A'}</td>
+              <td><span class="status-pill ${mapped.cls}">${mapped.label}</span></td>
+              <td>${(r.customer && r.customer.name) ? r.customer.name : 'Unknown'}</td>
+              <td>${peso(r.subtotal || 0)}</td>
+              <td>${peso(r.shipping || 0)}</td>
+              <td>${peso(r.admin || 0)}</td>
+              <td>${peso(r.seller || 0)}</td>
+              <td>${dateStr}</td>
+            </tr>`;
+          }).join('');
+          tbody.innerHTML = html;
+          console.log('Orders table rendered successfully');
+        } catch (e) {
+          console.error('Error rendering orders table:', e);
+          tbody.innerHTML = '<tr><td colspan="8" style="text-align:center;color:#ef4444;font-weight:700;">Error rendering orders</td></tr>';
+        }
+      }
+
+      // After rendering, cap visual height to ~5 rows (screen only)
+      try {
+        const wrap = document.getElementById('ordersWrap');
+        if (wrap) {
+          // Estimate row height using the first body row or header if empty
+          const firstRow = tbody.querySelector('tr') || document.querySelector('#ordersTable thead tr');
+          const rowH = firstRow ? firstRow.getBoundingClientRect().height : 40;
+          const headerH = document.querySelector('#ordersTable thead')?.getBoundingClientRect().height || 44;
+          const maxH = headerH + rowH * 5 + 2; // header + 5 rows + borders
+          wrap.style.maxHeight = maxH + 'px';
+        }
+      } catch(_) {}
+
+      // Summary - ensure elements exist before updating
+      try {
+        const sumOrdersEl = document.getElementById('sumOrders');
+        const sumDeliveredEl = document.getElementById('sumDelivered');
+        const sumSubtotalEl = document.getElementById('sumSubtotal');
+        const sumShippingEl = document.getElementById('sumShipping');
+        const sumAdminEl = document.getElementById('sumAdmin');
+        const sumSellerEl = document.getElementById('sumSeller');
+        
+        console.log('Updating summary - Orders:', summary.total_orders, 'Delivered:', summary.delivered_orders);
+        
+        if (sumOrdersEl) {
+          sumOrdersEl.textContent = String(summary.total_orders || 0);
+          console.log('Set sumOrders to:', sumOrdersEl.textContent);
+        } else {
+          console.error('sumOrders element not found');
+        }
+        if (sumDeliveredEl) sumDeliveredEl.textContent = String(summary.delivered_orders || 0);
+        if (sumSubtotalEl) sumSubtotalEl.textContent = peso(summary.total_subtotal || 0);
+        if (sumShippingEl) sumShippingEl.textContent = peso(summary.total_shipping || 0);
+        if (sumAdminEl) sumAdminEl.textContent = peso(summary.total_admin_fee || 0);
+        if (sumSellerEl) sumSellerEl.textContent = peso(summary.total_seller_net || 0);
+      } catch (e) {
+        console.error('Error updating summary:', e);
+      }
+
+      // KPIs
+      try {
+        console.log('Updating KPIs - Summary:', summary);
+        const kpiOrders = document.getElementById('kpiOrders');
+        if (kpiOrders) {
+          kpiOrders.textContent = String(summary.total_orders || 0);
+          console.log('Set kpiOrders to:', kpiOrders.textContent);
+        } else {
+          console.error('kpiOrders element not found');
+        }
+        const kpiGross = document.getElementById('kpiGross'); if (kpiGross) kpiGross.textContent = peso(summary.total_subtotal || 0);
+        const kpiShipping = document.getElementById('kpiShipping'); if (kpiShipping) kpiShipping.textContent = peso(summary.total_shipping || 0);
+        const kpiAdmin = document.getElementById('kpiAdmin'); if (kpiAdmin) kpiAdmin.textContent = peso(summary.total_admin_fee || 0);
+        const kpiNet = document.getElementById('kpiNet'); if (kpiNet) kpiNet.textContent = peso(summary.total_seller_net || 0);
+      } catch (e) {
+        console.error('Error updating KPIs:', e);
+      }
+
+      // Top products
+      try {
+        const pbody = document.querySelector('#productsTable tbody');
+        if (!pbody) {
+          console.error('Products table tbody element not found');
+        } else if (topProducts && topProducts.length > 0) {
+          console.log('Rendering top products:', topProducts);
+          pbody.innerHTML = topProducts.map(p=>`<tr><td>${p.name || 'Unknown Product'}</td><td>${Number(p.total_qty || 0).toLocaleString()}</td><td>${peso(p.total_sales || 0)}</td></tr>`).join('');
+        } else {
+          console.log('No top products to display');
+          pbody.innerHTML = '<tr><td colspan="3" style="text-align:center;color:#5b6378;font-weight:700;">No data</td></tr>';
+        }
+      } catch (e) {
+        console.error('Error updating top products:', e);
+      }
+
+      // Do not rebuild chart here; the chart is controlled by the range selector and uses its own data source
+    }
+
+    let chart;
+    async function fetchSalesData(range){
+      try {
+        const response = await fetch(`/seller/sales-trend?range=${range}`, { credentials:'same-origin', headers:{'Content-Type':'application/json'} });
+        if (response.ok){ return await response.json(); }
+        console.warn('Failed to fetch sales data from API:', response.status);
+      } catch(err){ console.warn('Error fetching sales data:', err); }
+      // Fallback config like dashboard
+      return {
+        title: `Sales Trend (${range === 'monthly' ? 'Monthly' : range === 'yearly' ? 'Yearly' : '7 days'})`,
+        labels: range === 'monthly' ? ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'] : 
+                range === 'yearly' ? ['2021','2022','2023','2024','2025'] : 
+                ['Day 1','Day 2','Day 3','Day 4','Day 5','Day 6','Day 7'],
+        data: range === 'monthly' ? [0,0,0,0,0,0,0,0,0,0,0,0] : 
+              range === 'yearly' ? [0,0,0,0,0] : [0,0,0,0,0,0,0]
+      };
+    }
+    async function renderSalesChart(range){
+      const ctx = document.getElementById('salesChart'); if(!ctx || !window.Chart) return;
+      if (chart) chart.destroy();
+      const titleEl = document.getElementById('salesChartTitle'); if (titleEl) titleEl.textContent = 'Loading...';
+      try{
+        const cfg = await fetchSalesData(range);
+        if (titleEl) titleEl.textContent = cfg.title;
+        chart = new Chart(ctx, {
+          type:'line',
+          data:{ labels: cfg.labels, datasets:[{ label:'Sales (₱)', data: cfg.data, backgroundColor:'rgba(139,182,255,0.3)', borderColor:'rgba(139,182,255,1)', fill:true, tension:0.3 }] },
+          options:{ responsive:true, maintainAspectRatio:false, plugins:{ legend:{ display:false } }, scales:{ y:{ beginAtZero:true, ticks:{ callback: function(value){ return '₱' + value.toLocaleString(); } } } } }
+        });
+      }catch(err){ console.error('Error rendering sales chart:', err); if (titleEl) titleEl.textContent = 'Error loading chart'; }
+    }
+
+    async function downloadCSV(){
+      const data = await fetchReportsData();
+      if (!data) {
+        showCustomAlert('No data available to export', 'warning', 'Export Error');
+        return;
+      }
+      
+      const rows = data.orders || [];
+      if (rows.length === 0) {
+        showCustomAlert('No orders to export', 'warning', 'Export Error');
+        return;
+      }
+      
+      const header = ['Order ID','Status','Customer','Subtotal','Shipping','Admin','SellerNet','Date'];
+      const body = rows.map(r=> {
+        let dateStr = '';
+        try {
+          if (r.createdAt) {
+            const date = typeof r.createdAt === 'number' ? new Date(r.createdAt) : new Date(r.createdAt);
+            if (!isNaN(date.getTime())) {
+              dateStr = date.toISOString();
+            }
+          }
+        } catch(e) {
+          dateStr = '';
+        }
+        return [
+          r.id || '',
+          r.status || '',
+          (r.customer?.name || 'Unknown').replace(/,/g, ';'), // Replace commas in names
+          r.subtotal || 0,
+          r.shipping || 0,
+          r.admin || 0,
+          r.seller || 0,
+          dateStr
+        ];
+      });
+      
+      // Escape CSV values properly
+      const escapeCSV = (val) => {
+        if (val === null || val === undefined) return '';
+        const str = String(val);
+        if (str.includes(',') || str.includes('"') || str.includes('\n')) {
+          return `"${str.replace(/"/g, '""')}"`;
+        }
+        return str;
+      };
+      
+      const csv = [header.map(escapeCSV)].concat(body.map(r => r.map(escapeCSV).join(','))).join('\n');
+      const blob = new Blob([csv], { type:'text/csv;charset=utf-8;' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `seller_reports_${new Date().toISOString().slice(0,10)}.csv`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+    }
+    function downloadPDF(){ window.print(); }
+
+    document.getElementById('refreshBtn').addEventListener('click', refreshTables);
+    document.getElementById('csvBtn').addEventListener('click', downloadCSV);
+    document.getElementById('pdfBtn').addEventListener('click', downloadPDF);
+    
+    // Wire chart range selector like dashboard
+    const salesRangeSel = document.getElementById('salesRange');
+    if (salesRangeSel){ salesRangeSel.addEventListener('change', function(){ renderSalesChart(this.value); }); }
+
+    // Status filter change handler
+    const statusFilter = document.getElementById('statusFilter');
+    if (statusFilter) {
+      statusFilter.addEventListener('change', function() {
+        refreshTables();
+      });
+    }
+    
+    // Date range change handlers
+    (function wireDateFilters(){
+      const fromEl = document.getElementById('fromDate');
+      const toEl = document.getElementById('toDate');
+      if(!fromEl || !toEl) return;
+      function normalize(){
+        const f = fromEl.value ? new Date(fromEl.value).getTime() : NaN;
+        const t = toEl.value ? new Date(toEl.value).getTime() : NaN;
+        if (!isNaN(f) && !isNaN(t) && f > t){
+          // If from > to, set to = from
+          toEl.value = fromEl.value;
+        }
+      }
+      function onChange(){ 
+        normalize(); 
+        // Debounce to avoid too many requests
+        clearTimeout(window.refreshTimeout);
+        window.refreshTimeout = setTimeout(() => refreshTables(), 300);
+      }
+      fromEl.addEventListener('change', onChange);
+      toEl.addEventListener('change', onChange);
+      fromEl.addEventListener('input', onChange);
+      toEl.addEventListener('input', onChange);
+    })();
+
+    // Initialize when DOM is ready
+    function initializeReports() {
+      // No default date filter - seller must set dates manually if they want to filter
+      // Load data on page load (without date filters)
+      console.log('Initializing reports without date filters');
+      refreshTables();
+      // Initialize chart on page load to match dashboard behavior
+      renderSalesChart('7d');
+    }
+    
+    // Wait for DOM to be ready
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', function() {
+        console.log('DOM loaded, initializing reports...');
+        initializeReports();
+      });
+    } else {
+      // DOM is already loaded
+      console.log('DOM already loaded, initializing reports...');
+      initializeReports();
+    }
+  </script>
+</body>
+</html>
+

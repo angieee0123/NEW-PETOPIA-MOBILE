@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Petopia • Sign Up</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<link href="https://cdn.jsdelivr.net/npm/remixicon@4.3.0/fonts/remixicon.css" rel="stylesheet">
+<style>
+:root {
+  --bg: #f6f8ff;
+  --panel: rgba(255,255,255,.6);
+  --panel-strong: rgba(255,255,255,.9);
+  --text: #0b0f1a;
+  --muted: #5b6378;
+  --accent: #7cf4d1;
+  --accent-2: #8bb6ff;
+  --ring: rgba(139,182,255,0.45);
+  --shadow: 0 20px 60px rgba(16,24,40,.15);
+}
+* { box-sizing: border-box; }
+html, body {
+  height: 100%;
+  overflow: hidden; /* prevent scrolling completely */
+}
+
+.wrap {
+  min-height: 100vh; /* keep full viewport height */
+  overflow: hidden;   /* prevent internal scroll */
+}
+.panel-wrap {
+  overflow: hidden;  /* remove scroll inside panels */
+}
+.panel {
+  overflow: visible; /* ensure content shows without scroll */
+}
+
+body {
+  margin: 0;
+  font-family: Inter, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial;
+  color: var(--text);
+  background: var(--bg);
+  overflow-x: hidden;
+}
+
+a.back-home {
+  position: fixed; top: 16px; left: 16px; z-index: 99;
+  background: var(--panel); padding: 5px 12px; border-radius: 999px;
+  text-decoration: none; color: var(--text); font-weight: 600;
+  box-shadow: var(--shadow); border: 1px solid var(--panel-strong);
+  display: inline-flex; align-items: center; gap: 6px; font-size: 13px;
+}
+a.back-home i { font-size: 15px; }
+
+/* Aurora blobs */
+.aurora { position: fixed; inset: 0; filter: blur(60px); pointer-events: none; overflow: hidden; }
+.blob { position: absolute; width: 60vmax; height: 60vmax; border-radius: 50%; mix-blend-mode: screen; opacity: .55; animation: float 18s ease-in-out infinite; }
+.blob.a { background: radial-gradient(circle at 30% 30%, var(--accent), transparent 60%); left: -20vmax; top: -10vmax; }
+.blob.b { background: radial-gradient(circle at 70% 30%, var(--accent-2), transparent 60%); right: -15vmax; top: -5vmax; animation-delay: 4s; }
+.blob.c { background: radial-gradient(circle at 50% 70%, #f39cff, transparent 60%); left: 10vmax; bottom: -20vmax; animation-delay: 8s; }
+@keyframes float { 0%,100% { transform: translate3d(0,0,0) scale(1);} 50% { transform: translate3d(0,-4%,0) scale(1.05);} }
+
+/* Layout */
+.wrap { display: grid; grid-template-columns: 1.1fr .9fr; min-height: 100vh; }
+@media (max-width: 980px) { .wrap { grid-template-columns: 1fr; } .hero { display: none; } }
+
+.hero { display: grid; place-items: center; padding: 6vmin; }
+.hero-inner { max-width: 640px; text-align: left; }
+.brand { display: inline-flex; align-items: center; gap: .6rem; padding: .5rem .9rem; border-radius: 999px; background: var(--panel); backdrop-filter: blur(10px); border: 1px solid var(--panel-strong); box-shadow: var(--shadow); }
+.logo { width: 28px; height: 28px; display: grid; place-items: center; border-radius: 8px; background: linear-gradient(135deg, var(--accent), var(--accent-2)); color: #051014; font-weight: 800; }
+h1 { margin: 16px 0 10px; font-size: clamp(36px, 5.2vw, 56px); line-height: 1.02; }
+p.lede { margin: 0; color: var(--muted); font-size: clamp(14px, 1.6vw, 16px); }
+
+.panel-wrap { display: grid; place-items: center; padding: 2vmin 2vmin; }
+.panel {
+  width: min(600px, 95vw); overflow-y: visible; padding: 28px; border-radius: 22px;
+  background: var(--panel); border: 1px solid var(--panel-strong); box-shadow: var(--shadow); backdrop-filter: blur(18px);
+}
+.panel header { display:flex; justify-content: space-between; align-items:center; margin-bottom: 20px; flex-wrap: wrap; gap:20px; }
+.panel header h2 { margin: 0; font-size: 26px; }
+
+form { margin-top: 5px; display: grid; gap: 5px; }
+.field { display: grid; gap: 8px; }
+label { font-size: 14px; color: var(--muted); }
+.control { position: relative; }
+.control input, .control select, .control textarea {
+  width: 100%; padding: 12px 44px 12px 14px; border-radius: 14px; border: 1px solid var(--panel-strong); background: rgba(255,255,255,.7); color: var(--text); font-size: 15px; outline: none;
+}
+.control textarea { min-height: 88px; resize: vertical; padding-top:10px; padding-bottom:10px; }
+.control input:focus, .control select:focus, .control textarea:focus { border-color: var(--accent-2); box-shadow: 0 0 0 2px var(--ring); }
+.control i { position: absolute; right: 12px; top: 50%; transform: translateY(-50%); color: var(--muted); }
+
+.btn { width: 100%; padding: 14px 16px; border: 0; border-radius: 16px; font-weight: 700; cursor: pointer; background: linear-gradient(135deg, var(--accent), var(--accent-2)); color: #051014; box-shadow: 0 12px 30px rgba(139,182,255,.25); transition: transform .2s; }
+.btn:hover { transform: translateY(-2px); }
+.btn-outline { background: transparent; border: 2px solid var(--accent-2); color: var(--accent-2); box-shadow: none; transition: border-color .2s, color .2s; }
+.btn-outline:hover { border-color: var(--accent); color: var(--accent); }
+.btn-row { display:flex; gap:10px; margin-top:6px; flex-wrap: wrap; }
+
+.two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+@media (max-width: 720px) { .two-col { grid-template-columns: 1fr; } }
+
+.small-muted { font-size:12px; color:var(--muted); margin-top:6px; }
+
+.meta { margin-top: 12px; text-align: center; font-size: 14px; color: var(--muted); }
+.link { color: var(--accent-2); font-weight: 600; text-decoration: none; }
+.link:hover { text-decoration: underline; }
+
+footer { position: relative; bottom: 0; left: 0; right: 0; text-align: center; color: var(--muted); font-size: 12px; padding: 8px 0; }
+
+/* Role selection buttons */
+.role-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 12px;
+  margin-top: 12px;
+}
+button.role-btn,
+a.role-btn {
+  display: inline-flex;        /* para align yung icon + text */
+  align-items: center;
+  justify-content: center;
+  padding: 14px 16px;
+  border-radius: 16px;
+  font-weight: 700;
+  cursor: pointer;
+  background: linear-gradient(135deg, var(--accent), var(--accent-2));
+  color: #051014;
+  border: none;
+  text-decoration: none;       /* alisin underline ng <a> */
+  box-shadow: 0 12px 30px rgba(139,182,255,.25);
+  transition: transform .2s, box-shadow .2s;
+}
+
+button.role-btn:hover,
+a.role-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 14px 36px rgba(139,182,255,.35);
+}
+
+@media (max-width: 620px) {
+  .role-grid { grid-template-columns: 1fr; }
+
+}
+</style>
+</head>
+<body>
+<a href="{{ url_for('home') }}" class="back-home">
+  <i class="ri-arrow-left-line"></i> Back to Home
+</a>
+
+
+<div class="aurora">
+  <div class="blob a"></div>
+  <div class="blob b"></div>
+  <div class="blob c"></div>
+</div>
+
+<main class="wrap">
+  <!-- HERO -->
+  <section class="hero">
+    <div class="hero-inner">
+      <div class="brand">
+        <span class="logo">🐾</span>
+        <strong>Petopia</strong>
+        <span style="color:var(--muted)">Pet Shop Essentials</span>
+      </div>
+      <h1 id="heroTitle">Join Petopia</h1>
+      <p class="lede" id="heroSubtitle">Create your account to access the best pet supplies, care tips, and exclusive deals.</p>
+    </div>
+  </section>
+
+<!-- ROLE SELECTION -->
+<section class="panel-wrap" id="roleSelection">
+  <div class="panel">
+    <header><h2>Sign Up As</h2></header>
+    <div class="role-grid">
+      <!-- Buyer stays on page -->
+      <!-- Buyer redirects -->
+        <a href="{{ url_for('signup_buyer') }}" class="role-btn">
+          <i class="ri-shopping-cart-line"></i>
+          <span>Buyer</span>
+        </a>
+
+        <!-- Seller redirects -->
+        <a href="{{ url_for('signup_seller') }}" class="role-btn">
+          <i class="ri-store-2-line"></i>
+          <span>Seller</span>
+        </a>
+
+        <!-- Rider redirects -->
+        <a href="{{ url_for('signup_rider') }}" class="role-btn">
+          <i class="ri-motorbike-line"></i>
+          <span>Rider</span>
+        </a>
+    </div>
+  </div>
+</section>
+
+</body>
+</html>

@@ -1,0 +1,402 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Petopia • View All Users</title>
+<meta id="pendingCounts" data-seller="{{ seller_pending_count|default(0) }}" data-rider="{{ rider_pending_count|default(0) }}">
+
+<!-- Fonts + Icons -->
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+
+<style>
+:root{
+  --bg: #f6f8ff;
+  --panel: rgba(255,255,255,.60);
+  --panel-strong: rgba(255,255,255,.95);
+  --text: #0b0f1a;
+  --muted: #5b6378;
+  --accent: #7cf4d1;
+  --accent-2: #8bb6ff;
+  --glass-shadow: 0 10px 30px rgba(16,24,40,.08);
+  --card-radius: 12px;
+  --gap: 18px;
+  --sidebar-w: 260px;
+}
+*{box-sizing:border-box}
+body{margin:0;font-family:"Inter",system-ui;-webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale;background:var(--bg);color:var(--text);min-height:100vh;display:flex;}
+
+/* Sidebar */
+.sidebar{width:var(--sidebar-w);position:fixed;top:0;left:0;bottom:0;padding:22px 18px;background:var(--panel-strong);backdrop-filter:blur(10px);box-shadow:var(--glass-shadow);display:flex;flex-direction:column;gap:14px;z-index:50;}
+.brand{display:flex;align-items:center;gap:10px;margin-bottom:6px;}
+.brand .logo{width:44px;height:44px;border-radius:10px;background:linear-gradient(135deg,var(--accent),var(--accent-2));display:flex;align-items:center;justify-content:center;color:#051014;font-weight:800;font-size:1.05rem;box-shadow:0 6px 18px rgba(139,182,255,.09);}
+.brand .title{font-weight:800;letter-spacing:0.3px;color:#23272f;font-size:1.05rem;}
+nav.side-nav{display:flex;flex-direction:column;gap:6px;margin-top:8px;padding-top:6px;}
+nav.side-nav>a,.dropdown>.dropdown-toggle{display:flex;gap:12px;align-items:center;padding:10px 12px;border-radius:10px;color:var(--text);text-decoration:none;font-weight:600;cursor:pointer;transition:all .16s ease;}
+nav.side-nav a i{width:20px;text-align:center;color:#5b6378;}
+nav.side-nav a span{font-size:0.95rem;color:var(--text);}
+nav.side-nav a:hover,nav.side-nav a.active,.dropdown>.dropdown-toggle.active,.dropdown>.dropdown-toggle:hover{background:linear-gradient(135deg,var(--accent),var(--accent-2));color:#051014;box-shadow:0 8px 26px rgba(139,182,255,.08);}
+.sidebar .spacer{flex:1}
+.sidebar .small{font-size:0.85rem;color:var(--muted);text-align:center;padding:6px 8px;}
+.dropdown{display:flex;flex-direction:column;}
+.dropdown-menu{display:none;flex-direction:column;margin-left:12px;gap:4px;background:#eef3ff;border-radius:8px;padding:6px;}
+.dropdown.open .dropdown-menu{display:flex;}
+.dropdown-menu a{padding:8px 12px;font-weight:500;font-size:0.95rem;border-radius:6px;background:transparent;display:flex;align-items:center;gap:10px;color:var(--text);text-decoration:none;}
+.dropdown-menu a:hover{background:rgba(139,182,255,0.12);color:#051014;}
+.side-badge{margin-left:auto;background:var(--accent-2);color:#051014;border-radius:999px;padding:2px 7px;font-weight:800;font-size:0.72rem;}
+
+/* Main */
+.main{margin-left:calc(var(--sidebar-w) + 20px);padding:26px;flex:1;display:flex;flex-direction:column;gap:var(--gap);}
+header.topbar{display:flex;justify-content:space-between;align-items:center;gap:12px;background:var(--panel);padding:12px 16px;border-radius:12px;box-shadow:var(--glass-shadow);}
+.search{display:flex;align-items:center;gap:8px;flex:1;max-width:720px; flex-wrap:wrap;}
+.search input{flex:1;padding:10px 12px;border-radius:10px;border:1px solid rgba(11,15,26,.06);background:#fff;font-size:0.95rem;}
+.search select{padding:6px 10px;border-radius:8px;}
+.search button.action-btn{padding:6px 12px;border-radius:6px;border:none;font-weight:600;cursor:pointer;font-size:0.85rem;background:#8bb6ff;color:#051014;}
+.icon-btn{border:none;background:transparent;font-size:1.05rem;padding:8px;border-radius:8px;cursor:pointer;color:var(--text);}
+.icon-btn:hover{color:var(--accent-2);}
+.panel{background:var(--panel-strong);border-radius:12px;padding:14px;box-shadow:var(--glass-shadow);}
+.panel h4{margin:0 0 12px 0;font-size:1.05rem;color:#23272f;}
+table.clean{width:100%;border-collapse:collapse;font-size:0.95rem;}
+table.clean thead th{text-align:left;font-weight:700;color:#3b4250;padding:10px;background:rgba(11,15,26,.03);}
+table.clean tbody td{padding:10px;border-bottom:1px solid rgba(11,15,26,.04);color:#1b2230;}
+table.clean tbody tr:hover td{background:rgba(139,182,255,.03);}
+.action-btn{padding:6px 12px;border-radius:6px;border:none;font-weight:600;cursor:pointer;font-size:0.85rem;}
+.restore{background:#7cf4d1;color:#051014;}
+.footer-btns{display:flex; gap:6px; justify-content:flex-start;}
+footer{margin-top:16px;padding:18px;text-align:center;color:var(--muted);font-size:0.9rem;}
+</style>
+</head>
+<body>
+
+  <!-- SIDEBAR -->
+  <aside class="sidebar">
+    <div class="brand"><div class="logo">P</div><div class="title">Petopia</div></div>
+    <nav class="side-nav">
+      <a href="{{ url_for('admin_dashboard') }}"><i class="fa-solid fa-chart-line"></i><span>Overview / Stats</span></a>
+
+    <!-- User Management Dropdown -->
+    <div class="dropdown open">
+      <a href="#" class="dropdown-toggle active">
+        <i class="fa-solid fa-users"></i><span>User Management</span>
+        <i class="fa-solid fa-chevron-down chev"></i>
+      </a>
+
+      <div class="dropdown-menu">
+        <a href="{{ url_for('admin_all_users') }}" data-path="users.html" class="active" style="background:linear-gradient(135deg,var(--accent),var(--accent-2));color:#051014;box-shadow:0 8px 26px rgba(139,182,255,.08);">
+            <i class="fa-solid fa-user"></i>
+            <span>View All Users</span>
+        </a>
+
+
+        <a href="{{ url_for('admin_seller_requests') }}" data-path="seller_request.html">
+            <i class="fa-solid fa-store"></i>
+            <span>Seller Requests</span>
+            <span id="sellerBadge" class="side-badge" style="display:none">0</span>
+        </a>
+
+
+        <a href="{{ url_for('admin_rider_requests') }}" data-path="rider_request.html">
+            <i class="fa-solid fa-motorcycle"></i>
+            <span>Rider Requests</span>
+            <span id="riderBadge" class="side-badge" style="display:none">0</span>
+        </a>
+
+      </div>
+    </div>
+
+    <a href="{{ url_for('admin_product_management') }}" data-path="products"><i class="fa-solid fa-box"></i><span>Product Management</span></a>
+    <a href="{{ url_for('admin_order_management') }}" data-path="orders"><i class="fa-solid fa-cart-shopping"></i><span>Order Management</span></a>
+    <a href="{{ url_for('admin_commission') }}" data-path="commission"><i class="fa-solid fa-sack-dollar"></i><span>Commission Tracking</span></a>
+    <a href="{{ url_for('admin_offenses') }}" data-path="offenses.html"><i class="fa-solid fa-triangle-exclamation"></i><span>Offenses & Violations</span></a>
+    <a href="{{ url_for('admin_reports') }}" data-path="reports"><i class="fa-solid fa-file-lines"></i><span>Reports & Analytics</span></a>
+    <a href="#" onclick="confirmLogout()"><i class="fa-solid fa-right-from-bracket"></i><span>Logout</span></a>
+  </nav>
+  <div class="spacer"></div>
+  <div class="small">Signed in as <strong>Admin</strong></div>
+</aside>
+
+<!-- MAIN -->
+<main class="main">
+<header class="topbar">
+  <div style="font-weight:800;font-size:1.05rem">All Users</div>
+  <div class="search" style="align-items:center; gap:8px;">
+    <input type="text" id="userSearch" placeholder="Search by name or email..." onkeyup="filterUsers()"/>
+    <select id="roleFilter" onchange="filterUsers()">
+      <option value="All">All Roles</option>
+      <option value="Buyer">Buyer</option>
+      <option value="Seller">Seller</option>
+      <option value="Rider">Rider</option>
+    </select>
+    <button id="backAllBtn" class="action-btn">Back to All Users</button>
+  </div>
+</header>
+
+<section class="panel">
+  <h4>Users List</h4>
+  <table class="clean">
+    <thead>
+      <tr>
+        <th>Name</th>
+        <th>Email</th>
+        <th>Role</th>
+        <th>Status</th>
+        <th>Date Joined</th>
+        <th style="width:150px;">Actions</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for u in users %}
+      <tr data-role="{{ u.role|title }}">
+        <td>{{ u.fullname }}</td>
+        <td>{{ u.email }}</td>
+        <td>{{ u.role|title }}</td>
+        <td>Archived</td>
+        <td>{{ u.created_at }}</td>
+        <td>
+          <div class="footer-btns">
+            <button class="action-btn restore" data-user-id="{{ u.id }}">Restore</button>
+          </div>
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</section>
+
+<footer>© 2025 Petopia — Users</footer>
+</main>
+
+<script>
+// Custom Alert Modal
+function showCustomAlert(message, type = 'error', title = null) {
+  const div = document.createElement('div');
+  div.id = 'customAlertModal';
+  div.style = 'position:fixed;top:0;left:0;width:100vw;height:100vh;z-index:9999;background:rgba(0,0,0,.25);backdrop-filter:blur(2px);display:flex;align-items:center;justify-content:center;';
+  
+  // Determine icon and colors based on type
+  let iconBg, iconColor, iconClass, alertTitle, borderColor;
+  const errorColor = '#ff6b6b';
+  const successColor = '#4ade80';
+  const warningColor = '#fbbf24';
+  const infoColor = '#8bb6ff';
+  
+  if (type === 'success') {
+    iconBg = 'rgba(74,222,128,.15)';
+    iconColor = successColor;
+    iconClass = 'fa-circle-check';
+    alertTitle = title || 'Success';
+    borderColor = successColor;
+  } else if (type === 'warning') {
+    iconBg = 'rgba(251,191,36,.15)';
+    iconColor = warningColor;
+    iconClass = 'fa-triangle-exclamation';
+    alertTitle = title || 'Warning';
+    borderColor = warningColor;
+  } else if (type === 'info') {
+    iconBg = 'rgba(139,182,255,.15)';
+    iconColor = infoColor;
+    iconClass = 'fa-circle-info';
+    alertTitle = title || 'Notice';
+    borderColor = infoColor;
+  } else {
+    // error (default)
+    iconBg = 'rgba(255,107,107,.15)';
+    iconColor = errorColor;
+    iconClass = 'fa-circle-exclamation';
+    alertTitle = title || 'Error';
+    borderColor = errorColor;
+  }
+  
+  div.innerHTML = `
+    <div style="background:rgba(255,255,255,.97);border-radius:18px;max-width:500px;width:90vw;box-shadow:0 10px 40px rgba(16,24,40,.22);position:relative;overflow:hidden;">
+      <div style="padding:32px;text-align:center;">
+        <div style="width:64px;height:64px;border-radius:50%;background:${iconBg};display:flex;align-items:center;justify-content:center;margin:0 auto 20px;border:2px solid ${borderColor};">
+          <i class="fa-solid ${iconClass}" style="font-size:2rem;color:${iconColor};"></i>
+        </div>
+        <h3 style="font-size:1.5rem;font-weight:800;color:#23272f;margin-bottom:12px;">${alertTitle}</h3>
+        <p style="color:#5b6378;font-weight:600;font-size:1rem;line-height:1.6;margin-bottom:24px;white-space:pre-line;">${message}</p>
+        <div style="display:flex;gap:12px;justify-content:center;">
+          <button id="alertOk" style="padding:12px 32px;border-radius:10px;background:linear-gradient(135deg, var(--accent), var(--accent-2));color:#051014;font-weight:700;border:none;cursor:pointer;font-size:1rem;box-shadow:0 8px 26px rgba(139,182,255,.08);transition:all .2s ease;">OK</button>
+        </div>
+      </div>
+    </div>
+  `;
+  document.body.appendChild(div);
+  
+  const closeHandler = function() {
+    div.remove();
+  };
+  
+  document.getElementById('alertOk').addEventListener('click', closeHandler);
+  
+  div.addEventListener('click', function(e) {
+    if (e.target === div) closeHandler();
+  });
+  
+  const escapeHandler = function(e) {
+    if (e.key === 'Escape') {
+      closeHandler();
+      document.removeEventListener('keydown', escapeHandler);
+    }
+  };
+  document.addEventListener('keydown', escapeHandler);
+}
+
+// Custom Confirm Modal
+function showCustomConfirm(message, onConfirm, onCancel = null) {
+  const div = document.createElement('div');
+  div.id = 'customConfirmModal';
+  div.style = 'position:fixed;top:0;left:0;width:100vw;height:100vh;z-index:9999;background:rgba(0,0,0,.25);backdrop-filter:blur(2px);display:flex;align-items:center;justify-content:center;';
+  
+  div.innerHTML = `
+    <div style="background:rgba(255,255,255,.97);border-radius:18px;max-width:500px;width:90vw;box-shadow:0 10px 40px rgba(16,24,40,.22);position:relative;overflow:hidden;">
+      <div style="padding:32px;text-align:center;">
+        <div style="width:64px;height:64px;border-radius:50%;background:rgba(251,191,36,.15);display:flex;align-items:center;justify-content:center;margin:0 auto 20px;border:2px solid #fbbf24;">
+          <i class="fa-solid fa-circle-question" style="font-size:2rem;color:#fbbf24;"></i>
+        </div>
+        <h3 style="font-size:1.5rem;font-weight:800;color:#23272f;margin-bottom:12px;">Confirm Action</h3>
+        <p style="color:#5b6378;font-weight:600;font-size:1rem;line-height:1.6;margin-bottom:24px;">${message}</p>
+        <div style="display:flex;gap:12px;justify-content:center;">
+          <button id="confirmCancel" style="padding:12px 24px;border-radius:10px;background:#e5e8f0;color:#23272f;font-weight:700;border:none;cursor:pointer;font-size:1rem;transition:all .2s ease;">Cancel</button>
+          <button id="confirmOk" style="padding:12px 24px;border-radius:10px;background:linear-gradient(135deg, var(--accent), var(--accent-2));color:#051014;font-weight:700;border:none;cursor:pointer;font-size:1rem;box-shadow:0 8px 26px rgba(139,182,255,.08);transition:all .2s ease;">Confirm</button>
+        </div>
+      </div>
+    </div>
+  `;
+  document.body.appendChild(div);
+  
+  const closeHandler = function() {
+    div.remove();
+  };
+  
+  document.getElementById('confirmOk').addEventListener('click', function() {
+    closeHandler();
+    if (onConfirm) onConfirm();
+  });
+  
+  document.getElementById('confirmCancel').addEventListener('click', function() {
+    closeHandler();
+    if (onCancel) onCancel();
+  });
+  
+  div.addEventListener('click', function(e) {
+    if (e.target === div) {
+      closeHandler();
+      if (onCancel) onCancel();
+    }
+  });
+  
+  const escapeHandler = function(e) {
+    if (e.key === 'Escape') {
+      closeHandler();
+      if (onCancel) onCancel();
+      document.removeEventListener('keydown', escapeHandler);
+    }
+  };
+  document.addEventListener('keydown', escapeHandler);
+}
+
+// ---------- badges (counts from backend via data-attributes) ----------
+const countsEl = document.getElementById('pendingCounts');
+const sellerCount = parseInt(countsEl?.dataset?.seller || '0', 10) || 0;
+const riderCount  = parseInt(countsEl?.dataset?.rider || '0', 10) || 0;
+const sellerBadge = document.getElementById('sellerBadge');
+const riderBadge  = document.getElementById('riderBadge');
+
+if (sellerBadge) {
+  if (sellerCount > 0) {
+    sellerBadge.textContent = sellerCount;
+    sellerBadge.style.display = 'inline-block';
+  } else {
+    sellerBadge.style.display = 'none';
+  }
+}
+if (riderBadge) {
+  if (riderCount > 0) {
+    riderBadge.textContent = riderCount;
+    riderBadge.style.display = 'inline-block';
+  } else {
+    riderBadge.style.display = 'none';
+  }
+}
+
+// Auto-highlight the current sidebar link
+document.addEventListener('DOMContentLoaded', () => {
+  const currentPath = window.location.pathname;
+  let linkMatched = false;
+
+  document.querySelectorAll('.side-nav a').forEach(link => {
+    link.classList.remove('active');
+    const linkHref = link.getAttribute('href');
+    if (!linkHref) return;
+
+    const normalizedHref = linkHref.startsWith('http')
+      ? new URL(linkHref, window.location.origin).pathname
+      : linkHref;
+
+    if (normalizedHref === currentPath) {
+      link.classList.add('active');
+      const dropdown = link.closest('.dropdown');
+      if (dropdown) dropdown.querySelector('.dropdown-toggle').classList.add('active');
+      linkMatched = true;
+    }
+  });
+
+  if (!linkMatched && currentPath.includes('admin_archived_users')) {
+    const dropdownToggle = document.querySelector('.dropdown > .dropdown-toggle');
+    if (dropdownToggle) dropdownToggle.classList.add('active');
+  }
+});
+
+// Filter Users
+function filterUsers(){
+  const search = document.getElementById('userSearch').value.toLowerCase();
+  const role = document.getElementById('roleFilter').value;
+  document.querySelectorAll('table.clean tbody tr').forEach(row=>{
+    const name = row.cells[0].innerText.toLowerCase();
+    const email = row.cells[1].innerText.toLowerCase();
+    const rowRole = row.dataset.role;
+    const matchesRole = (role==="All" || role===rowRole);
+    const matchesSearch = name.includes(search) || email.includes(search);
+    row.style.display = (matchesRole && matchesSearch)?"":"none";
+  });
+}
+
+// Restore Button
+document.querySelectorAll('.restore').forEach(btn => {
+  btn.addEventListener('click', async (e) => {
+    const row = btn.closest('tr');
+    const name = row.cells[0].innerText;
+    const userId = btn.getAttribute('data-user-id');
+    if (!userId) { showCustomAlert('Missing user ID.', 'error', 'Validation Error'); return; }
+    try {
+      const res = await fetch(`/admin/restore_user/${userId}`, { method: 'POST' });
+      const data = await res.json();
+      if (data.success) {
+        showCustomAlert(name + ' has been restored.', 'success', 'User Restored');
+        row.remove();
+      } else {
+        showCustomAlert('Restore failed: ' + (data.message || 'Unknown error'), 'error', 'Restore Failed');
+      }
+    } catch (err) {
+      showCustomAlert('Network error while restoring.', 'error', 'Network Error');
+    }
+  });
+});
+
+// Back to All Users
+document.getElementById('backAllBtn').addEventListener('click', () => {
+  window.location.href = '{{ url_for("admin_all_users") }}';
+});
+
+// Logout confirmation function
+function confirmLogout() {
+  showCustomConfirm('Are you sure you want to logout?', function() {
+    window.location.href = "{{ url_for('logout') }}";
+  });
+}
+</script>
+
+</body>
+</html>

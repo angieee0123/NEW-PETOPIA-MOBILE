@@ -1,0 +1,522 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Petopia • Rider Requests</title>
+
+  <!-- Fonts + Icons -->
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+
+  <style>
+    :root{
+      --bg: #f6f8ff;
+      --panel: rgba(255,255,255,.60);
+      --panel-strong: rgba(255,255,255,.95);
+      --text: #0b0f1a;
+      --muted: #5b6378;
+      --accent: #7cf4d1;
+      --accent-2: #8bb6ff;
+      --glass-shadow: 0 10px 30px rgba(16,24,40,.08);
+      --card-radius: 12px;
+      --gap: 18px;
+      --sidebar-w: 260px;
+    }
+
+    /* Normal approve/reject */
+    .action-btn.approve {
+      background: #7cf4d1; /* green */
+      color: #fff;
+    }
+
+    .action-btn.reject {
+      background: #ff6b6b; /* red */
+      color: #fff;
+    }
+
+    /* Gray state (disabled) */
+    .action-btn.gray {
+      background: #ccc !important;
+      color: #666 !important;
+      cursor: not-allowed !important;
+    }
+
+    *{box-sizing:border-box}
+    body{margin:0;font-family:"Inter",system-ui;-webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale;background:var(--bg);color:var(--text);min-height:100vh;display:flex;}
+
+    /* Sidebar */
+    .sidebar{width:var(--sidebar-w);position:fixed;top:0;left:0;bottom:0;padding:22px 18px;background:var(--panel-strong);backdrop-filter:blur(10px);box-shadow:var(--glass-shadow);display:flex;flex-direction:column;gap:14px;z-index:50;}
+    .brand{display:flex;align-items:center;gap:10px;margin-bottom:6px;}
+    .brand .logo{width:44px;height:44px;border-radius:10px;background:linear-gradient(135deg,var(--accent),var(--accent-2));display:flex;align-items:center;justify-content:center;color:#051014;font-weight:800;font-size:1.05rem;box-shadow:0 6px 18px rgba(139,182,255,.09);}
+    .brand .title{font-weight:800;letter-spacing:0.3px;color:#23272f;font-size:1.05rem;}
+    nav.side-nav{display:flex;flex-direction:column;gap:6px;margin-top:8px;padding-top:6px;}
+    nav.side-nav>a,.dropdown>.dropdown-toggle{display:flex;gap:12px;align-items:center;padding:10px 12px;border-radius:10px;color:var(--text);text-decoration:none;font-weight:600;cursor:pointer;transition:all .16s ease;}
+    nav.side-nav a i{width:20px;text-align:center;color:#5b6378;}
+    nav.side-nav a span{font-size:0.95rem;color:var(--text);}
+    nav.side-nav a:hover,nav.side-nav a.active,.dropdown>.dropdown-toggle.active,.dropdown>.dropdown-toggle:hover{background:linear-gradient(135deg,var(--accent),var(--accent-2));color:#051014;box-shadow:0 8px 26px rgba(139,182,255,.08);}
+    .sidebar .spacer{flex:1}
+    .sidebar .small{font-size:0.85rem;color:var(--muted);text-align:center;padding:6px 8px;}
+    .dropdown{display:flex;flex-direction:column;}
+    .dropdown-menu{display:none;flex-direction:column;margin-left:12px;gap:4px;background:#eef3ff;border-radius:8px;padding:6px;}
+    .dropdown.open .dropdown-menu{display:flex;}
+    .dropdown-menu a{padding:8px 12px;font-weight:500;font-size:0.95rem;border-radius:6px;background:transparent;display:flex;align-items:center;gap:10px;color:var(--text);text-decoration:none;}
+    .dropdown-menu a:hover{background:rgba(139,182,255,0.12);color:#051014;}
+    .side-badge{margin-left:auto;background:var(--accent-2);color:#051014;border-radius:999px;padding:2px 7px;font-weight:800;font-size:0.72rem;}
+
+    /* Main */
+    .main{margin-left:calc(var(--sidebar-w) + 20px);padding:26px;flex:1;display:flex;flex-direction:column;gap:var(--gap);}
+    header.topbar{display:flex;justify-content:space-between;align-items:center;gap:12px;background:var(--panel);padding:12px 16px;border-radius:12px;box-shadow:var(--glass-shadow);}
+    .search{display:flex;align-items:center;gap:8px;flex:1;max-width:720px;}
+    .search input{flex:1;padding:10px 12px;border-radius:10px;border:1px solid rgba(11,15,26,.06);background:#fff;font-size:0.95rem;}
+    .icon-btn{border:none;background:transparent;font-size:1.05rem;padding:8px;border-radius:8px;cursor:pointer;color:var(--text);}
+    .icon-btn:hover{color:var(--accent-2);}
+    .panel{background:var(--panel-strong);border-radius:12px;padding:14px;box-shadow:var(--glass-shadow);}
+    .panel h4{margin:0 0 12px 0;font-size:1.05rem;color:#23272f;}
+    table.clean{width:100%;border-collapse:collapse;font-size:0.95rem;}
+    table.clean thead th{text-align:left;font-weight:700;color:#3b4250;padding:10px;background:rgba(11,15,26,.03);}
+    table.clean tbody td{padding:10px;border-bottom:1px solid rgba(11,15,26,.04);color:#1b2230;}
+    table.clean tbody tr:hover td{background:rgba(139,182,255,.03);}
+    .action-btn{padding:6px 12px;border-radius:6px;border:none;font-weight:600;cursor:pointer;font-size:0.85rem;}
+    .approve{background:var(--accent);color:#051014;}
+    .reject{background:#ff6b6b;color:#fff;}
+    footer{margin-top:16px;padding:18px;text-align:center;color:var(--muted);font-size:0.9rem;}
+  </style>
+</head>
+<body>
+
+  <!-- SIDEBAR -->
+  <aside class="sidebar">
+    <div class="brand"><div class="logo">P</div><div class="title">Petopia</div></div>
+    <nav class="side-nav">
+      <a href="{{ url_for('admin_dashboard') }}"><i class="fa-solid fa-chart-line"></i><span>Overview / Stats</span></a>
+
+      <!-- User Management Dropdown -->
+      <div class="dropdown open">
+        <a href="#" class="dropdown-toggle active">
+          <i class="fa-solid fa-users"></i><span>User Management</span>
+          <i class="fa-solid fa-chevron-down chev"></i>
+        </a>
+
+        <div class="dropdown-menu">
+          <a href="{{ url_for('admin_all_users') }}" data-path="users.html">
+              <i class="fa-solid fa-user"></i>
+              <span>View All Users</span>
+          </a>
+
+
+          <a href="{{ url_for('admin_seller_requests') }}" data-path="seller_request.html">
+              <i class="fa-solid fa-store"></i>
+              <span>Seller Requests</span>
+              <span id="sellerBadge" class="side-badge" style="display:none">0</span>
+          </a>
+
+
+          <a href="{{ url_for('admin_rider_requests') }}" data-path="rider_request.html" class="active" style="background:linear-gradient(135deg,var(--accent),var(--accent-2));color:#051014;box-shadow:0 8px 26px rgba(139,182,255,.08);">
+            <i class="fa-solid fa-motorcycle"></i>
+            <span>Rider Requests</span>
+            <span id="riderBadge" class="side-badge" style="display:none">0</span>
+        </a>
+
+        </div>
+      </div>
+
+      <a href="{{ url_for('admin_product_management') }}" data-path="products"><i class="fa-solid fa-box"></i><span>Product Management</span></a>
+      <a href="{{ url_for('admin_order_management') }}" data-path="orders"><i class="fa-solid fa-cart-shopping"></i><span>Order Management</span></a>
+      <a href="{{ url_for('admin_commission') }}" data-path="commission"><i class="fa-solid fa-sack-dollar"></i><span>Commission Tracking</span></a>
+      <a href="{{ url_for('admin_offenses') }}" data-path="offenses.html"><i class="fa-solid fa-triangle-exclamation"></i><span>Offenses & Violations</span></a>
+      <a href="{{ url_for('admin_reports') }}" data-path="reports"><i class="fa-solid fa-file-lines"></i><span>Reports & Analytics</span></a>
+      <a href="#" onclick="confirmLogout()"><i class="fa-solid fa-right-from-bracket"></i><span>Logout</span></a>
+    </nav>
+    <div class="spacer"></div>
+    <div class="small">Signed in as <strong>Admin</strong></div>
+  </aside>
+
+  <!-- MAIN -->
+  <main class="main">
+    <header class="topbar">
+      <div style="font-weight:800;font-size:1.05rem">Rider Requests</div>
+      <div class="search">
+        <input type="text" placeholder="Search rider requests..." />
+        <button class="icon-btn"><i class="fa-solid fa-magnifying-glass"></i></button>
+      </div>
+    </header>
+
+    <section class="panel">
+      <h4>Pending Rider Applications</h4>
+      <table class="clean">
+        <thead>
+          <tr>
+            <th>Rider</th>
+            <th>Email</th>
+            <th>Vehicle Type</th>
+            <th>License Number</th>
+            <th>Date Requested</th>
+            <th>Status</th>
+            <th style="text-align:center; width:250px;">Action</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for r in riders %}
+          <tr>
+            <td>{{ r.fullname }}</td>
+            <td>{{ r.email }}</td>
+            <td>{{ r.vehicle_type }}</td>
+            <td>{{ r.license_number }}</td>
+            <td>{{ r.created_at.strftime("%Y-%m-%d") }}</td>
+            <td>{{ r.status.capitalize() }}</td>
+            <td>
+              <div style="display:flex; align-items:center; gap:12px;">
+                <button class="action-btn" style="background:#8bb6ff;color:#051014;"
+                  onclick='openRiderStepModal({
+                    fullname:"{{ r.fullname }}",
+                    email:"{{ r.email }}",
+                    phone:"{{ r.phone }}",
+                    dob:"{{ r.dob }}",
+                    gender:"{{ r.gender }}",
+                    address:"{{ r.address }}",
+                    profile_photo:"/static/uploads/{{ r.profile_photo }}",
+                    profile_photo_name:"{{ r.profile_photo }}",
+                    vehicle_type:"{{ r.vehicle_type }}",
+                    plate_number:"{{ r.vehicle_plate }}",
+                    year_model:"{{ r.year_model }}",
+                    chassis_number:"{{ r.chassis_number }}",
+                    vehicle_model:"{{ r.vehicle_model }}",
+                    vehicle_color:"{{ r.vehicle_color }}",
+                    engine_number:"{{ r.engine_number }}",
+                    drivers_license_number:"{{ r.license_number }}",
+                    payout_method:"GCash",
+                    ewallet_number:"{{ r.gcash_number }}",
+                    documents:{
+                      or_cr:"/static/uploads/{{ r.or_cr_upload }}",
+                      vehicle_photo:"/static/uploads/{{ r.vehicle_photo }}",
+                      drivers_license_front:"/static/uploads/{{ r.license_upload }}"
+                    }
+                  })'>View</button>
+
+                <div style="display:flex; gap:8px;">
+                  {% if r.status == 'pending' %}
+                    <form action="{{ url_for('approve_rider', user_id=r.id) }}" method="POST" style="display:inline;">
+                      <button type="submit" class="action-btn approve">Approve</button>
+                    </form>
+                    <form action="{{ url_for('reject_rider', user_id=r.id) }}" method="POST" style="display:inline;">
+                      <button type="submit" class="action-btn reject">Reject</button>
+                    </form>
+                  {% elif r.status == 'approved' %}
+                    <button type="button" class="action-btn approve" disabled>Approve</button>
+                    <button type="button" class="action-btn gray" disabled>Reject</button>
+                  {% elif r.status == 'rejected' %}
+                    <button type="button" class="action-btn gray" disabled>Approve</button>
+                    <button type="button" class="action-btn reject" disabled>Reject</button>
+                  {% endif %}
+
+                </div>
+              </div>
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+
+      </table>
+    </section>
+
+    <footer>© 2025 Petopia — Rider Requests</footer>
+  </main>
+
+<!-- Rider Step Modal -->
+<div id="riderStepModal" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.4); justify-content:center; align-items:center; z-index:1000;">
+  <div style="background:#fff; padding:24px; border-radius:12px; width:500px; max-width:95vw; box-shadow:0 10px 30px rgba(0,0,0,0.2); position:relative;">
+    <h3 style="margin-bottom:16px;">Rider Application Details</h3>
+
+<div style="display:flex; gap:8px; margin-bottom:16px;">
+  <button class="step-btn" onclick="showRiderStep(1)" id="riderBtnStep1" style="flex:1; padding:8px; border:none; border-radius:6px; background:#8bb6ff; color:#fff; cursor:pointer;">Personal Info</button>
+  <button class="step-btn" onclick="showRiderStep(2)" id="riderBtnStep2" style="flex:1; padding:8px; border:none; border-radius:6px; background:#eee; cursor:pointer;">Vehicle Info</button>
+  <button class="step-btn" onclick="showRiderStep(3)" id="riderBtnStep3" style="flex:1; padding:8px; border:none; border-radius:6px; background:#eee; cursor:pointer;">Personal Documents</button>
+</div>
+
+    <div id="riderStepContent" style="font-size:14px; color:#0b0f1a; max-height:60vh; overflow-y:auto;"></div>
+
+    <div style="margin-top:20px; text-align:center;">
+      <button style="padding:10px 18px; border:none; border-radius:8px; background:#8bb6ff; color:#fff; cursor:pointer;" onclick="closeRiderStepModal()">Close</button>
+    </div>
+  </div>
+</div>
+
+<!-- Pending counts from backend -->
+<meta id="pendingCounts" data-seller="{{ seller_pending_count|default(0) }}" data-rider="{{ rider_pending_count|default(0) }}">
+
+<script>
+    // Custom alert function to replace browser alert dialogs
+    function showCustomAlert(message, type = 'error', title = null) {
+      const div = document.createElement('div');
+      div.id = 'customAlertModal';
+      div.style = 'position:fixed;top:0;left:0;width:100vw;height:100vh;z-index:9999;background:rgba(0,0,0,.25);backdrop-filter:blur(2px);display:flex;align-items:center;justify-content:center;';
+      
+      // Determine icon and colors based on type
+      let iconBg, iconColor, iconClass, alertTitle, borderColor;
+      const errorColor = '#ff6b6b';
+      const successColor = '#4ade80';
+      const warningColor = '#fbbf24';
+      const infoColor = '#8bb6ff';
+      
+      if (type === 'success') {
+        iconBg = 'rgba(74,222,128,.15)';
+        iconColor = successColor;
+        iconClass = 'fa-circle-check';
+        alertTitle = title || 'Success';
+        borderColor = successColor;
+      } else if (type === 'warning') {
+        iconBg = 'rgba(251,191,36,.15)';
+        iconColor = warningColor;
+        iconClass = 'fa-triangle-exclamation';
+        alertTitle = title || 'Warning';
+        borderColor = warningColor;
+      } else if (type === 'info') {
+        iconBg = 'rgba(139,182,255,.15)';
+        iconColor = infoColor;
+        iconClass = 'fa-circle-info';
+        alertTitle = title || 'Notice';
+        borderColor = infoColor;
+      } else {
+        // error (default)
+        iconBg = 'rgba(255,107,107,.15)';
+        iconColor = errorColor;
+        iconClass = 'fa-circle-exclamation';
+        alertTitle = title || 'Error';
+        borderColor = errorColor;
+      }
+      
+      div.innerHTML = `
+        <div style="background:rgba(255,255,255,.97);border-radius:18px;max-width:500px;width:90vw;box-shadow:0 10px 40px rgba(16,24,40,.22);position:relative;overflow:hidden;">
+          <div style="padding:32px;text-align:center;">
+            <div style="width:64px;height:64px;border-radius:50%;background:${iconBg};display:flex;align-items:center;justify-content:center;margin:0 auto 20px;border:2px solid ${borderColor};">
+              <i class="fa-solid ${iconClass}" style="font-size:2rem;color:${iconColor};"></i>
+            </div>
+            <h3 style="font-size:1.5rem;font-weight:800;color:#23272f;margin-bottom:12px;">${alertTitle}</h3>
+            <p style="color:#5b6378;font-weight:600;font-size:1rem;line-height:1.6;margin-bottom:24px;white-space:pre-line;">${message}</p>
+            <div style="display:flex;gap:12px;justify-content:center;">
+              <button id="alertOk" style="padding:12px 32px;border-radius:10px;background:linear-gradient(135deg, var(--accent), var(--accent-2));color:#051014;font-weight:700;border:none;cursor:pointer;font-size:1rem;box-shadow:0 8px 26px rgba(139,182,255,.08);transition:all .2s ease;">OK</button>
+            </div>
+          </div>
+        </div>
+      `;
+      document.body.appendChild(div);
+      
+      const closeHandler = function() {
+        div.remove();
+      };
+      
+      document.getElementById('alertOk').addEventListener('click', closeHandler);
+      
+      div.addEventListener('click', function(e) {
+        if (e.target === div) closeHandler();
+      });
+      
+      const escapeHandler = function(e) {
+        if (e.key === 'Escape') {
+          closeHandler();
+          document.removeEventListener('keydown', escapeHandler);
+        }
+      };
+      document.addEventListener('keydown', escapeHandler);
+    }
+
+    // Custom confirmation function to replace browser confirm dialogs
+    function showCustomConfirm(message, onConfirm, onCancel = null) {
+      const div = document.createElement('div');
+      div.id = 'customConfirmModal';
+      div.style = 'position:fixed;top:0;left:0;width:100vw;height:100vh;z-index:9999;background:rgba(0,0,0,.25);backdrop-filter:blur(2px);display:flex;align-items:center;justify-content:center;';
+      
+      div.innerHTML = `
+        <div style="background:rgba(255,255,255,.97);border-radius:18px;max-width:500px;width:90vw;box-shadow:0 10px 40px rgba(16,24,40,.22);position:relative;overflow:hidden;">
+          <div style="padding:32px;text-align:center;">
+            <div style="width:64px;height:64px;border-radius:50%;background:rgba(251,191,36,.15);display:flex;align-items:center;justify-content:center;margin:0 auto 20px;border:2px solid #fbbf24;">
+              <i class="fa-solid fa-circle-question" style="font-size:2rem;color:#fbbf24;"></i>
+            </div>
+            <h3 style="font-size:1.5rem;font-weight:800;color:#23272f;margin-bottom:12px;">Confirm Action</h3>
+            <p style="color:#5b6378;font-weight:600;font-size:1rem;line-height:1.6;margin-bottom:24px;">${message}</p>
+            <div style="display:flex;gap:12px;justify-content:center;">
+              <button id="confirmCancel" style="padding:12px 24px;border-radius:10px;background:#e5e8f0;color:#23272f;font-weight:700;border:none;cursor:pointer;font-size:1rem;transition:all .2s ease;">Cancel</button>
+              <button id="confirmOk" style="padding:12px 24px;border-radius:10px;background:linear-gradient(135deg, var(--accent), var(--accent-2));color:#051014;font-weight:700;border:none;cursor:pointer;font-size:1rem;box-shadow:0 8px 26px rgba(139,182,255,.08);transition:all .2s ease;">Confirm</button>
+            </div>
+          </div>
+        </div>
+      `;
+      document.body.appendChild(div);
+      
+      const closeHandler = function() {
+        div.remove();
+      };
+      
+      document.getElementById('confirmOk').addEventListener('click', function() {
+        closeHandler();
+        if (onConfirm) onConfirm();
+      });
+      
+      document.getElementById('confirmCancel').addEventListener('click', function() {
+        closeHandler();
+        if (onCancel) onCancel();
+      });
+      
+      div.addEventListener('click', function(e) {
+        if (e.target === div) {
+          closeHandler();
+          if (onCancel) onCancel();
+        }
+      });
+      
+      const escapeHandler = function(e) {
+        if (e.key === 'Escape') {
+          closeHandler();
+          if (onCancel) onCancel();
+          document.removeEventListener('keydown', escapeHandler);
+        }
+      };
+      document.addEventListener('keydown', escapeHandler);
+    }
+  // ---------- badges (real counts from backend) ----------
+  const pendingCounts = document.getElementById('pendingCounts');
+  const sellerCount = parseInt(pendingCounts.dataset.seller) || 0;
+  const riderCount = parseInt(pendingCounts.dataset.rider) || 0;
+  const sellerBadge = document.getElementById('sellerBadge');
+  const riderBadge  = document.getElementById('riderBadge');
+
+  if (sellerBadge) {
+    sellerCount > 0 ? (sellerBadge.textContent = sellerCount, sellerBadge.style.display='inline-block') : sellerBadge.style.display='none';
+  }
+  if (riderBadge) {
+    riderCount > 0 ? (riderBadge.textContent = riderCount, riderBadge.style.display='inline-block') : riderBadge.style.display='none';
+  }
+
+  // ---------- Rider Step Modal ----------
+  function openRiderStepModal(riderData) {
+    window.riderData = riderData;
+    document.getElementById('riderStepModal').style.display = 'flex';
+    showRiderStep(1);
+  }
+
+  function closeRiderStepModal() {
+    document.getElementById('riderStepModal').style.display = 'none';
+  }
+
+  window.addEventListener('click', function(e){
+    if(e.target.id === 'riderStepModal') closeRiderStepModal();
+  });
+
+  function highlightRiderStepButton(step) {
+    for (let i = 1; i <= 3; i++) {
+      const btn = document.getElementById('riderBtnStep' + i);
+      if (i === step) { btn.style.background = '#8bb6ff'; btn.style.color = '#fff'; }
+      else { btn.style.background = '#eee'; btn.style.color = '#000'; }
+    }
+  }
+
+  function showRiderStep(step) {
+    highlightRiderStepButton(step);
+    const data = window.riderData;
+    let html = '';
+    if(step === 1){
+      html = `<p><strong>Full Name:</strong> ${data.fullname}</p>
+              <p><strong>Email:</strong> ${data.email}</p>
+              <p><strong>Phone Number:</strong> ${data.phone}</p>
+              <p><strong>Date of Birth:</strong> ${data.dob}</p>
+              <p><strong>Gender:</strong> ${data.gender}</p>
+              <p><strong>Address:</strong> ${data.address}</p>
+              <p><strong>Profile Photo:</strong> <a href="${data.profile_photo}" target="_blank">${data.profile_photo_name || 'View File'}</a></p>`;
+    } else if(step === 2){
+      html = `<p><strong>Vehicle Type:</strong> ${data.vehicle_type}</p>
+              <p><strong>Plate Number:</strong> ${data.plate_number}</p>
+              <p><strong>Year Model:</strong> ${data.year_model}</p>
+              <p><strong>Chassis Number:</strong> ${data.chassis_number}</p>
+              <p><strong>Vehicle Model:</strong> ${data.vehicle_model}</p>
+              <p><strong>Vehicle Color:</strong> ${data.vehicle_color}</p>
+              <p><strong>Engine Number:</strong> ${data.engine_number}</p>
+              <p><strong>Driver’s License Number:</strong> ${data.drivers_license_number}</p>`;
+    } else if(step === 3){
+      html = `<p><strong>Preferred Payout Method:</strong> ${data.payout_method}</p>
+              <p><strong>E-wallet Number:</strong> ${data.ewallet_number}</p>
+              <h4>Rider Verification Documents:</h4>
+              <ul>
+                <li><a href="${data.documents.or_cr}" target="_blank">OR/CR (Vehicle Registration)</a></li>
+                <li><a href="${data.documents.vehicle_photo}" target="_blank">Vehicle Photo</a></li>
+                <li><a href="${data.documents.drivers_license_front}" target="_blank">Driver’s License (Front&Back)</a></li>
+              </ul>`;
+    }
+    document.getElementById('riderStepContent').innerHTML = html;
+  }
+
+  // ---------- Sidebar Active Highlight ----------
+  document.addEventListener('DOMContentLoaded', () => {
+    const currentPath = window.location.pathname;
+    
+    // Check if we're on the admin_rider_requests page
+    const isRiderRequestsPage = currentPath.includes('rider_requests');
+    
+    // If on rider_requests page, ensure the User Management dropdown is highlighted
+    if (isRiderRequestsPage) {
+      const userManagementDropdown = document.querySelector('.dropdown');
+      const dropdownToggle = document.querySelector('.dropdown-toggle');
+      if (userManagementDropdown && dropdownToggle) {
+        userManagementDropdown.classList.add('open');
+        dropdownToggle.classList.add('active');
+      }
+    }
+    
+    // Highlight matching links
+    document.querySelectorAll('.side-nav a').forEach(link => {
+      const linkPath = link.getAttribute('href');
+      // Check if current path matches the link's href
+      if (linkPath && (currentPath === linkPath || currentPath.includes(linkPath))) {
+        link.classList.add('active');
+
+        // If inside a dropdown, also open it and highlight the toggle
+        const dropdown = link.closest('.dropdown');
+        if (dropdown) {
+          dropdown.classList.add('open');
+          const toggle = dropdown.querySelector('.dropdown-toggle');
+          if (toggle) toggle.classList.add('active');
+        }
+      }
+    });
+  });
+
+  // ---------- Table Search Filter ----------
+  const searchInput = document.querySelector('.search input');
+  searchInput.addEventListener('input', function(){
+    const filter = this.value.toLowerCase();
+    const rows = document.querySelectorAll('table.clean tbody tr');
+    rows.forEach(row => {
+      const cells = row.querySelectorAll('td');
+      let match = false;
+      cells.forEach(cell => {
+        if(cell.textContent.toLowerCase().includes(filter)) match = true;
+      });
+      row.style.display = match ? '' : 'none';
+    });
+  });
+</script>
+
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+  // dropdown toggles
+  document.querySelectorAll('.dropdown-toggle').forEach(toggle => {
+    toggle.addEventListener('click', function (e) {
+      e.preventDefault();
+      const parent = toggle.closest('.dropdown');
+      parent.classList.toggle('open');
+      toggle.classList.toggle('active');
+    });
+  });
+});
+
+// Logout confirmation function
+function confirmLogout() {
+  showCustomConfirm('Are you sure you want to logout?', function() {
+    window.location.href = "{{ url_for('logout') }}";
+  });
+}
+</script>
+
+
+</body>
+</html>

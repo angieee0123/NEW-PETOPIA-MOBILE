@@ -1,0 +1,474 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Petopia • Rider History</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+  <style>
+    :root{--bg:#f6f8ff;--panel:rgba(255,255,255,.60);--panel-strong:rgba(255,255,255,.95);--text:#0b0f1a;--muted:#5b6378;--accent:#7cf4d1;--accent-2:#8bb6ff;--glass-shadow:0 10px 30px rgba(16,24,40,.08);--card-radius:12px;--gap:18px;--sidebar-w:260px;--warning:#ffb86b;--success:#4ade80;--error:#ff6b6b;}
+    *{box-sizing:border-box}
+    body{margin:0;font-family:"Inter",system-ui,-apple-system,"Segoe UI",Roboto,"Helvetica Neue",Arial;background:var(--bg);color:var(--text);-webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale;min-height:100vh;display:flex;}
+    .sidebar{width:var(--sidebar-w);position:fixed;top:0;left:0;bottom:0;padding:22px 18px;background:var(--panel-strong);backdrop-filter:blur(10px);box-shadow:var(--glass-shadow);display:flex;flex-direction:column;gap:14px;z-index:50;}
+    .brand{display:flex;align-items:center;gap:10px;margin-bottom:6px;}
+    .brand .logo{width:44px;height:44px;border-radius:10px;background:linear-gradient(135deg,var(--accent),var(--accent-2));display:flex;align-items:center;justify-content:center;color:#051014;font-weight:800;font-size:1.05rem;box-shadow:0 6px 18px rgba(139,182,255,.09);}
+    .brand .logo-img{width:44px;height:44px;border-radius:10px;object-fit:contain;box-shadow:0 6px 18px rgba(139,182,255,.09);}
+    .brand .title{font-weight:800;letter-spacing:0.3px;color:#23272f;font-size:1.05rem;}
+    nav.side-nav{display:flex;flex-direction:column;gap:6px;margin-top:8px;padding-top:6px;}
+    nav.side-nav a{display:flex;gap:12px;align-items:center;padding:10px 12px;border-radius:10px;color:var(--text);text-decoration:none;font-weight:600;transition:all .16s ease;}
+    nav.side-nav a i{width:20px;text-align:center;color:#5b6378;}
+    nav.side-nav a span{font-size:0.95rem;color:var(--text);}
+    nav.side-nav a:hover,nav.side-nav a.active{background:linear-gradient(135deg,var(--accent),var(--accent-2));color:#051014;box-shadow:0 8px 26px rgba(139,182,255,.08);}
+    .sidebar .spacer{flex:1}
+    .sidebar .small{font-size:0.85rem;color:var(--muted);text-align:center;padding:6px 8px;}
+    .main{margin-left:calc(var(--sidebar-w) + 20px);padding:26px;flex:1;display:flex;flex-direction:column;gap:var(--gap);}
+    header.topbar{display:flex;justify-content:space-between;align-items:center;gap:12px;background:var(--panel);padding:12px 16px;border-radius:12px;box-shadow:var(--glass-shadow);flex-wrap:wrap;}
+    .search{display:flex;align-items:center;gap:8px;flex:1;max-width:500px;}
+    .search input{flex:1;padding:10px 12px;border-radius:10px;border:1px solid rgba(11,15,26,.06);background:#fff;}
+    .icon-btn{border:none;background:transparent;font-size:1.05rem;padding:8px;border-radius:8px;cursor:pointer;color:var(--text);position:relative;}
+    .icon-btn:hover{color:var(--accent-2);}
+    .badge{position:absolute;top:2px;right:2px;background:var(--accent-2);color:#051014;border-radius:999px;padding:2px 6px;font-weight:800;font-size:0.72rem;}
+    .panel{background:var(--panel-strong);border-radius:12px;padding:20px;box-shadow:var(--glass-shadow);}
+    .panel h3{margin:0 0 16px 0;font-size:1.15rem;color:#23272f;font-weight:800;}
+    .history-table{width:100%;border-collapse:collapse;font-size:0.97rem;}
+    .history-table thead th{background:rgba(139,182,255,.08);padding:10px 8px;text-align:left;font-weight:700;color:#3b4250;}
+    .history-table tbody td{padding:10px 8px;border-bottom:1px solid #e5e8f0;}
+    .history-table tbody tr:hover td{background:rgba(139,182,255,.04);}
+    .status-badge{padding:4px 12px;border-radius:20px;font-size:.85rem;font-weight:800;display:inline-block;}
+    .status-delivered{background:rgba(74,222,128,.2);color:var(--success);}
+    .status-cancelled{background:rgba(255,107,107,.18);color:var(--error);}
+    .status-in_transit{background:rgba(124,244,209,.2);color:var(--accent);}
+    .status-pending{background:rgba(255,184,107,.2);color:var(--warning);}
+    .status-other{background:rgba(139,182,255,.12);color:var(--accent-2);}
+    footer{margin-top:16px;padding:18px;text-align:center;color:var(--muted);font-size:0.9rem;}
+  </style>
+</head>
+<body>
+  <aside class="sidebar">
+    <div class="brand"><img src="{{ url_for('static', filename='logo/PETOPIA_LOGO.png') }}" alt="Petopia Logo" class="logo-img"><div class="title">Petopia</div></div>
+    <nav class="side-nav">
+      <a href="{{ url_for('rider_dashboard') }}"><i class="fa-solid fa-chart-line"></i><span>Dashboard</span></a>
+      <a href="{{ url_for('rider_deliveries') }}"><i class="fa-solid fa-truck"></i><span>My Deliveries</span></a>
+      <a href="{{ url_for('rider_earnings') }}"><i class="fa-solid fa-peso-sign"></i><span>Earnings</span></a>
+      <a href="{{ url_for('rider_history') }}" class="active"><i class="fa-solid fa-history"></i><span>History</span></a>
+      <a href="{{ url_for('logout') }}" id="logoutLink"><i class="fa-solid fa-right-from-bracket"></i><span>Logout</span></a>
+    </nav>
+    <div class="spacer"></div>
+    <div class="small">Signed in as <strong>Rider</strong></div>
+  </aside>
+
+  <main class="main">
+<header class="topbar">
+  <div>
+    <div style="font-weight:800;font-size:1.05rem">Delivery History <i class="fa-solid fa-history"></i></div>
+    <div style="font-size:0.88rem;color:var(--muted)">All your completed and past deliveries</div>
+  </div>
+  <div class="search" style="margin-left:auto;">
+    <input type="text" id="searchHistoryInput" placeholder="Search by order ID, business address, or customer..." />
+    <button class="icon-btn" title="Search"><i class="fa-solid fa-magnifying-glass"></i></button>
+    <button class="icon-btn" id="refreshHistoryBtn" title="Refresh Data"><i class="fa-solid fa-arrow-rotate-right"></i></button>
+  </div>
+</header>
+
+    <section class="panel">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">
+        <h3>Past Deliveries</h3>
+        <div style="display:flex;gap:12px;align-items:center;">
+          <div style="color:var(--muted);font-weight:600;font-size:.9rem;">
+            Total: <span id="totalHistory" style="color:#23272f;font-weight:800;">0</span> deliveries
+          </div>
+          <div style="color:var(--success);font-weight:600;font-size:.9rem;">
+            Completed: <span id="completedHistory" style="color:var(--success);font-weight:800;">0</span>
+          </div>
+          <div style="color:var(--error);font-weight:600;font-size:.9rem;">
+            Cancelled: <span id="cancelledHistory" style="color:var(--error);font-weight:800;">0</span>
+          </div>
+        </div>
+      </div>
+
+      <div style="display:flex;gap:12px;align-items:center;margin-bottom:14px;">
+        <label style="font-size:.95rem;color:var(--muted);">From:
+          <input type="date" id="historyDateFrom" style="margin-left:4px;padding:4px 8px;border-radius:6px;border:1px solid #e5e8f0;">
+        </label>
+        <label style="font-size:.95rem;color:var(--muted);">To:
+          <input type="date" id="historyDateTo" style="margin-left:4px;padding:4px 8px;border-radius:6px;border:1px solid #e5e8f0;">
+        </label>
+      </div>
+
+      <div style="overflow-x:auto;">
+        <table class="history-table" id="historyTable">
+          <thead>
+            <tr>
+              <th>Order ID</th>
+              <th>Customer</th>
+              <th>Pickup Address</th>
+              <th>Delivery Address</th>
+              <th>Date</th>
+              <th>Status</th>
+              <th>Fee</th>
+            </tr>
+          </thead>
+          <tbody id="historyTbody">
+            <!-- History rows will be rendered here -->
+          </tbody>
+        </table>
+      </div>
+      <div id="emptyHistory" style="display:none;text-align:center;padding:40px;color:var(--muted);">
+        <i class="fa-solid fa-box-archive" style="font-size:3rem;opacity:.3;margin-bottom:12px;"></i>
+        <p style="font-weight:700;">No delivery history found</p>
+      </div>
+    </section>
+
+    <footer>© <span id="yr"></span> Petopia. All rights reserved.</footer>
+  </main>
+
+  <script>
+    document.getElementById('yr').textContent = new Date().getFullYear();
+
+    // Custom alert function to replace browser alert dialogs
+    function showCustomAlert(message, type = 'error', title = null) {
+      const div = document.createElement('div');
+      div.id = 'customAlertModal';
+      div.style = 'position:fixed;top:0;left:0;width:100vw;height:100vh;z-index:9999;background:rgba(0,0,0,.25);backdrop-filter:blur(2px);display:flex;align-items:center;justify-content:center;';
+      
+      // Determine icon and colors based on type
+      let iconBg, iconColor, iconClass, alertTitle, borderColor;
+      const errorColor = '#ff6b6b';
+      const successColor = '#4ade80';
+      const warningColor = '#fbbf24';
+      const infoColor = '#8bb6ff';
+      
+      if (type === 'success') {
+        iconBg = 'rgba(74,222,128,.15)';
+        iconColor = successColor;
+        iconClass = 'fa-circle-check';
+        alertTitle = title || 'Success';
+        borderColor = successColor;
+      } else if (type === 'warning') {
+        iconBg = 'rgba(251,191,36,.15)';
+        iconColor = warningColor;
+        iconClass = 'fa-triangle-exclamation';
+        alertTitle = title || 'Warning';
+        borderColor = warningColor;
+      } else if (type === 'info') {
+        iconBg = 'rgba(139,182,255,.15)';
+        iconColor = infoColor;
+        iconClass = 'fa-circle-info';
+        alertTitle = title || 'Notice';
+        borderColor = infoColor;
+      } else {
+        // error (default)
+        iconBg = 'rgba(255,107,107,.15)';
+        iconColor = errorColor;
+        iconClass = 'fa-circle-exclamation';
+        alertTitle = title || 'Error';
+        borderColor = errorColor;
+      }
+      
+      div.innerHTML = `
+        <div style="background:rgba(255,255,255,.97);border-radius:18px;max-width:500px;width:90vw;box-shadow:0 10px 40px rgba(16,24,40,.22);position:relative;overflow:hidden;">
+          <div style="padding:32px;text-align:center;">
+            <div style="width:64px;height:64px;border-radius:50%;background:${iconBg};display:flex;align-items:center;justify-content:center;margin:0 auto 20px;border:2px solid ${borderColor};">
+              <i class="fa-solid ${iconClass}" style="font-size:2rem;color:${iconColor};"></i>
+            </div>
+            <h3 style="font-size:1.5rem;font-weight:800;color:#23272f;margin-bottom:12px;">${alertTitle}</h3>
+            <p style="color:#5b6378;font-weight:600;font-size:1rem;line-height:1.6;margin-bottom:24px;white-space:pre-line;">${message}</p>
+            <div style="display:flex;gap:12px;justify-content:center;">
+              <button id="alertOk" style="padding:12px 32px;border-radius:10px;background:linear-gradient(135deg, var(--accent), var(--accent-2));color:#051014;font-weight:700;border:none;cursor:pointer;font-size:1rem;box-shadow:0 8px 26px rgba(139,182,255,.08);transition:all .2s ease;">OK</button>
+            </div>
+          </div>
+        </div>
+      `;
+      document.body.appendChild(div);
+      
+      const closeHandler = function() {
+        div.remove();
+      };
+      
+      document.getElementById('alertOk').addEventListener('click', closeHandler);
+      
+      div.addEventListener('click', function(e) {
+        if (e.target === div) closeHandler();
+      });
+      
+      const escapeHandler = function(e) {
+        if (e.key === 'Escape') {
+          closeHandler();
+          document.removeEventListener('keydown', escapeHandler);
+        }
+      };
+      document.addEventListener('keydown', escapeHandler);
+    }
+
+    // Custom confirmation function to replace browser confirm dialogs
+    function showCustomConfirm(message, onConfirm, onCancel = null) {
+      const div = document.createElement('div');
+      div.id = 'customConfirmModal';
+      div.style = 'position:fixed;top:0;left:0;width:100vw;height:100vh;z-index:9999;background:rgba(0,0,0,.25);backdrop-filter:blur(2px);display:flex;align-items:center;justify-content:center;';
+      
+      div.innerHTML = `
+        <div style="background:rgba(255,255,255,.97);border-radius:18px;max-width:500px;width:90vw;box-shadow:0 10px 40px rgba(16,24,40,.22);position:relative;overflow:hidden;">
+          <div style="padding:32px;text-align:center;">
+            <div style="width:64px;height:64px;border-radius:50%;background:rgba(251,191,36,.15);display:flex;align-items:center;justify-content:center;margin:0 auto 20px;border:2px solid #fbbf24;">
+              <i class="fa-solid fa-circle-question" style="font-size:2rem;color:#fbbf24;"></i>
+            </div>
+            <h3 style="font-size:1.5rem;font-weight:800;color:#23272f;margin-bottom:12px;">Confirm Action</h3>
+            <p style="color:#5b6378;font-weight:600;font-size:1rem;line-height:1.6;margin-bottom:24px;">${message}</p>
+            <div style="display:flex;gap:12px;justify-content:center;">
+              <button id="confirmCancel" style="padding:12px 24px;border-radius:10px;background:#e5e8f0;color:#23272f;font-weight:700;border:none;cursor:pointer;font-size:1rem;transition:all .2s ease;">Cancel</button>
+              <button id="confirmOk" style="padding:12px 24px;border-radius:10px;background:linear-gradient(135deg, var(--accent), var(--accent-2));color:#051014;font-weight:700;border:none;cursor:pointer;font-size:1rem;box-shadow:0 8px 26px rgba(139,182,255,.08);transition:all .2s ease;">Confirm</button>
+            </div>
+          </div>
+        </div>
+      `;
+      document.body.appendChild(div);
+      
+      const closeHandler = function() {
+        div.remove();
+      };
+      
+      document.getElementById('confirmOk').addEventListener('click', function() {
+        closeHandler();
+        if (onConfirm) onConfirm();
+      });
+      
+      document.getElementById('confirmCancel').addEventListener('click', function() {
+        closeHandler();
+        if (onCancel) onCancel();
+      });
+      
+      div.addEventListener('click', function(e) {
+        if (e.target === div) {
+          closeHandler();
+          if (onCancel) onCancel();
+        }
+      });
+      
+      const escapeHandler = function(e) {
+        if (e.key === 'Escape') {
+          closeHandler();
+          if (onCancel) onCancel();
+          document.removeEventListener('keydown', escapeHandler);
+        }
+      };
+      document.addEventListener('keydown', escapeHandler);
+    }
+
+    // Global variables to store history data
+    let historyData = [];
+    let summaryData = {};
+
+    // Loading state management
+    function showLoading() {
+      const tbody = document.getElementById('historyTbody');
+      const empty = document.getElementById('emptyHistory');
+      empty.style.display = 'none';
+      tbody.innerHTML = '<tr><td colspan="7" style="text-align:center;padding:40px;color:var(--muted);"><i class="fa-solid fa-spinner fa-spin" style="margin-right:8px;"></i>Loading delivery history...</td></tr>';
+    }
+
+    function showError(message) {
+      const tbody = document.getElementById('historyTbody');
+      const empty = document.getElementById('emptyHistory');
+      empty.style.display = 'none';
+      tbody.innerHTML = `<tr><td colspan="7" style="text-align:center;padding:40px;color:var(--error);"><i class="fa-solid fa-exclamation-triangle" style="margin-right:8px;"></i>${message}</td></tr>`;
+    }
+
+    // Fetch history data from server
+    async function fetchHistoryData() {
+      try {
+        showLoading();
+        
+        // Add loading animation to refresh button
+        const refreshBtn = document.getElementById('refreshHistoryBtn');
+        if (refreshBtn) {
+          refreshBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i>';
+          refreshBtn.disabled = true;
+        }
+        
+        const response = await fetch('/rider/history', {
+          credentials: 'same-origin',
+          headers: {
+            'Content-Type': 'application/json'
+          }
+        });
+
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
+
+        const data = await response.json();
+        
+        if (data.success) {
+          historyData = data.history || [];
+          summaryData = data.summary || {};
+          renderHistory();
+        } else {
+          throw new Error(data.error || 'Failed to fetch history data');
+        }
+      } catch (error) {
+        console.error('Error fetching history:', error);
+        showError('Failed to load delivery history. Please try again.');
+      } finally {
+        // Restore refresh button
+        const refreshBtn = document.getElementById('refreshHistoryBtn');
+        if (refreshBtn) {
+          refreshBtn.innerHTML = '<i class="fa-solid fa-arrow-rotate-right"></i>';
+          refreshBtn.disabled = false;
+        }
+      }
+    }
+
+    function formatStatus(status) {
+      if (status === 'completed') return '<span class="status-badge status-delivered">Completed</span>';
+      if (status === 'cancelled') return '<span class="status-badge status-cancelled">Cancelled</span>';
+      if (status === 'to_receive') return '<span class="status-badge status-in_transit">In Transit</span>';
+      if (status === 'to_ship') return '<span class="status-badge status-pending">To Ship</span>';
+      if (status === 'to_pay') return '<span class="status-badge status-pending">To Pay</span>';
+      return `<span class="status-badge status-other">${escapeHtml(status)}</span>`;
+    }
+
+    function escapeHtml(s) { 
+      return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); 
+    }
+
+    function formatDate(dateString) {
+      if (!dateString) return '';
+      const date = new Date(dateString);
+      return date.toLocaleDateString('en-PH', {
+        year: 'numeric',
+        month: 'short',
+        day: 'numeric'
+      });
+    }
+
+    function toDateVal(v) {
+      if (!v) return null;
+      if (v instanceof Date) return v;
+      const d = new Date(v + 'T00:00:00');
+      if (isNaN(d)) return null;
+      return d;
+    }
+
+    function renderHistory() {
+      const searchQuery = document.getElementById('searchHistoryInput').value.trim().toLowerCase();
+      const dateFrom = document.getElementById('historyDateFrom').value;
+      const dateTo = document.getElementById('historyDateTo').value;
+
+      // Filter history based on search
+      let filteredHistory = historyData;
+      if (searchQuery) {
+        filteredHistory = historyData.filter(delivery =>
+          (delivery.order_id && String(delivery.order_id).toLowerCase().includes(searchQuery)) ||
+          (delivery.customer_name && delivery.customer_name.toLowerCase().includes(searchQuery)) ||
+          (delivery.pickup_location && delivery.pickup_location.toLowerCase().includes(searchQuery)) ||
+          (delivery.store_name && delivery.store_name.toLowerCase().includes(searchQuery)) ||
+          (delivery.delivery_address && delivery.delivery_address.toLowerCase().includes(searchQuery)) ||
+          (delivery.order_status && delivery.order_status.toLowerCase().includes(searchQuery))
+        );
+      }
+
+      // Filter by date range (inclusive)
+      const fromDate = toDateVal(dateFrom);
+      const toDate = toDateVal(dateTo);
+      if (fromDate) {
+        filteredHistory = filteredHistory.filter(delivery => {
+          const deliveryDate = toDateVal(delivery.last_updated);
+          return deliveryDate && deliveryDate.getTime() >= fromDate.getTime();
+        });
+      }
+      if (toDate) {
+        filteredHistory = filteredHistory.filter(delivery => {
+          const deliveryDate = toDateVal(delivery.last_updated);
+          return deliveryDate && deliveryDate.getTime() <= toDate.getTime();
+        });
+      }
+
+      // Update summary
+      document.getElementById('totalHistory').textContent = filteredHistory.length;
+      
+      // Update detailed statistics
+      const completedCount = filteredHistory.filter(d => d.order_status === 'completed').length;
+      const cancelledCount = filteredHistory.filter(d => d.order_status === 'cancelled').length;
+      
+      document.getElementById('completedHistory').textContent = completedCount;
+      document.getElementById('cancelledHistory').textContent = cancelledCount;
+
+      const tbody = document.getElementById('historyTbody');
+      const empty = document.getElementById('emptyHistory');
+
+      if (filteredHistory.length === 0) {
+        tbody.innerHTML = '';
+        empty.style.display = 'block';
+        return;
+      }
+
+      empty.style.display = 'none';
+      tbody.innerHTML = filteredHistory.map(delivery => {
+        // Use business_address as pickup location, fallback to store_name if business_address is empty
+        const pickupLocation = delivery.pickup_location || delivery.store_name || 'N/A';
+        return `
+        <tr>
+          <td>#${delivery.order_id}</td>
+          <td>${escapeHtml(delivery.customer_name || '')}</td>
+          <td>${escapeHtml(pickupLocation)}</td>
+          <td>${escapeHtml(delivery.delivery_address || '')}</td>
+          <td>${formatDate(delivery.last_updated)}</td>
+          <td>${formatStatus(delivery.order_status)}</td>
+          <td>${
+            (function(f){
+              const n = Number(f);
+              const fee = (Number.isFinite(n) && n > 0) ? n : 59;
+              const covered = !(Number.isFinite(n) && n > 0);
+              const amount = '₱' + fee.toLocaleString(undefined, { minimumFractionDigits: 2 });
+              return covered ? amount + ' <span style="color:#5b6378;font-weight:700;">(from seller)</span>' : amount;
+            })(delivery.delivery_fee)
+          }</td>
+        </tr>
+      `;
+      }).join('');
+    }
+
+    // Simple debounce helper
+    function debounce(fn, ms) {
+      let t;
+      return function() {
+        clearTimeout(t);
+        const args = arguments;
+        t = setTimeout(() => fn.apply(this, args), ms);
+      };
+    }
+
+    // Event listeners
+    const searchInput = document.getElementById('searchHistoryInput');
+    if (searchInput) {
+      searchInput.addEventListener('input', debounce(renderHistory, 180));
+      searchInput.addEventListener('keydown', function(e) {
+        if (e.key === 'Escape') { 
+          this.value = ''; 
+          renderHistory(); 
+          this.blur(); 
+        }
+      });
+    }
+
+    const fromInput = document.getElementById('historyDateFrom');
+    const toInput = document.getElementById('historyDateTo');
+    if (fromInput) fromInput.addEventListener('change', renderHistory);
+    if (toInput) toInput.addEventListener('change', renderHistory);
+
+    document.getElementById('refreshHistoryBtn').addEventListener('click', function() {
+      fetchHistoryData();
+    });
+
+    document.getElementById('logoutLink').addEventListener('click', function(e) {
+      e.preventDefault();
+      showCustomConfirm('Are you sure you want to logout?', function() {
+        window.location.href = "{{ url_for('logout') }}";
+      });
+    });
+
+    // Initial load
+    fetchHistoryData();
+</script>    </body>
+</html>

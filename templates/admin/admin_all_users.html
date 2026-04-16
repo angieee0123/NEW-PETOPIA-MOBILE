@@ -1,0 +1,646 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Petopia • All Users</title>
+<meta id="pendingCounts" data-seller="{{ seller_pending_count|default(0) }}" data-rider="{{ rider_pending_count|default(0) }}">
+
+<!-- Fonts + Icons -->
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+
+<style>
+:root{
+  --bg: #f6f8ff;
+  --panel: rgba(255,255,255,.60);
+  --panel-strong: rgba(255,255,255,.95);
+  --text: #0b0f1a;
+  --muted: #5b6378;
+  --accent: #7cf4d1;
+  --accent-2: #8bb6ff;
+  --glass-shadow: 0 10px 30px rgba(16,24,40,.08);
+  --card-radius: 12px;
+  --gap: 18px;
+  --sidebar-w: 260px;
+}
+*{box-sizing:border-box}
+body{margin:0;font-family:"Inter",system-ui;-webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale;background:var(--bg);color:var(--text);min-height:100vh;display:flex;}
+.sidebar{width:var(--sidebar-w);position:fixed;top:0;left:0;bottom:0;padding:22px 18px;background:var(--panel-strong);backdrop-filter:blur(10px);box-shadow:var(--glass-shadow);display:flex;flex-direction:column;gap:14px;z-index:50;}
+.brand{display:flex;align-items:center;gap:10px;margin-bottom:6px;}
+.brand .logo{width:44px;height:44px;border-radius:10px;background:linear-gradient(135deg,var(--accent),var(--accent-2));display:flex;align-items:center;justify-content:center;color:#051014;font-weight:800;font-size:1.05rem;box-shadow:0 6px 18px rgba(139,182,255,.09);}
+.brand .title{font-weight:800;letter-spacing:0.3px;color:#23272f;font-size:1.05rem;}
+nav.side-nav{display:flex;flex-direction:column;gap:6px;margin-top:8px;padding-top:6px;}
+nav.side-nav>a,.dropdown>.dropdown-toggle{display:flex;gap:12px;align-items:center;padding:10px 12px;border-radius:10px;color:var(--text);text-decoration:none;font-weight:600;cursor:pointer;transition:all .16s ease;}
+nav.side-nav a i{width:20px;text-align:center;color:#5b6378;}
+nav.side-nav a span{font-size:0.95rem;color:var(--text);}
+nav.side-nav a:hover,nav.side-nav a.active,.dropdown>.dropdown-toggle.active,.dropdown>.dropdown-toggle:hover{background:linear-gradient(135deg,var(--accent),var(--accent-2));color:#051014;box-shadow:0 8px 26px rgba(139,182,255,.08);}
+.sidebar .spacer{flex:1}
+.sidebar .small{font-size:0.85rem;color:var(--muted);text-align:center;padding:6px 8px;}
+.dropdown{display:flex;flex-direction:column;}
+.dropdown-menu{display:none;flex-direction:column;margin-left:12px;gap:4px;background:#eef3ff;border-radius:8px;padding:6px;}
+.dropdown.open .dropdown-menu{display:flex;}
+.dropdown-menu a{padding:8px 12px;font-weight:500;font-size:0.95rem;border-radius:6px;background:transparent;display:flex;align-items:center;gap:10px;color:var(--text);text-decoration:none;}
+.dropdown-menu a:hover{background:rgba(139,182,255,0.12);color:#051014;}
+.side-badge{margin-left:auto;background:var(--accent-2);color:#051014;border-radius:999px;padding:2px 7px;font-weight:800;font-size:0.72rem;}
+.main{margin-left:calc(var(--sidebar-w) + 20px);padding:26px;flex:1;display:flex;flex-direction:column;gap:var(--gap);}
+header.topbar{display:flex;justify-content:space-between;align-items:center;gap:12px;background:var(--panel);padding:12px 16px;border-radius:12px;box-shadow:var(--glass-shadow);}
+.search{display:flex;align-items:center;gap:8px;flex:1;max-width:720px;}
+.search input{flex:1;padding:10px 12px;border-radius:10px;border:1px solid rgba(11,15,26,.06);background:#fff;font-size:0.95rem;}
+.icon-btn{border:none;background:transparent;font-size:1.05rem;padding:8px;border-radius:8px;cursor:pointer;color:var(--text);}
+.icon-btn:hover{color:var(--accent-2);}
+.panel{background:var(--panel-strong);border-radius:12px;padding:14px;box-shadow:var(--glass-shadow);}
+.panel h4{margin:0 0 12px 0;font-size:1.05rem;color:#23272f;}
+table.clean{width:100%;border-collapse:collapse;font-size:0.95rem;}
+table.clean thead th{text-align:left;font-weight:700;color:#3b4250;padding:10px;background:rgba(11,15,26,.03);}
+table.clean tbody td{padding:10px;border-bottom:1px solid rgba(11,15,26,.04);color:#1b2230;}
+table.clean tbody tr:hover td{background:rgba(139,182,255,.03);}
+.action-btn{padding:6px 12px;border-radius:6px;border:none;font-weight:600;cursor:pointer;font-size:0.85rem;}
+.view{background:#8bb6ff;color:#051014;}
+.edit{background:#f5a623;color:#fff;}
+.archive{background:#ff6b6b;color:#fff;}
+.footer-btns{display:flex; gap:6px; justify-content:flex-start;}
+footer{margin-top:16px;padding:18px;text-align:center;color:var(--muted);font-size:0.9rem;}
+#userModal{display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.4); justify-content:center; align-items:center; z-index:1000;}
+#userModalContent{background:#fff; padding:24px; border-radius:12px; width:600px; max-width:95vw; box-shadow:0 10px 30px rgba(0,0,0,0.2); position:relative;}
+#userModalContent h3{margin-bottom:16px;}
+#userModalContent p, #userModalContent ul{margin:6px 0; font-size:14px;}
+#userModalContent a{color:#8bb6ff; text-decoration:none;}
+.step-btn{flex:1; padding:8px; border:none; border-radius:6px; background:#eee; cursor:pointer; margin-right:4px;}
+.step-btn.active{background:#8bb6ff; color:#fff;}
+#stepButtons{display:flex; gap:8px; margin-bottom:16px;}
+#stepContent{font-size:14px; color:#0b0f1a; max-height:60vh; overflow-y:auto;}
+</style>
+</head>
+<body>
+
+<!-- SIDEBAR -->
+<aside class="sidebar">
+  <div class="brand"><div class="logo">P</div><div class="title">Petopia</div></div>
+  <nav class="side-nav">
+    <a href="{{ url_for('admin_dashboard') }}"><i class="fa-solid fa-chart-line"></i><span>Overview / Stats</span></a>
+
+    <!-- User Management Dropdown -->
+    <div class="dropdown open">
+      <a href="#" class="dropdown-toggle active">
+        <i class="fa-solid fa-users"></i><span>User Management</span>
+        <i class="fa-solid fa-chevron-down chev"></i>
+      </a>
+
+      <div class="dropdown-menu">
+        <a href="{{ url_for('admin_all_users') }}" data-path="users.html" class="active" style="background:linear-gradient(135deg,var(--accent),var(--accent-2));color:#051014;box-shadow:0 8px 26px rgba(139,182,255,.08);">
+            <i class="fa-solid fa-user"></i>
+            <span>View All Users</span>
+        </a>
+
+
+        <a href="{{ url_for('admin_seller_requests') }}" data-path="seller_request.html">
+            <i class="fa-solid fa-store"></i>
+            <span>Seller Requests</span>
+            <span id="sellerBadge" class="side-badge" style="display:none">0</span>
+        </a>
+
+
+        <a href="{{ url_for('admin_rider_requests') }}" data-path="rider_request.html">
+            <i class="fa-solid fa-motorcycle"></i>
+            <span>Rider Requests</span>
+            <span id="riderBadge" class="side-badge" style="display:none">0</span>
+        </a>
+
+      </div>
+    </div>
+
+    <a href="{{ url_for('admin_product_management') }}" data-path="products"><i class="fa-solid fa-box"></i><span>Product Management</span></a>
+    <a href="{{ url_for('admin_order_management') }}" data-path="orders"><i class="fa-solid fa-cart-shopping"></i><span>Order Management</span></a>
+    <a href="{{ url_for('admin_commission') }}" data-path="commission"><i class="fa-solid fa-sack-dollar"></i><span>Commission Tracking</span></a>
+    <a href="{{ url_for('admin_offenses') }}" data-path="offenses.html"><i class="fa-solid fa-triangle-exclamation"></i><span>Offenses & Violations</span></a>
+    <a href="{{ url_for('admin_reports') }}" data-path="reports"><i class="fa-solid fa-file-lines"></i><span>Reports & Analytics</span></a>
+    <a href="#" onclick="confirmLogout()"><i class="fa-solid fa-right-from-bracket"></i><span>Logout</span></a>
+  </nav>
+  <div class="spacer"></div>
+  <div class="small">Signed in as <strong>Admin</strong></div>
+</aside>
+
+<!-- MAIN -->
+<main class="main">
+<header class="topbar">
+<div style="font-weight:800;font-size:1.05rem">All Users</div>
+<div class="search" style="flex-wrap:wrap; gap:8px;">
+  <input type="text" id="userSearch" placeholder="Search by name or email..." onkeyup="filterUsers()"/>
+  <select id="roleFilter" onchange="filterUsers()" style="padding:6px 10px; border-radius:8px;">
+    <option value="All">All Roles</option>
+    <option value="Buyer">Buyer</option>
+    <option value="Seller">Seller</option>
+    <option value="Rider">Rider</option>
+    <option value="Admin">Admin</option>
+  </select>
+  <a href="{{ url_for('admin_archived_users') }}"
+     style="display:inline-block; padding:6px 10px; border:none; border-radius:7px; background:#ff6b6b; color:#fff; cursor:pointer; text-decoration:none; font-size:0.92rem;">
+    Archived Users
+  </a>
+</div>
+</header>
+
+<section class="panel">
+<h4>Users List</h4>
+<table class="clean">
+  <thead>
+    <tr>
+      <th>Name</th>
+      <th>Email</th>
+      <th>Role</th>
+      <th>Status</th>
+      <th>Date Joined</th>
+      <th style="width:250px;">Actions</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for u in users %}
+    <tr data-role="{{ u.role|title }}">
+      <td>{{ u.fullname }}</td>
+      <td>{{ u.email }}</td>
+      <td>{{ u.role|title }}</td>
+      <td>{% if u.is_verified %}Active{% else %}Pending{% endif %}</td>
+      <td>{{ u.created_at }}</td>
+      <td>
+        <div class="footer-btns">
+          {% set profile_url = (u.profile_photo and url_for('static', filename='uploads/' ~ u.profile_photo)) or '#' %}
+          {% set d = u.details %}
+          <button class="action-btn view"
+                  data-role="{{ u.role|title }}"
+                  data-fullname="{{ u.fullname }}"
+                  data-email="{{ u.email }}"
+                  data-phone="{{ u.phone }}"
+                  data-dob="{{ u.dob }}"
+                  data-gender="{{ u.gender }}"
+                  data-address="{{ u.address }}"
+                  data-profile-photo="{{ profile_url }}"
+                  data-profile-photo-name="{{ u.profile_photo or 'No file uploaded' }}"
+                  {% if u.role == 'seller' and d %}
+                    data-business-name="{{ d.store_name }}"
+                    data-business-type="{{ d.business_type }}"
+                    data-primary-category="{{ d.category }}"
+                    data-product-desc="{{ d.detailed_products }}"
+                    data-business-address="{{ d.business_address }}"
+                    data-years-operation="{{ d.years_op }}"
+                    data-business-contact="{{ d.business_phone }}"
+                    data-payout-method="{{ d.payout_method }}"
+                    data-wallet-number="{{ d.gcash_number }}"
+                    data-doc-dti="{{ (d.dti_sec_upload and url_for('static', filename='uploads/' ~ d.dti_sec_upload)) or '#' }}"
+                    data-doc-bir="{{ (d.bir_upload and url_for('static', filename='uploads/' ~ d.bir_upload)) or '#' }}"
+                    data-doc-selfie-id="{{ (d.selfie_id and url_for('static', filename='uploads/' ~ d.selfie_id)) or '#' }}"
+                    data-doc-business-permit="{{ (d.permit_upload and url_for('static', filename='uploads/' ~ d.permit_upload)) or '#' }}"
+                    data-doc-owner-id="{{ (d.id_upload and url_for('static', filename='uploads/' ~ d.id_upload)) or '#' }}"
+                    data-doc-proof-address="{{ (d.proof_address and url_for('static', filename='uploads/' ~ d.proof_address)) or '#' }}"
+                  {% endif %}
+                  {% if u.role == 'rider' and d %}
+                    data-vehicle-type="{{ d.vehicle_type }}"
+                    data-plate-number="{{ d.vehicle_plate }}"
+                    data-year-model="{{ d.year_model }}"
+                    data-chassis-number="{{ d.chassis_number }}"
+                    data-vehicle-mode="{{ d.vehicle_model }}"
+                    data-vehicle-color="{{ d.vehicle_color }}"
+                    data-engine-number="{{ d.engine_number }}"
+                    data-driver-license="{{ d.license_number }}"
+                    data-payout-method="{{ 'GCash' if d.gcash_number else '' }}"
+                    data-wallet-number="{{ d.gcash_number }}"
+                    data-doc-vehicle-registration="{{ (d.or_cr_upload and url_for('static', filename='uploads/' ~ d.or_cr_upload)) or '#' }}"
+                    data-doc-vehicle-photo="{{ (d.vehicle_photo and url_for('static', filename='uploads/' ~ d.vehicle_photo)) or '#' }}"
+                    data-doc-driver-license="{{ (d.license_upload and url_for('static', filename='uploads/' ~ d.license_upload)) or '#' }}"
+                  {% endif %}
+                  onclick="openUserModal(buildUserData(this))">View</button>
+          <button class="action-btn archive" data-user-id="{{ u.id }}">Archive</button>
+        </div>
+      </td>
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>
+</section>
+
+<footer>© 2025 Petopia — All Users</footer>
+</main>
+
+<!-- User Modal -->
+<div id="userModal">
+<div id="userModalContent">
+  <h3>User Details</h3>
+  <div id="stepButtons"></div>
+  <div id="stepContent"></div>
+  <div style="margin-top:20px; text-align:center;">
+    <button style="padding:10px 18px; border:none; border-radius:8px; background:#8bb6ff; color:#fff; cursor:pointer;" onclick="closeUserModal()">Close</button>
+  </div>
+</div>
+</div>
+<script>
+    // Custom alert function to replace browser alert dialogs
+    function showCustomAlert(message, type = 'error', title = null) {
+      const div = document.createElement('div');
+      div.id = 'customAlertModal';
+      div.style = 'position:fixed;top:0;left:0;width:100vw;height:100vh;z-index:9999;background:rgba(0,0,0,.25);backdrop-filter:blur(2px);display:flex;align-items:center;justify-content:center;';
+      
+      // Determine icon and colors based on type
+      let iconBg, iconColor, iconClass, alertTitle, borderColor;
+      const errorColor = '#ff6b6b';
+      const successColor = '#4ade80';
+      const warningColor = '#fbbf24';
+      const infoColor = '#8bb6ff';
+      
+      if (type === 'success') {
+        iconBg = 'rgba(74,222,128,.15)';
+        iconColor = successColor;
+        iconClass = 'fa-circle-check';
+        alertTitle = title || 'Success';
+        borderColor = successColor;
+      } else if (type === 'warning') {
+        iconBg = 'rgba(251,191,36,.15)';
+        iconColor = warningColor;
+        iconClass = 'fa-triangle-exclamation';
+        alertTitle = title || 'Warning';
+        borderColor = warningColor;
+      } else if (type === 'info') {
+        iconBg = 'rgba(139,182,255,.15)';
+        iconColor = infoColor;
+        iconClass = 'fa-circle-info';
+        alertTitle = title || 'Notice';
+        borderColor = infoColor;
+      } else {
+        // error (default)
+        iconBg = 'rgba(255,107,107,.15)';
+        iconColor = errorColor;
+        iconClass = 'fa-circle-exclamation';
+        alertTitle = title || 'Error';
+        borderColor = errorColor;
+      }
+      
+      div.innerHTML = `
+        <div style="background:rgba(255,255,255,.97);border-radius:18px;max-width:500px;width:90vw;box-shadow:0 10px 40px rgba(16,24,40,.22);position:relative;overflow:hidden;">
+          <div style="padding:32px;text-align:center;">
+            <div style="width:64px;height:64px;border-radius:50%;background:${iconBg};display:flex;align-items:center;justify-content:center;margin:0 auto 20px;border:2px solid ${borderColor};">
+              <i class="fa-solid ${iconClass}" style="font-size:2rem;color:${iconColor};"></i>
+            </div>
+            <h3 style="font-size:1.5rem;font-weight:800;color:#23272f;margin-bottom:12px;">${alertTitle}</h3>
+            <p style="color:#5b6378;font-weight:600;font-size:1rem;line-height:1.6;margin-bottom:24px;white-space:pre-line;">${message}</p>
+            <div style="display:flex;gap:12px;justify-content:center;">
+              <button id="alertOk" style="padding:12px 32px;border-radius:10px;background:linear-gradient(135deg, var(--accent), var(--accent-2));color:#051014;font-weight:700;border:none;cursor:pointer;font-size:1rem;box-shadow:0 8px 26px rgba(139,182,255,.08);transition:all .2s ease;">OK</button>
+            </div>
+          </div>
+        </div>
+      `;
+      document.body.appendChild(div);
+      
+      const closeHandler = function() {
+        div.remove();
+      };
+      
+      document.getElementById('alertOk').addEventListener('click', closeHandler);
+      
+      div.addEventListener('click', function(e) {
+        if (e.target === div) closeHandler();
+      });
+      
+      const escapeHandler = function(e) {
+        if (e.key === 'Escape') {
+          closeHandler();
+          document.removeEventListener('keydown', escapeHandler);
+        }
+      };
+      document.addEventListener('keydown', escapeHandler);
+    }
+
+    // Custom confirmation function to replace browser confirm dialogs
+    function showCustomConfirm(message, onConfirm, onCancel = null) {
+      const div = document.createElement('div');
+      div.id = 'customConfirmModal';
+      div.style = 'position:fixed;top:0;left:0;width:100vw;height:100vh;z-index:9999;background:rgba(0,0,0,.25);backdrop-filter:blur(2px);display:flex;align-items:center;justify-content:center;';
+      
+      div.innerHTML = `
+        <div style="background:rgba(255,255,255,.97);border-radius:18px;max-width:500px;width:90vw;box-shadow:0 10px 40px rgba(16,24,40,.22);position:relative;overflow:hidden;">
+          <div style="padding:32px;text-align:center;">
+            <div style="width:64px;height:64px;border-radius:50%;background:rgba(251,191,36,.15);display:flex;align-items:center;justify-content:center;margin:0 auto 20px;border:2px solid #fbbf24;">
+              <i class="fa-solid fa-circle-question" style="font-size:2rem;color:#fbbf24;"></i>
+            </div>
+            <h3 style="font-size:1.5rem;font-weight:800;color:#23272f;margin-bottom:12px;">Confirm Action</h3>
+            <p style="color:#5b6378;font-weight:600;font-size:1rem;line-height:1.6;margin-bottom:24px;">${message}</p>
+            <div style="display:flex;gap:12px;justify-content:center;">
+              <button id="confirmCancel" style="padding:12px 24px;border-radius:10px;background:#e5e8f0;color:#23272f;font-weight:700;border:none;cursor:pointer;font-size:1rem;transition:all .2s ease;">Cancel</button>
+              <button id="confirmOk" style="padding:12px 24px;border-radius:10px;background:linear-gradient(135deg, var(--accent), var(--accent-2));color:#051014;font-weight:700;border:none;cursor:pointer;font-size:1rem;box-shadow:0 8px 26px rgba(139,182,255,.08);transition:all .2s ease;">Confirm</button>
+            </div>
+          </div>
+        </div>
+      `;
+      document.body.appendChild(div);
+      
+      const closeHandler = function() {
+        div.remove();
+      };
+      
+      document.getElementById('confirmOk').addEventListener('click', function() {
+        closeHandler();
+        if (onConfirm) onConfirm();
+      });
+      
+      document.getElementById('confirmCancel').addEventListener('click', function() {
+        closeHandler();
+        if (onCancel) onCancel();
+      });
+      
+      div.addEventListener('click', function(e) {
+        if (e.target === div) {
+          closeHandler();
+          if (onCancel) onCancel();
+        }
+      });
+      
+      const escapeHandler = function(e) {
+        if (e.key === 'Escape') {
+          closeHandler();
+          if (onCancel) onCancel();
+          document.removeEventListener('keydown', escapeHandler);
+        }
+      };
+      document.addEventListener('keydown', escapeHandler);
+    }
+
+// Build user data object from data-* attributes on the clicked button
+function buildUserData(btn){
+  const d = btn.dataset;
+  const role = d.role || '';
+  const base = {
+    role: role,
+    fullname: d.fullname || '',
+    email: d.email || '',
+    phone: d.phone || '',
+    dob: d.dob || '',
+    gender: d.gender || '',
+    address: d.address || '',
+    profile_photo: d.profilePhoto || '#',
+    profile_photo_name: d.profilePhotoName || 'No file uploaded'
+  };
+
+  if(role === 'Seller'){
+    base.business_name = d.businessName || '';
+    base.business_type = d.businessType || '';
+    base.primary_category = d.primaryCategory || '';
+    base.product_desc = d.productDesc || '';
+    base.business_address = d.businessAddress || '';
+    base.years_operation = d.yearsOperation || '';
+    base.business_contact = d.businessContact || '';
+    base.payout_method = d.payoutMethod || '';
+    base.wallet_number = d.walletNumber || '';
+    base.documents = {
+      dti: d.docDti || '#',
+      bir: d.docBir || '#',
+      selfie_id: d.docSelfieId || '#',
+      business_permit: d.docBusinessPermit || '#',
+      owner_id: d.docOwnerId || '#',
+      proof_address: d.docProofAddress || '#'
+    };
+  }
+
+  if(role === 'Rider'){
+    base.vehicle_type = d.vehicleType || '';
+    base.plate_number = d.plateNumber || '';
+    base.year_model = d.yearModel || '';
+    base.chassis_number = d.chassisNumber || '';
+    base.vehicle_mode = d.vehicleMode || '';
+    base.vehicle_color = d.vehicleColor || '';
+    base.engine_number = d.engineNumber || '';
+    base.driver_license = d.driverLicense || '';
+    base.payout_method = d.payoutMethod || '';
+    base.wallet_number = d.walletNumber || '';
+    base.documents = {
+      vehicle_registration: d.docVehicleRegistration || '#',
+      vehicle_photo: d.docVehiclePhoto || '#',
+      driver_license: d.docDriverLicense || '#'
+    };
+  }
+
+  return base;
+}
+
+          // ---------- badges (counts from backend via data-attributes) ----------
+      const countsEl = document.getElementById('pendingCounts');
+      const sellerCount = parseInt(countsEl?.dataset?.seller || '0', 10) || 0;
+      const riderCount  = parseInt(countsEl?.dataset?.rider || '0', 10) || 0;
+      const sellerBadge = document.getElementById('sellerBadge');
+      const riderBadge  = document.getElementById('riderBadge');
+
+      if (sellerBadge) {
+        if (sellerCount > 0) {
+          sellerBadge.textContent = sellerCount;
+          sellerBadge.style.display = 'inline-block';
+        } else {
+          sellerBadge.style.display = 'none';
+        }
+      }
+      if (riderBadge) {
+        if (riderCount > 0) {
+          riderBadge.textContent = riderCount;
+          riderBadge.style.display = 'inline-block';
+        } else {
+          riderBadge.style.display = 'none';
+        }
+      }
+
+// User Modal logic (same as before)
+function openUserModal(userData) {
+  const stepButtons = document.getElementById('stepButtons');
+  const stepContent = document.getElementById('stepContent');
+  stepButtons.innerHTML = '';
+  stepContent.innerHTML = '';
+
+  if(userData.role === "Buyer" || userData.role === "Admin") {
+    stepContent.innerHTML = `
+      <p><strong>Full Name:</strong> ${userData.fullname}</p>
+      <p><strong>Email:</strong> ${userData.email}</p>
+      <p><strong>Phone:</strong> ${userData.phone}</p>
+      <p><strong>Date of Birth:</strong> ${userData.dob}</p>
+      <p><strong>Gender:</strong> ${userData.gender}</p>
+      <p><strong>Address:</strong> ${userData.address}</p>
+      <p><strong>Profile Photo:</strong> <a href="${userData.profile_photo}" target="_blank">${userData.profile_photo_name}</a></p>
+    `;
+  }
+
+  if(userData.role === "Seller") {
+    const steps = ["Personal Info","Business Info","Personal Documents"];
+    const stepData = [
+      `<p><strong>Full Name:</strong> ${userData.fullname}</p>
+       <p><strong>Email:</strong> ${userData.email}</p>
+       <p><strong>Phone:</strong> ${userData.phone}</p>
+       <p><strong>Date of Birth:</strong> ${userData.dob}</p>
+       <p><strong>Gender:</strong> ${userData.gender}</p>
+       <p><strong>Address:</strong> ${userData.address}</p>
+       <p><strong>Profile Photo:</strong> <a href="${userData.profile_photo}" target="_blank">${userData.profile_photo_name}</a></p>`,
+      `<p><strong>Store / Business Name:</strong> ${userData.business_name}</p>
+       <p><strong>Business Type:</strong> ${userData.business_type}</p>
+       <p><strong>Primary Category:</strong> ${userData.primary_category}</p>
+       <p><strong>Product Description:</strong> ${userData.product_desc}</p>
+       <p><strong>Business Address:</strong> ${userData.business_address}</p>
+       <p><strong>Years of Operation:</strong> ${userData.years_operation}</p>
+       <p><strong>Business Contact:</strong> ${userData.business_contact}</p>
+       <p><strong>Payout Method:</strong> ${userData.payout_method}</p>
+       <p><strong>Wallet / Account Number:</strong> ${userData.wallet_number}</p>`,
+      `<p><strong>DTI / SEC:</strong> <a href="${userData.documents.dti}" target="_blank">View</a></p>
+       <p><strong>BIR:</strong> <a href="${userData.documents.bir}" target="_blank">View</a></p>
+       <p><strong>Selfie + ID:</strong> <a href="${userData.documents.selfie_id}" target="_blank">View</a></p>
+       <p><strong>Business Permit:</strong> <a href="${userData.documents.business_permit}" target="_blank">View</a></p>
+       <p><strong>Owner ID:</strong> <a href="${userData.documents.owner_id}" target="_blank">View</a></p>
+       <p><strong>Proof of Address:</strong> <a href="${userData.documents.proof_address}" target="_blank">View</a></p>`
+    ];
+
+    steps.forEach((label,i)=>{
+      const btn = document.createElement('button');
+      btn.className = "step-btn"+(i===0?" active":"");
+      btn.innerText = label;
+      btn.onclick = ()=> {
+        document.querySelectorAll(".step-btn").forEach(b=>b.classList.remove("active"));
+        btn.classList.add("active");
+        stepContent.innerHTML = stepData[i];
+      }
+      stepButtons.appendChild(btn);
+    });
+
+    stepContent.innerHTML = stepData[0];
+  }
+if(userData.role === "Rider") {
+  const steps = ["Personal Info","Vehicle Info","Documents"];
+  const stepData = [
+    `<p><strong>Full Name:</strong> ${userData.fullname}</p>
+     <p><strong>Email:</strong> ${userData.email}</p>
+     <p><strong>Phone:</strong> ${userData.phone}</p>
+     <p><strong>Date of Birth:</strong> ${userData.dob}</p>
+     <p><strong>Gender:</strong> ${userData.gender}</p>
+     <p><strong>Address:</strong> ${userData.address}</p>
+     <p><strong>Profile Photo:</strong> <a href="${userData.profile_photo}" target="_blank">${userData.profile_photo_name}</a></p>`,
+
+    `<p><strong>Vehicle Type:</strong> ${userData.vehicle_type}</p>
+     <p><strong>Plate Number:</strong> ${userData.plate_number}</p>
+     <p><strong>Year Model:</strong> ${userData.year_model}</p>
+     <p><strong>Chassis Number:</strong> ${userData.chassis_number}</p>
+     <p><strong>Vehicle Mode:</strong> ${userData.vehicle_mode}</p>
+     <p><strong>Vehicle Color:</strong> ${userData.vehicle_color}</p>
+     <p><strong>Engine Number:</strong> ${userData.engine_number}</p>
+     <p><strong>Driver License Number:</strong> ${userData.driver_license}</p>
+     <p><strong>Payout Method:</strong> ${userData.payout_method}</p>
+     <p><strong>Wallet / Account Number:</strong> ${userData.wallet_number}</p>`,
+
+    `<p><strong>Vehicle Registration:</strong> <a href="${userData.documents.vehicle_registration}" target="_blank">View</a></p>
+     <p><strong>Vehicle Photo:</strong> <a href="${userData.documents.vehicle_photo}" target="_blank">View</a></p>
+     <p><strong>Driver License:</strong> <a href="${userData.documents.driver_license}" target="_blank">View</a></p>`
+  ];
+
+  steps.forEach((label,i)=>{
+    const btn = document.createElement('button');
+    btn.className = "step-btn"+(i===0?" active":"");
+    btn.innerText = label;
+    btn.onclick = ()=> {
+      document.querySelectorAll(".step-btn").forEach(b=>b.classList.remove("active"));
+      btn.classList.add("active");
+      stepContent.innerHTML = stepData[i];
+    }
+    stepButtons.appendChild(btn);
+  });
+
+  stepContent.innerHTML = stepData[0];
+}
+
+  document.getElementById('userModal').style.display='flex';
+}
+
+function closeUserModal(){document.getElementById('userModal').style.display='none';}
+
+// Filter Users
+function filterUsers(){
+  const search = document.getElementById('userSearch').value.toLowerCase();
+  const role = document.getElementById('roleFilter').value;
+  document.querySelectorAll('table.clean tbody tr').forEach(row=>{
+    const name = row.cells[0].innerText.toLowerCase();
+    const email = row.cells[1].innerText.toLowerCase();
+    const rowRole = row.dataset.role;
+    const matchesRole = (role==="All" || role===rowRole);
+    const matchesSearch = name.includes(search) || email.includes(search);
+    row.style.display = (matchesRole && matchesSearch)?"":"none";
+  });
+}
+// Auto-highlight the current sidebar link
+document.addEventListener('DOMContentLoaded', () => {
+  const currentPath = window.location.pathname;
+  
+  // Check if we're on the admin_all_users page
+  const isAllUsersPage = currentPath.includes('all_users');
+  
+  // If on all_users page, ensure the User Management dropdown is highlighted
+  if (isAllUsersPage) {
+    const userManagementDropdown = document.querySelector('.dropdown');
+    const dropdownToggle = document.querySelector('.dropdown-toggle');
+    if (userManagementDropdown && dropdownToggle) {
+      userManagementDropdown.classList.add('open');
+      dropdownToggle.classList.add('active');
+    }
+  }
+  
+  // Highlight matching links
+  document.querySelectorAll('.side-nav a').forEach(link => {
+    const linkPath = link.getAttribute('href');
+    // Check if current path matches the link's href
+    if (linkPath && (currentPath === linkPath || currentPath.includes(linkPath))) {
+      link.classList.add('active');
+
+      // If inside a dropdown, also open it and highlight the toggle
+      const dropdown = link.closest('.dropdown');
+      if (dropdown) {
+        dropdown.classList.add('open');
+        const toggle = dropdown.querySelector('.dropdown-toggle');
+        if (toggle) toggle.classList.add('active');
+      }
+    }
+  });
+});
+
+// Archive button functionality
+document.querySelectorAll('.archive').forEach(btn => {
+  btn.addEventListener('click', async (e) => {
+    const row = btn.closest('tr');
+    const name = row.cells[0].innerText;
+    const userId = btn.getAttribute('data-user-id');
+    if (!userId) { 
+      showCustomAlert('Missing user id', 'error', 'Validation Error'); 
+      return; 
+    }
+    try {
+      const res = await fetch(`/admin/archive_user/${userId}`, { method: 'POST' });
+      const data = await res.json();
+      if (data.success) {
+        showCustomAlert(name + ' has been archived.', 'success', 'User Archived');
+        row.remove();
+      } else {
+        showCustomAlert('Archive failed: ' + (data.message || 'Unknown error'), 'error', 'Archive Failed');
+      }
+    } catch (err) {
+      showCustomAlert('Network error while archiving', 'error', 'Network Error');
+    }
+  });
+});
+
+</script>
+
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+  document.querySelectorAll('.dropdown-toggle').forEach(toggle => {
+    toggle.addEventListener('click', function (e) {
+      e.preventDefault();
+      const parent = toggle.closest('.dropdown');
+      parent.classList.toggle('open');
+      toggle.classList.toggle('active');
+    });
+  });
+});
+function confirmLogout() {
+  showCustomConfirm('Are you sure you want to logout?', function() {
+    window.location.href = "{{ url_for('logout') }}";
+  });
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,945 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Petopia • Admin Archived Products</title>
+
+  <!-- Fonts + Icons + Chart.js -->
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+
+  <style>
+    :root{
+      --bg: #f6f8ff;
+      --panel: rgba(255,255,255,.60);
+      --panel-strong: rgba(255,255,255,.95);
+      --text: #0b0f1a;
+      --muted: #5b6378;
+      --accent: #7cf4d1;
+      --accent-2: #8bb6ff;
+      --glass-shadow: 0 10px 30px rgba(16,24,40,.08);
+      --card-radius: 12px;
+      --gap: 18px;
+      --sidebar-w: 260px;
+    }
+    /* Auto-numbering for product table */
+    table.auto-num { counter-reset: rowNumber; }
+    table.auto-num tbody tr { counter-increment: rowNumber; }
+    table.auto-num tbody tr td:first-child::before {
+      content: counter(rowNumber);
+      font-weight:600;
+    }
+
+    *{box-sizing:border-box}
+    body{ margin:0; font-family:"Inter",system-ui,-apple-system,"Segoe UI",Roboto,"Helvetica Neue",Arial;
+      background:var(--bg); color:var(--text); min-height:100vh; display:flex;}
+    .sidebar{ width:var(--sidebar-w); position:fixed; top:0; left:0; bottom:0; padding:22px 18px;
+      background:var(--panel-strong); backdrop-filter:blur(10px); box-shadow:var(--glass-shadow);
+      display:flex; flex-direction:column; gap:14px; z-index:50; }
+    .brand{ display:flex; align-items:center; gap:10px; margin-bottom:6px; }
+    .brand .logo{ width:44px; height:44px; border-radius:10px;
+      background:linear-gradient(135deg,var(--accent),var(--accent-2)); display:flex; align-items:center; justify-content:center;
+      color:#051014; font-weight:800; font-size:1.05rem; }
+    .brand .title{ font-weight:800; color:#23272f; font-size:1.05rem; }
+    nav.side-nav{ display:flex; flex-direction:column; gap:6px; margin-top:8px; padding-top:6px; }
+    /* default nav link style */
+    nav.side-nav > a,
+    .dropdown > .dropdown-toggle {
+      display:flex;
+      gap:12px;
+      align-items:center;
+      padding:10px 12px;
+      border-radius:10px;
+      color:var(--text);
+      text-decoration:none;
+      font-weight:600;
+      cursor:pointer;
+      transition:all .16s ease;
+    }
+    nav.side-nav a i{ width:20px; text-align:center; color:#5b6378; }
+    nav.side-nav a span{ font-size:0.95rem; color:var(--text); }
+    /* active / hover */
+    nav.side-nav a:hover,
+    nav.side-nav a.active,
+    .dropdown > .dropdown-toggle.active,
+    .dropdown > .dropdown-toggle:hover{
+      background: linear-gradient(135deg, var(--accent), var(--accent-2));
+      color:#051014;
+      box-shadow: 0 8px 26px rgba(139,182,255,.08);
+    }
+
+    /* Dropdown */
+    .dropdown { display:flex; flex-direction:column; }
+    .dropdown-toggle { position:relative; }
+    .dropdown-toggle i.chev { margin-left:auto; transition: transform .2s ease; color: #5b6378; }
+    .dropdown.open .dropdown-toggle i.chev { transform: rotate(180deg); }
+
+    /* Dropdown menu container (different bg) */
+    .dropdown-menu {
+      display:none;
+      flex-direction:column;
+      margin-left:12px;
+      gap:4px;
+      background: #eef3ff; /* custom dropdown background you asked for */
+      border-radius: 8px;
+      padding: 6px;
+      box-shadow: 0 4px 12px rgba(0,0,0,.06);
+    }
+    .dropdown.open .dropdown-menu { display:flex; }
+
+    /* links inside dropdown - override global nav styles to avoid covering container bg */
+    .dropdown-menu a {
+      padding:8px 12px;
+      font-weight:500;
+      font-size:0.95rem;
+      border-radius:6px;
+      background: transparent; /* keep container bg visible */
+      display:flex;
+      align-items:center;
+      gap:10px;
+      color:var(--text);
+      text-decoration:none;
+    }
+    .dropdown-menu a:hover { background: rgba(139,182,255,0.12); color:#051014; }
+
+    /* small circular badge to the right of a link */
+    .side-badge {
+      margin-left:auto;
+      background: var(--accent-2);
+      color: #051014;
+      border-radius: 999px;
+      padding: 2px 7px;
+      font-weight:800;
+      font-size:0.72rem;
+      display:inline-block;
+      line-height:1;
+    }
+    .sidebar .spacer{ flex:1 }
+    .sidebar .small{ font-size:0.85rem; color:var(--muted); text-align:center; padding:6px 8px; }
+
+    .main{ margin-left:calc(var(--sidebar-w) + 20px); padding:26px; flex:1; display:flex; flex-direction:column; gap:var(--gap); }
+    header.topbar{ display:flex; justify-content:space-between; align-items:center; gap:12px;
+      background:var(--panel); padding:12px 16px; border-radius:12px; box-shadow:var(--glass-shadow); flex-wrap:wrap; }
+    .search{ display:flex; align-items:center; gap:8px; flex:1; max-width:500px; }
+    .search input{ flex:1; padding:10px 12px; border-radius:10px; border:1px solid rgba(11,15,26,.06); background:#fff; }
+    .icon-btn{ border:none; background:transparent; font-size:1.05rem; padding:8px; border-radius:8px; cursor:pointer; color:var(--text); }
+    .btn{ border:none; padding:10px 16px; border-radius:8px; cursor:pointer; font-weight:600; box-shadow:var(--glass-shadow); }
+    .btn-accent{ background:var(--accent); color:#051014; text-decoration:none; }
+    .btn-accent.btn-sm{ padding:6px 10px; font-size:0.85rem; }
+    .btn-primary{ background:var(--accent-2); color:#051014; }
+    .btn-success{ background:#27ae60; color:white; }
+    .btn-warning{ background:#f39c12; color:white; }
+    .btn-danger{ background:#e74c3c; color:white; }
+    .btn-secondary{ background:#95a5a6; color:white; }
+
+    /* GRID */
+    .grid-4{ display:grid; grid-template-columns:repeat(auto-fit,minmax(200px,1fr)); gap:var(--gap); }
+    .stat-card{ background:linear-gradient(180deg,rgba(255,255,255,0.98),rgba(250,250,255,0.96)); border-radius:var(--card-radius); padding:16px; box-shadow:var(--glass-shadow); display:flex; justify-content:space-between; align-items:center; gap:12px; }
+    .stat-left small{ color:var(--muted); font-weight:600; }
+    .stat-left h3{ margin:0; font-size:1.15rem; }
+    .stat-right{ width:56px; height:56px; border-radius:12px; display:flex; align-items:center; justify-content:center; font-size:1.1rem; background:linear-gradient(135deg,rgba(139,182,255,0.12),rgba(124,244,209,0.10)); color:var(--accent-2); }
+
+    /* Filters */
+    .filters {
+        background: var(--panel-strong);
+        padding: 20px;
+        border-radius: var(--card-radius);
+        box-shadow: var(--glass-shadow);
+        margin-bottom: var(--gap);
+        display: flex;
+        gap: 15px;
+        align-items: center;
+        flex-wrap: wrap;
+    }
+
+    .filter-group {
+        display: flex;
+        flex-direction: column;
+        gap: 5px;
+    }
+
+    .filter-group label {
+        font-size: 12px;
+        font-weight: 600;
+        color: var(--muted);
+        text-transform: uppercase;
+    }
+
+    .filter-group select,
+    .filter-group input {
+        padding: 8px 12px;
+        border: 1px solid rgba(11,15,26,.06);
+        border-radius: 8px;
+        font-size: 14px;
+        min-width: 150px;
+        background: #fff;
+    }
+
+    /* Products Table */
+    .products-table {
+        background: var(--panel-strong);
+        border-radius: var(--card-radius);
+        box-shadow: var(--glass-shadow);
+        overflow: hidden;
+    }
+
+    .table-header {
+        padding: 20px;
+        border-bottom: 1px solid rgba(11,15,26,.04);
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    .table-header h3 {
+        color: #23272f;
+        font-size: 1.2rem;
+        font-weight: 600;
+    }
+
+    .table-actions {
+        display: flex;
+        gap: 10px;
+    }
+
+    .btn-sm {
+        padding: 4px 8px;
+        font-size: 12px;
+    }
+
+    /* Loading */
+    .loading {
+        text-align: center;
+        padding: 40px;
+        color: var(--muted);
+    }
+
+    .spinner {
+        border: 3px solid rgba(11,15,26,.03);
+        border-top: 3px solid var(--accent-2);
+        border-radius: 50%;
+        width: 30px;
+        height: 30px;
+        animation: spin 1s linear infinite;
+        margin: 0 auto 10px;
+    }
+
+    @keyframes spin {
+        0% { transform: rotate(0deg); }
+        100% { transform: rotate(360deg); }
+    }
+
+    .panel{ background:var(--panel-strong); border-radius:12px; padding:14px; box-shadow:var(--glass-shadow); overflow-x:auto; }
+    .panel h4{ margin:0 0 12px 0; font-size:1.05rem; color:#23272f; }
+    table.clean{ width:100%; border-collapse:collapse; font-size:0.95rem; }
+    table.clean thead th{ text-align:left; padding:10px; background:rgba(11,15,26,.03); font-weight:700; }
+    table.clean tbody td{ padding:10px; border-bottom:1px solid rgba(11,15,26,.04); vertical-align:middle; }
+    table.clean tbody td img{ width:50px; height:50px; object-fit:cover; border-radius:6px; }
+
+    .btn-restore { background:#7cf4d1; border:none; border-radius:6px; padding:0.3rem 0.6rem; cursor:pointer; font-size:0.8rem; color:#051014; }
+    .btn-restore:hover { background: #4bb8a1; }
+    .btn-delete { background:#e74c3c; border:none; border-radius:6px; padding:0.3rem 0.6rem; cursor:pointer; font-size:0.8rem; color:white; margin-left:5px; }
+    .btn-delete:hover { background: #c0392b; }
+
+    .product-info {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+    }
+
+    .product-image {
+        width: 50px;
+        height: 50px;
+        border-radius: 6px;
+        object-fit: cover;
+        background: rgba(11,15,26,.03);
+    }
+
+    .product-details h4 {
+        font-size: 14px;
+        color: #23272f;
+        margin-bottom: 2px;
+        font-weight: 600;
+    }
+
+    .product-details p {
+        font-size: 12px;
+        color: var(--muted);
+    }
+
+    .status-badge {
+        padding: 4px 8px;
+        border-radius: 12px;
+        font-size: 12px;
+        font-weight: 500;
+        text-transform: uppercase;
+    }
+
+    .status-archived {
+        background: #fadbd8;
+        color: #e74c3c;
+    }
+
+    .price {
+        font-weight: 600;
+        color: #27ae60;
+    }
+
+    .stock {
+        font-weight: 500;
+    }
+
+    .stock.low {
+        color: #e74c3c;
+    }
+
+    .stock.medium {
+        color: #f39c12;
+    }
+
+    .stock.high {
+        color: #27ae60;
+    }
+
+    .actions {
+        display: flex;
+        gap: 5px;
+    }
+
+    footer{ margin-top:16px; padding:18px; text-align:center; color:var(--muted); font-size:0.9rem; }
+
+    /* Responsive */
+    @media(max-width:980px){ .main{margin-left:calc(var(--sidebar-w) + 12px); padding:18px;} .sidebar{width:220px} }
+    @media(max-width:700px){ .sidebar{position:static; width:100%; display:none;} body{display:block;} .main{margin-left:0; padding:16px;} }
+  </style>
+</head>
+<body>
+  <!-- SIDEBAR -->
+  <aside class="sidebar">
+    <div class="brand"><div class="logo">P</div><div class="title">Petopia</div></div>
+    <nav class="side-nav">
+      <a href="{{ url_for('admin_dashboard') }}" data-path="overview"><i class="fa-solid fa-chart-line"></i><span>Overview / Stats</span></a>
+
+      <!-- User Management Dropdown -->
+      <div class="dropdown">
+        <a href="#" class="dropdown-toggle" aria-expanded="false">
+          <i class="fa-solid fa-users"></i><span>User Management</span>
+          <i class="fa-solid fa-chevron-down chev"></i>
+        </a>
+
+        <div class="dropdown-menu">
+          <a href="{{ url_for('admin_all_users') }}" data-path="users.html"><i class="fa-solid fa-user"></i><span>View All Users</span></a>
+
+          <a href="{{ url_for('admin_seller_requests') }}" data-path="seller_request.html">
+            <i class="fa-solid fa-store"></i><span>Seller Requests</span>
+            <span id="sellerBadge" class="side-badge" style="display:none">0</span>
+          </a>
+
+          <a href="{{ url_for('admin_rider_requests') }}" data-path="rider_request.html">
+            <i class="fa-solid fa-motorcycle"></i><span>Rider Requests</span>
+            <span id="riderBadge" class="side-badge" style="display:none">0</span>
+          </a>
+        </div>
+      </div>
+
+      <a href="{{ url_for('admin_product_management') }}" data-path="products" class="active"><i class="fa-solid fa-box"></i><span>Product Management</span></a>
+      <a href="{{ url_for('admin_order_management') }}" data-path="orders.html"><i class="fa-solid fa-cart-shopping"></i><span>Order Management</span></a>
+      <a href="{{ url_for('admin_commission') }}" data-path="commission.html"><i class="fa-solid fa-sack-dollar"></i><span>Commission Tracking</span></a>
+      <a href="{{ url_for('admin_offenses') }}" data-path="offenses.html"><i class="fa-solid fa-triangle-exclamation"></i><span>Offenses & Violations</span></a>
+      <a href="{{ url_for('admin_reports') }}" data-path="reports.html"><i class="fa-solid fa-file-lines"></i><span>Reports & Analytics</span></a>
+      <a href="#" onclick="confirmLogout()" data-path="login.html"><i class="fa-solid fa-right-from-bracket"></i><span>Logout</span></a>
+    </nav>
+    <div class="spacer"></div>
+    <div class="small">Signed in as <strong>Admin</strong></div>
+  </aside>
+
+  <!-- MAIN -->
+  <main class="main">
+    <header class="topbar">
+      <div>
+        <div style="font-weight:800;font-size:1.05rem">Archived Products 🗃️</div>
+        <div style="font-size:0.88rem;color:var(--muted)">Manage archived products</div>
+      </div>
+      <div class="search">
+        <input type="text" id="searchInput" placeholder="Search archived products..." />
+        <button class="icon-btn"><i class="fa-solid fa-magnifying-glass"></i></button>
+      </div>
+      <div style="display:flex; gap:8px;">
+        <a href="{{ url_for('admin_product_management') }}" class="btn btn-accent btn-sm">Back to Products</a>
+      </div>
+    </header>
+
+    <!-- Stats Cards -->
+    <section class="grid-4" aria-hidden="false">
+      <div class="stat-card"><div class="stat-left"><small>Total Archived</small><h3 id="totalArchived">0</h3></div><div class="stat-right"><i class="fa-solid fa-box-archive"></i></div></div>
+      <div class="stat-card"><div class="stat-left"><small>Recently Archived</small><h3 id="recentArchived">0</h3></div><div class="stat-right"><i class="fa-solid fa-clock"></i></div></div>
+      <div class="stat-card"><div class="stat-left"><small>This Month</small><h3 id="monthlyArchived">0</h3></div><div class="stat-right"><i class="fa-solid fa-calendar"></i></div></div>
+      <div class="stat-card"><div class="stat-left"><small>Restored</small><h3 id="restoredCount">0</h3></div><div class="stat-right"><i class="fa-solid fa-undo"></i></div></div>
+    </section>
+
+    <!-- Filters -->
+    <div class="filters">
+        <div class="filter-group">
+            <label>Category</label>
+            <select id="categoryFilter">
+                <option value="all">All Categories</option>
+                <option value="food">Food</option>
+                <option value="toys">Toys</option>
+                <option value="accessories">Accessories</option>
+                <option value="health">Health & Care</option>
+                <option value="grooming">Grooming</option>
+            </select>
+        </div>
+        <div class="filter-group">
+            <label>Seller</label>
+            <select id="sellerFilter">
+                <option value="all">All Sellers</option>
+            </select>
+        </div>
+        <div class="filter-group">
+            <label>Archived Date</label>
+            <select id="dateFilter">
+                <option value="all">All Time</option>
+                <option value="today">Today</option>
+                <option value="week">This Week</option>
+                <option value="month">This Month</option>
+            </select>
+        </div>
+        <div class="filter-group">
+            <label>&nbsp;</label>
+            <button class="btn btn-secondary" onclick="clearFilters()">Clear Filters</button>
+        </div>
+    </div>
+
+    <!-- Archived Products Table -->
+    <div class="products-table">
+        <div class="table-header">
+            <h3>Archived Products</h3>
+            <div class="table-actions">
+                <button class="btn btn-secondary btn-sm" onclick="exportArchived()">
+                    <i class="fa-solid fa-download"></i> Export
+                </button>
+            </div>
+        </div>
+        <div id="archivedTableContainer">
+            <div class="loading">
+                <div class="spinner"></div>
+                <p>Loading archived products...</p>
+            </div>
+        </div>
+    </div>
+
+    <footer>© 2025 Petopia — Admin Archived Products</footer>
+  </main>
+
+  <script id="preloadedArchivedProductsJson" type="application/json">{{ preloaded_archived_products|tojson }}</script>
+  <script>
+    // Custom Alert and Confirm Modals
+    function showCustomAlert(message, type = 'error', title = null) {
+      const div = document.createElement('div');
+      div.id = 'customAlertModal';
+      div.style = 'position:fixed;top:0;left:0;width:100vw;height:100vh;z-index:9999;background:rgba(0,0,0,.25);backdrop-filter:blur(2px);display:flex;align-items:center;justify-content:center;';
+      
+      // Determine icon and colors based on type
+      let iconBg, iconColor, iconClass, alertTitle, borderColor;
+      const errorColor = '#ff6b6b';
+      const successColor = '#4ade80';
+      const warningColor = '#fbbf24';
+      const infoColor = '#8bb6ff';
+      
+      if (type === 'success') {
+        iconBg = 'rgba(74,222,128,.15)';
+        iconColor = successColor;
+        iconClass = 'fa-circle-check';
+        alertTitle = title || 'Success';
+        borderColor = successColor;
+      } else if (type === 'warning') {
+        iconBg = 'rgba(251,191,36,.15)';
+        iconColor = warningColor;
+        iconClass = 'fa-triangle-exclamation';
+        alertTitle = title || 'Warning';
+        borderColor = warningColor;
+      } else if (type === 'info') {
+        iconBg = 'rgba(139,182,255,.15)';
+        iconColor = infoColor;
+        iconClass = 'fa-circle-info';
+        alertTitle = title || 'Notice';
+        borderColor = infoColor;
+      } else {
+        // error (default)
+        iconBg = 'rgba(255,107,107,.15)';
+        iconColor = errorColor;
+        iconClass = 'fa-circle-exclamation';
+        alertTitle = title || 'Error';
+        borderColor = errorColor;
+      }
+      
+      div.innerHTML = `
+        <div style="background:rgba(255,255,255,.97);border-radius:18px;max-width:500px;width:90vw;box-shadow:0 10px 40px rgba(16,24,40,.22);position:relative;overflow:hidden;">
+          <div style="padding:32px;text-align:center;">
+            <div style="width:64px;height:64px;border-radius:50%;background:${iconBg};display:flex;align-items:center;justify-content:center;margin:0 auto 20px;border:2px solid ${borderColor};">
+              <i class="fa-solid ${iconClass}" style="font-size:2rem;color:${iconColor};"></i>
+            </div>
+            <h3 style="font-size:1.5rem;font-weight:800;color:#23272f;margin-bottom:12px;">${alertTitle}</h3>
+            <p style="color:#5b6378;font-weight:600;font-size:1rem;line-height:1.6;margin-bottom:24px;white-space:pre-line;">${message}</p>
+            <div style="display:flex;gap:12px;justify-content:center;">
+              <button id="alertOk" style="padding:12px 32px;border-radius:10px;background:linear-gradient(135deg, var(--accent), var(--accent-2));color:#051014;font-weight:700;border:none;cursor:pointer;font-size:1rem;box-shadow:0 8px 26px rgba(139,182,255,.08);transition:all .2s ease;">OK</button>
+            </div>
+          </div>
+        </div>
+      `;
+      document.body.appendChild(div);
+      
+      const closeHandler = function() {
+        div.remove();
+      };
+      
+      document.getElementById('alertOk').addEventListener('click', closeHandler);
+      
+      div.addEventListener('click', function(e) {
+        if (e.target === div) {
+          closeHandler();
+        }
+      });
+      
+      const escapeHandler = function(e) {
+        if (e.key === 'Escape') {
+          closeHandler();
+          document.removeEventListener('keydown', escapeHandler);
+        }
+      };
+      document.addEventListener('keydown', escapeHandler);
+    }
+
+    function showCustomConfirm(message, onConfirm, onCancel = null) {
+      const div = document.createElement('div');
+      div.id = 'customConfirmModal';
+      div.style = 'position:fixed;top:0;left:0;width:100vw;height:100vh;z-index:9999;background:rgba(0,0,0,.25);backdrop-filter:blur(2px);display:flex;align-items:center;justify-content:center;';
+      
+      div.innerHTML = `
+        <div style="background:rgba(255,255,255,.97);border-radius:18px;max-width:500px;width:90vw;box-shadow:0 10px 40px rgba(16,24,40,.22);position:relative;overflow:hidden;">
+          <div style="padding:32px;text-align:center;">
+            <div style="width:64px;height:64px;border-radius:50%;background:rgba(251,191,36,.15);display:flex;align-items:center;justify-content:center;margin:0 auto 20px;border:2px solid #fbbf24;">
+              <i class="fa-solid fa-circle-question" style="font-size:2rem;color:#fbbf24;"></i>
+            </div>
+            <h3 style="font-size:1.5rem;font-weight:800;color:#23272f;margin-bottom:12px;">Confirm Action</h3>
+            <p style="color:#5b6378;font-weight:600;font-size:1rem;line-height:1.6;margin-bottom:24px;">${message}</p>
+            <div style="display:flex;gap:12px;justify-content:center;">
+              <button id="confirmCancel" style="padding:12px 24px;border-radius:10px;background:#e5e8f0;color:#23272f;font-weight:700;border:none;cursor:pointer;font-size:1rem;transition:all .2s ease;">Cancel</button>
+              <button id="confirmOk" style="padding:12px 24px;border-radius:10px;background:linear-gradient(135deg, var(--accent), var(--accent-2));color:#051014;font-weight:700;border:none;cursor:pointer;font-size:1rem;box-shadow:0 8px 26px rgba(139,182,255,.08);transition:all .2s ease;">Confirm</button>
+            </div>
+          </div>
+        </div>
+      `;
+      document.body.appendChild(div);
+      
+      const closeHandler = function() {
+        div.remove();
+      };
+      
+      document.getElementById('confirmOk').addEventListener('click', function() {
+        closeHandler();
+        if (onConfirm) onConfirm();
+      });
+      
+      document.getElementById('confirmCancel').addEventListener('click', function() {
+        closeHandler();
+        if (onCancel) onCancel();
+      });
+      
+      div.addEventListener('click', function(e) {
+        if (e.target === div) {
+          closeHandler();
+          if (onCancel) onCancel();
+        }
+      });
+      
+      const escapeHandler = function(e) {
+        if (e.key === 'Escape') {
+          closeHandler();
+          if (onCancel) onCancel();
+          document.removeEventListener('keydown', escapeHandler);
+        }
+      };
+      document.addEventListener('keydown', escapeHandler);
+    }
+
+    // Global variables
+    let allArchivedProducts = [];
+    let filteredArchivedProducts = [];
+
+    // Initialize page
+    document.addEventListener('DOMContentLoaded', function() {
+        // hydrate from server-preloaded archived products
+        try{
+            const pre = JSON.parse(document.getElementById('preloadedArchivedProductsJson').textContent || '[]');
+            allArchivedProducts = (pre || []).map(p => ({
+                id: p.id,
+                name: p.name,
+                category: p.category,
+                price: parseFloat(p.price || 0),
+                stock: parseInt(p.stock || 0),
+                description: p.description || '',
+                sellerId: p.seller_id,
+                sellerName: p.store_name,
+                image: normalizeImageUrl(p.image_url),
+                createdAt: p.created_at,
+                archivedAt: p.updated_at || p.created_at
+            }));
+        }catch(e){ allArchivedProducts = []; }
+        
+        populateSellerFilterFromArchived();
+        populateCategoryFilterFromArchived();
+        setupEventListeners();
+        setupNavigation();
+        updateStats();
+        filterArchivedProducts();
+    });
+
+    // Navigation setup
+    function setActiveByPath(path) {
+      document.querySelectorAll('.side-nav a, .dropdown-toggle').forEach(el => el.classList.remove('active'));
+      document.querySelectorAll('.dropdown').forEach(d => d.classList.remove('open'));
+
+      if (!path) return;
+      const target = document.querySelector('[data-path="' + path + '"]');
+      if (target) {
+        target.classList.add('active');
+        const parentDropdown = target.closest('.dropdown');
+        if (parentDropdown) {
+          parentDropdown.classList.add('open');
+          const toggle = parentDropdown.querySelector('.dropdown-toggle');
+          if (toggle) toggle.classList.add('active');
+        }
+      }
+    }
+
+    function setupNavigation() {
+      setActiveByPath('products');
+
+      document.querySelectorAll('.side-nav a, .dropdown-menu a').forEach(link => {
+        link.addEventListener('click', function () {
+          const path = link.getAttribute('data-path') || link.getAttribute('href') || null;
+          if (path === 'login.html') {
+            localStorage.removeItem('activeNav');
+            return;
+          }
+          if (path) {
+            localStorage.setItem('activeNav', path);
+            setActiveByPath(path);
+          }
+        });
+      });
+
+      document.querySelectorAll('.dropdown-toggle').forEach(toggle => {
+        toggle.addEventListener('click', function (e) {
+          e.preventDefault();
+          const parent = toggle.closest('.dropdown');
+          parent.classList.toggle('open');
+          toggle.classList.toggle('active');
+        });
+      });
+    }
+
+    function confirmLogout(){
+      showCustomConfirm('Are you sure you want to logout?', function() {
+        window.location.href = "{{ url_for('logout') }}";
+      });
+    }
+
+    // Event listeners
+    function setupEventListeners() {
+        document.getElementById('searchInput').addEventListener('input', debounce(filterArchivedProducts, 300));
+        document.getElementById('categoryFilter').addEventListener('change', filterArchivedProducts);
+        document.getElementById('sellerFilter').addEventListener('change', filterArchivedProducts);
+        document.getElementById('dateFilter').addEventListener('change', filterArchivedProducts);
+    }
+
+    // Normalize image URL from filename or full URL
+    function normalizeImageUrl(imageUrl) {
+        if (!imageUrl) return '';
+        const url = String(imageUrl);
+        if (url.startsWith('http://') || url.startsWith('https://')) return url;
+        if (url.startsWith('/static/')) return url;
+        return `/static/uploads/${url}`;
+    }
+
+    // Populate seller filter from archived products
+    function populateSellerFilterFromArchived() {
+        const sellerFilter = document.getElementById('sellerFilter');
+        if (!sellerFilter) return;
+        const uniqueSellers = new Map();
+        (allArchivedProducts || []).forEach(p => {
+            if (!uniqueSellers.has(p.sellerId)) uniqueSellers.set(p.sellerId, p.sellerName || ('Seller #' + p.sellerId));
+        });
+        const current = sellerFilter.value;
+        sellerFilter.innerHTML = '<option value="all">All Sellers</option>';
+        uniqueSellers.forEach((name, id) => sellerFilter.appendChild(new Option(name, String(id))));
+        if (current && (current === 'all' || uniqueSellers.has(Number(current)) || uniqueSellers.has(current))) sellerFilter.value = current;
+    }
+
+    // Populate category filter from archived products
+    function populateCategoryFilterFromArchived() {
+        const categoryFilter = document.getElementById('categoryFilter');
+        if (!categoryFilter) return;
+        const categories = new Set();
+        (allArchivedProducts || []).forEach(p => { if (p.category) categories.add(p.category); });
+        const current = categoryFilter.value;
+        categoryFilter.innerHTML = '<option value="all">All Categories</option>';
+        Array.from(categories).sort().forEach(cat => categoryFilter.appendChild(new Option(cat, cat)));
+        if (current && (current === 'all' || categories.has(current))) categoryFilter.value = current;
+    }
+
+    // Filter archived products
+    function filterArchivedProducts() {
+        const searchTerm = document.getElementById('searchInput').value.toLowerCase();
+        const categoryFilter = document.getElementById('categoryFilter').value;
+        const sellerFilter = String(document.getElementById('sellerFilter').value);
+        const dateFilter = document.getElementById('dateFilter').value;
+
+        filteredArchivedProducts = allArchivedProducts.filter(product => {
+            const matchesSearch = !searchTerm || 
+                product.name.toLowerCase().includes(searchTerm) ||
+                product.description.toLowerCase().includes(searchTerm);
+            
+            const matchesCategory = categoryFilter === 'all' || product.category === categoryFilter;
+            const matchesSeller = sellerFilter === 'all' || String(product.sellerId) === sellerFilter;
+            
+            let matchesDate = true;
+            if (dateFilter !== 'all') {
+                const now = new Date();
+                const archivedDate = new Date(product.archivedAt || product.createdAt);
+                
+                switch (dateFilter) {
+                    case 'today':
+                        matchesDate = archivedDate.toDateString() === now.toDateString();
+                        break;
+                    case 'week':
+                        const weekAgo = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
+                        matchesDate = archivedDate >= weekAgo;
+                        break;
+                    case 'month':
+                        const monthAgo = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000);
+                        matchesDate = archivedDate >= monthAgo;
+                        break;
+                }
+            }
+
+            return matchesSearch && matchesCategory && matchesSeller && matchesDate;
+        });
+
+        renderArchivedProducts();
+    }
+
+    // Render archived products table
+    function renderArchivedProducts() {
+        const container = document.getElementById('archivedTableContainer');
+
+        if (filteredArchivedProducts.length === 0) {
+            container.innerHTML = `
+                <div class="loading">
+                    <p>No archived products found matching your criteria.</p>
+                </div>
+            `;
+            return;
+        }
+
+        const tableHTML = `
+            <table class="clean auto-num">
+                <thead>
+                    <tr>
+                        <th>#</th>
+                        <th>Product</th>
+                        <th>Category</th>
+                        <th>Price</th>
+                        <th>Stock</th>
+                        <th>Seller</th>
+                        <th>Archived Date</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    ${filteredArchivedProducts.map(product => `
+                        <tr>
+                            <td></td>
+                            <td>
+                                <div class="product-info">
+                                    <img src="${product.image || 'https://via.placeholder.com/50x50?text=No+Image'}" 
+                                         alt="${product.name}" class="product-image">
+                                    <div class="product-details">
+                                        <h4>${product.name}</h4>
+                                        <p>${product.description.substring(0, 50)}${product.description.length > 50 ? '...' : ''}</p>
+                                    </div>
+                                </div>
+                            </td>
+                            <td>${capitalizeFirst(product.category)}</td>
+                            <td class="price">₱${product.price.toFixed(2)}</td>
+                            <td class="stock ${getStockClass(product.stock)}">${product.stock}</td>
+                            <td>${getSellerName(product.sellerId)}</td>
+                            <td>${formatDate(product.archivedAt || product.createdAt)}</td>
+                            <td>
+                                <div class="actions">
+                                    <button class="btn-restore" onclick="restoreProduct('${product.id}')">
+                                        <i class="fa-solid fa-undo"></i> Restore
+                                    </button>
+                                </div>
+                            </td>
+                        </tr>
+                    `).join('')}
+                </tbody>
+            </table>
+        `;
+
+        container.innerHTML = tableHTML;
+    }
+
+    // Update statistics
+    function updateStats() {
+        const total = allArchivedProducts.length;
+        const today = new Date().toDateString();
+        const recent = allArchivedProducts.filter(p => new Date(p.archivedAt || p.createdAt).toDateString() === today).length;
+        const thisMonth = allArchivedProducts.filter(p => {
+            const archivedDate = new Date(p.archivedAt || p.createdAt);
+            const now = new Date();
+            return archivedDate.getMonth() === now.getMonth() && archivedDate.getFullYear() === now.getFullYear();
+        }).length;
+        const restored = JSON.parse(localStorage.getItem('petopia_restored_count') || '0');
+
+        document.getElementById('totalArchived').textContent = total;
+        document.getElementById('recentArchived').textContent = recent;
+        document.getElementById('monthlyArchived').textContent = thisMonth;
+        document.getElementById('restoredCount').textContent = restored;
+    }
+
+    // Product actions
+    async function restoreProduct(productId) {
+        showCustomConfirm('Are you sure you want to restore this product? It will be moved back to active products.', async function() {
+            try {
+                const res = await fetch(`/admin/restore_product/${productId}`, {
+                    method: 'POST',
+                    credentials: 'same-origin'
+                });
+                const data = await res.json();
+                
+                if (!res.ok || !data.success) {
+                    throw new Error(data && data.message ? data.message : 'Failed to restore product');
+                }
+
+                // Remove from local archived products list
+                allArchivedProducts = allArchivedProducts.filter(p => p.id !== productId);
+                // Also remove from filtered list to ensure immediate update
+                filteredArchivedProducts = filteredArchivedProducts.filter(p => p.id !== productId);
+
+                // Update restored count
+                const restoredCount = parseInt(localStorage.getItem('petopia_restored_count') || '0') + 1;
+                localStorage.setItem('petopia_restored_count', restoredCount.toString());
+
+                // Update UI immediately
+                renderArchivedProducts();
+                updateStats();
+                showCustomAlert("♻️ Product restored successfully!", 'success', 'Product Restored');
+            } catch (error) {
+                console.error('Error restoring product:', error);
+                showCustomAlert("❌ Error restoring product. Please try again.", 'error', 'Restore Failed');
+            }
+        });
+    }
+
+    function permanentlyDeleteProduct(productId) {
+        showCustomConfirm('Are you sure you want to permanently delete this product? This action cannot be undone.', function() {
+            allArchivedProducts = allArchivedProducts.filter(p => p.id !== productId);
+            // Also remove from filtered list to ensure immediate update
+            filteredArchivedProducts = filteredArchivedProducts.filter(p => p.id !== productId);
+            localStorage.setItem('petopia_archived_products', JSON.stringify(allArchivedProducts));
+            
+            // Update UI immediately
+            renderArchivedProducts();
+            updateStats();
+            showCustomAlert("🗑️ Product permanently deleted!", 'success', 'Product Deleted');
+        });
+    }
+
+    function clearAllArchived() {
+        showCustomConfirm('Are you sure you want to permanently delete ALL archived products? This action cannot be undone.', function() {
+            allArchivedProducts = [];
+            filteredArchivedProducts = [];
+            localStorage.setItem('petopia_archived_products', JSON.stringify([]));
+            
+            // Update UI immediately
+            renderArchivedProducts();
+            updateStats();
+            showCustomAlert("🗑️ All archived products permanently deleted!", 'success', 'All Products Deleted');
+        });
+    }
+
+    // Utility functions
+    function getSellerName(sellerId) {
+        const found = (allArchivedProducts || []).find(p => p.sellerId === sellerId && p.sellerName);
+        return found ? found.sellerName : 'Unknown Seller';
+    }
+
+    function getStockClass(stock) {
+        if (stock <= 5) return 'low';
+        if (stock <= 20) return 'medium';
+        return 'high';
+    }
+
+    function formatDate(timestamp) {
+        return new Date(timestamp).toLocaleDateString();
+    }
+
+    function capitalizeFirst(str) {
+        return str.charAt(0).toUpperCase() + str.slice(1);
+    }
+
+    function debounce(func, wait) {
+        let timeout;
+        return function executedFunction(...args) {
+            const later = () => {
+                clearTimeout(timeout);
+                func(...args);
+            };
+            clearTimeout(timeout);
+            timeout = setTimeout(later, wait);
+        };
+    }
+
+    function clearFilters() {
+        document.getElementById('searchInput').value = '';
+        document.getElementById('categoryFilter').value = 'all';
+        document.getElementById('sellerFilter').value = 'all';
+        document.getElementById('dateFilter').value = 'all';
+        filterArchivedProducts();
+    }
+
+    function exportArchived() {
+        const csvContent = generateCSV(filteredArchivedProducts);
+        const blob = new Blob([csvContent], { type: 'text/csv' });
+        const url = window.URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `archived_products_${new Date().toISOString().split('T')[0]}.csv`;
+        a.click();
+        window.URL.revokeObjectURL(url);
+    }
+
+    function generateCSV(products) {
+        const headers = ['Name', 'Category', 'Price', 'Stock', 'Seller', 'Archived Date'];
+        const rows = products.map(product => [
+            product.name,
+            product.category,
+            product.price,
+            product.stock,
+            getSellerName(product.sellerId),
+            formatDate(product.archivedAt || product.createdAt)
+        ]);
+
+        return [headers, ...rows].map(row => 
+            row.map(field => `"${field}"`).join(',')
+        ).join('\n');
+    }
+  </script>
+</body>
+</html>

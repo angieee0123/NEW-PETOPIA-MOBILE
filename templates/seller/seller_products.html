@@ -1,0 +1,1130 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Petopia • Seller Products</title>
+
+  <!-- Fonts + Icons -->
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+
+  <style>
+    :root{
+      --bg: #f6f8ff;
+      --panel: rgba(255,255,255,.60);
+      --panel-strong: rgba(255,255,255,.95);
+      --text: #0b0f1a;
+      --muted: #5b6378;
+      --accent: #7cf4d1;
+      --accent-2: #8bb6ff;
+      --glass-shadow: 0 10px 30px rgba(16,24,40,.08);
+      --card-radius: 12px;
+      --gap: 18px;
+      --sidebar-w: 260px;
+    }
+
+    /* Auto-numbering for product table */
+    table.auto-num { counter-reset: rowNumber; }
+    table.auto-num tbody tr { counter-increment: rowNumber; }
+    table.auto-num tbody tr td:first-child::before {
+      content: counter(rowNumber);
+      font-weight:600;
+    }
+
+    *{box-sizing:border-box}
+    body{ margin:0; font-family:"Inter",system-ui,-apple-system,"Segoe UI",Roboto,"Helvetica Neue",Arial;
+      background:var(--bg); color:var(--text); min-height:100vh; display:flex;}
+    .sidebar{ width:var(--sidebar-w); position:fixed; top:0; left:0; bottom:0; padding:22px 18px;
+      background:var(--panel-strong); backdrop-filter:blur(10px); box-shadow:var(--glass-shadow);
+      display:flex; flex-direction:column; gap:14px; z-index:50; }
+    .brand{ display:flex; align-items:center; gap:10px; margin-bottom:6px; }
+    .brand .logo{ width:44px; height:44px; border-radius:10px;
+      background:linear-gradient(135deg,var(--accent),var(--accent-2)); display:flex; align-items:center; justify-content:center;
+      color:#051014; font-weight:800; font-size:1.05rem; }
+    .brand .title{ font-weight:800; color:#23272f; font-size:1.05rem; }
+    nav.side-nav{ display:flex; flex-direction:column; gap:6px; margin-top:8px; padding-top:6px; }
+    nav.side-nav a{ display:flex; gap:12px; align-items:center; padding:10px 12px; border-radius:10px;
+      color:var(--text); text-decoration:none; font-weight:600; transition:all .16s ease; }
+    nav.side-nav a i{ width:20px; text-align:center; color:#5b6378; }
+    nav.side-nav a:hover, nav.side-nav a.active{ background:linear-gradient(135deg,var(--accent),var(--accent-2)); color:#051014; }
+    .sidebar .spacer{ flex:1 }
+    .sidebar .small{ font-size:0.85rem; color:var(--muted); text-align:center; padding:6px 8px; }
+
+    .main{ margin-left:calc(var(--sidebar-w) + 20px); padding:26px; flex:1; display:flex; flex-direction:column; gap:var(--gap); }
+    header.topbar{ display:flex; justify-content:space-between; align-items:center; gap:12px;
+      background:var(--panel); padding:12px 16px; border-radius:12px; box-shadow:var(--glass-shadow); flex-wrap:wrap; }
+    .search{ display:flex; align-items:center; gap:8px; flex:1; max-width:500px; }
+    .search input{ flex:1; padding:10px 12px; border-radius:10px; border:1px solid rgba(11,15,26,.06); background:#fff; }
+    .icon-btn{ border:none; background:transparent; font-size:1.05rem; padding:8px; border-radius:8px; cursor:pointer; color:var(--text); }
+    .btn{ border:none; padding:10px 16px; border-radius:8px; cursor:pointer; font-weight:600; box-shadow:var(--glass-shadow); }
+    .btn-accent{ background:var(--accent); color:#051014; }
+
+    .panel{ background:var(--panel-strong); border-radius:12px; padding:14px; box-shadow:var(--glass-shadow); overflow-x:auto; }
+    .panel h4{ margin:0 0 12px 0; font-size:1.05rem; color:#23272f; }
+    table.clean{ width:100%; border-collapse:collapse; font-size:0.95rem; }
+    table.clean thead th{ text-align:left; padding:10px; background:rgba(11,15,26,.03); font-weight:700; }
+    table.clean tbody td{ padding:10px; border-bottom:1px solid rgba(11,15,26,.04); vertical-align:middle; }
+    table.clean tbody td img{ width:50px; height:50px; object-fit:cover; border-radius:6px; }
+
+    footer{ margin-top:16px; padding:18px; text-align:center; color:var(--muted); font-size:0.9rem; }
+
+    .action-btns button{ margin-right:6px; padding:6px 10px; font-size:0.85rem; border:none; border-radius:6px; cursor:pointer; }
+    .edit-btn{ background:#8bb6ff; color:#fff; }
+    .archive-btn{ background:#ffae42; color:#fff; }
+
+    .btn-archived {
+      background: #ff6b6b;
+      color: #fff;
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 0.95rem;
+      font-weight: 600;
+      padding: 10px 16px;
+      border-radius: 8px;
+      box-shadow: var(--glass-shadow);
+    }
+    .btn-archived:hover { background: #e74c3c; }
+
+    /* Modal Base */
+    .modal {
+      display:none;
+      position:fixed;
+      inset:0;
+      background:rgba(0,0,0,0.5);
+      justify-content:center;
+      align-items:center;
+      z-index:1000;
+      border-radius: 12px;
+    }
+    .modal-content {
+      background:#fff;
+      width:900px;
+      max-width:95%;
+      border-radius:10px;
+      display:flex;
+      flex-direction:column;
+      max-height:90vh;
+      position:relative;
+    }
+    .modal-header {
+      padding:1rem;
+      border-bottom:1px solid #eee;
+      font-weight:600;
+      font-size:1.1rem;
+      display:flex;
+      justify-content:space-between;
+      align-items:center;
+    }
+    .modal-body {
+      display:flex;
+      flex:1;
+      overflow:hidden;
+    }
+    .left-panel, .right-panel {
+      flex:1;
+      padding:1rem;
+      overflow:auto;
+    }
+    .left-panel {
+      border-right:1px solid #eee;
+      flex:1.2;
+    }
+    .form-group { margin-bottom:0.8rem; }
+    .form-group label {
+      display:block;
+      font-weight:600;
+      margin-bottom:0.3rem;
+    }
+    .form-group input,
+    .form-group select,
+    .form-group textarea {
+      width:100%;
+      padding:0.5rem;
+      border:1px solid #ccc;
+      border-radius:6px;
+    }
+    .form-group textarea {
+      resize:none;
+      height:60px;
+    }
+    .image-upload {
+      border:2px dashed #ccc;
+      padding:1rem;
+      text-align:center;
+      border-radius:6px;
+      max-width:250px;
+      margin:0 auto;
+      display:flex;
+      flex-direction:column;
+      align-items:center;
+      justify-content:center;
+    }
+    .image-upload input { display:none; }
+    .image-upload label {
+      cursor:pointer;
+      color:#555;
+      font-size:0.9rem;
+    }
+    .preview-img {
+      margin-top:0.5rem;
+      max-width:120px;
+      max-height:100px;
+      width:auto;
+      height:auto;
+      border-radius:6px;
+      display:none;
+      object-fit:contain;
+      margin-left:auto;
+      margin-right:auto;
+    }
+    /* Variations */
+    .variation-section { margin-bottom:1rem; }
+    .variation-header {
+      display:flex;
+      justify-content:space-between;
+      align-items:center;
+      margin-bottom:0.5rem;
+      font-weight:600;
+    }
+    .variation-list { 
+      display:flex;
+      flex-direction:column;
+      gap:0.8rem; 
+      max-height:400px; 
+      overflow-y:auto; 
+      padding-right:4px; 
+    }
+    .variation-row {
+      background:#f8f9fa;
+      border:1px solid #e0e0e0;
+      border-radius:8px;
+      padding:0.8rem;
+      display:grid;
+      grid-template-columns:1fr 1fr 1fr 100px 120px 140px auto;
+      gap:0.6rem;
+      align-items:end;
+    }
+    @media (max-width: 1400px) {
+      .variation-row {
+        grid-template-columns:1fr 1fr 1fr;
+      }
+      .variation-row .form-group:nth-child(n+4) {
+        grid-column:span 1;
+      }
+    }
+    .variation-row .form-group {
+      margin-bottom:0;
+    }
+    .variation-row .form-group label {
+      font-size:0.8rem;
+      margin-bottom:0.2rem;
+      color:var(--muted);
+    }
+    .variation-row .form-group input {
+      width:100%;
+      padding:0.4rem;
+      border:1px solid #ccc;
+      border-radius:4px;
+      font-size:0.9rem;
+    }
+    .variation-row .form-group input[type="file"] {
+      display:none;
+    }
+    .variation-row .image-upload-label {
+      cursor:pointer;
+      color:#555;
+      font-size:0.8rem;
+      display:inline-flex;
+      align-items:center;
+      gap:4px;
+    }
+    .variation-row .color-image-preview {
+      max-width:50px;
+      max-height:40px;
+      border-radius:4px;
+      margin-top:4px;
+      display:none;
+    }
+    .variation-row .remove-variation-btn {
+      background:#ff6b6b;
+      color:#fff;
+      border:none;
+      border-radius:4px;
+      padding:0.4rem 0.6rem;
+      cursor:pointer;
+      font-size:0.85rem;
+      height:fit-content;
+    }
+    .variation-row .remove-variation-btn:hover {
+      background:#e74c3c;
+    }
+    .add-btn {
+      background:#7cf4d1;
+      border:none;
+      border-radius:6px;
+      padding:0.4rem 0.8rem;
+      cursor:pointer;
+      font-size:0.85rem;
+      font-weight:600;
+      color:#051014;
+    }
+    .add-btn:hover {
+      background:#6ae0c0;
+    }
+    .modal-footer {
+      padding:1rem;
+      border-top:1px solid #eee;
+      text-align:right;
+      position:sticky;
+      bottom:0;
+      background:#fff;
+      border-radius: 12px;
+    }
+    .close-btn {
+      background:none;
+      border:none;
+      font-size:1.2rem;
+      cursor:pointer;
+    }
+
+    /* Variation Modal */
+    .variation-modal {
+      display:none;
+      position:fixed;
+      inset:0;
+      background:rgba(0,0,0,0.5);
+      justify-content:center;
+      align-items:center;
+      z-index:2000;
+    }
+    .variation-modal-content {
+      background:#fff;
+      width:600px;
+      max-width:95%;
+      border-radius:10px;
+      padding:1.5rem;
+      max-height:90vh;
+      overflow-y:auto;
+    }
+    .variation-modal-header {
+      display:flex;
+      justify-content:space-between;
+      align-items:center;
+      margin-bottom:1rem;
+      padding-bottom:0.8rem;
+      border-bottom:1px solid #eee;
+    }
+    .variation-modal-header h3 {
+      margin:0;
+      font-size:1.1rem;
+      font-weight:600;
+    }
+    .variation-item-display {
+      background:#f8f9fa;
+      border:1px solid #e0e0e0;
+      border-radius:8px;
+      padding:0.8rem;
+      margin-bottom:0.6rem;
+      display:flex;
+      justify-content:space-between;
+      align-items:center;
+    }
+    .variation-item-info {
+      flex:1;
+    }
+    .variation-item-info .variation-label {
+      font-weight:600;
+      color:#23272f;
+      margin-bottom:0.3rem;
+    }
+    .variation-item-info .variation-details {
+      font-size:0.85rem;
+      color:var(--muted);
+      display:flex;
+      gap:0.8rem;
+      flex-wrap:wrap;
+    }
+    .variation-item-info .variation-details span {
+      display:inline-flex;
+      align-items:center;
+      gap:4px;
+    }
+    .variation-item-actions {
+      display:flex;
+      gap:0.4rem;
+    }
+    .variation-item-actions button {
+      padding:0.4rem 0.6rem;
+      border:none;
+      border-radius:4px;
+      cursor:pointer;
+      font-size:0.85rem;
+    }
+    .edit-variation-btn {
+      background:#8bb6ff;
+      color:#fff;
+    }
+    .remove-variation-display-btn {
+      background:#ff6b6b;
+      color:#fff;
+    }
+
+  </style>
+</head>
+<body>
+  <!-- SIDEBAR -->
+  <aside class="sidebar">
+    <div class="brand"><div class="logo">P</div><div class="title">Petopia</div></div>
+    <nav class="side-nav">
+      <a href="{{ url_for('seller_dashboard') }}"><i class="fa-solid fa-chart-line"></i><span>Dashboard</span></a>
+      <a href="{{ url_for('seller_products') }}" class="active"><i class="fa-solid fa-box"></i><span>My Products</span></a>
+      <a href="{{ url_for('seller_orders') }}"><i class="fa-solid fa-cart-shopping"></i><span>My Orders</span></a>
+      <a href="{{ url_for('seller_earnings_commission') }}"><i class="fa-solid fa-sack-dollar"></i><span>Earnings & Commission</span></a>
+      <a href="{{ url_for('seller_promotions') }}"><i class="fa-solid fa-bullhorn"></i><span>Promotions</span></a>
+      <a href="{{ url_for('seller_reports') }}"><i class="fa-solid fa-chart-pie"></i><span>Reports & Analytics</span></a>
+      <a href="#" onclick="confirmLogout()"><i class="fa-solid fa-right-from-bracket"></i><span>Logout</span></a>
+    </nav>
+    <div class="spacer"></div>
+    <div class="small">Signed in as <strong>Seller</strong></div>
+  </aside>
+
+  <!-- MAIN -->
+  <main class="main">
+    <header class="topbar">
+      <div>
+        <div style="font-weight:800;font-size:1.05rem">My Products</div>
+        <div style="font-size:0.88rem;color:var(--muted)">Manage your shop inventory</div>
+      </div>
+      <div class="search">
+        <input type="text" placeholder="Search products..." />
+        <button class="icon-btn"><i class="fa-solid fa-magnifying-glass"></i></button>
+      </div>
+      <div style="display:flex; gap:8px;">
+        <a href="{{ url_for('seller_archived_products') }}" class="btn btn-archived">
+          <i class="fa-solid fa-box-archive"></i> 
+        </a>  
+        <button class="btn btn-accent" id="openModalBtn">
+          <i class="fa-solid fa-plus"></i> Add Product
+        </button>
+      </div>
+    </header>
+
+    <!-- Product List -->
+    <div class="panel">
+      <h4>My Products</h4>
+      <table class="clean auto-num">
+        <thead>
+          <tr>
+            <th>#</th>
+            <th>Image</th>
+            <th>Product</th>
+            <th>Category</th>
+            <th>Stock</th>
+            <th>Sales</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for product in products %}
+          <tr data-product-id="{{ product.id }}">
+            <td></td>
+            <td>
+              {% if product.image_url %}
+                <img src="{{ url_for('static', filename='uploads/' + product.image_url) }}" alt="{{ product.name }}" style="width:50px;height:50px;object-fit:cover;border-radius:6px;">
+              {% else %}
+                <img src="https://via.placeholder.com/50" alt="{{ product.name }}">
+              {% endif %}
+            </td>
+            <td>{{ product.name }}</td>
+            <td>{{ product.category }}</td>
+            <td>{{ product.stock }}</td>
+            <td>{{ product.sales_count }}</td>
+            <td class="action-btns">
+              <button class="edit-btn" data-product-id="{{ product.id }}" onclick="editProduct(this.dataset.productId)"><i class="fa-solid fa-pen"></i> Edit</button>
+              <button class="archive-btn" data-product-id="{{ product.id }}" onclick="archiveProduct(this.dataset.productId)"><i class="fa-solid fa-box-archive"></i> Archive</button>
+            </td>
+          </tr>
+          {% endfor %}
+          {% if not products %}
+          <tr>
+            <td colspan="7" style="text-align:center;padding:20px;color:var(--muted);">
+              No products found. <a href="#" onclick="document.getElementById('openModalBtn').click()" style="color:var(--accent-2);">Add your first product</a>
+            </td>
+          </tr>
+          {% endif %}
+        </tbody>
+      </table>
+    </div>
+
+    <footer>© 2025 Petopia — Seller Products</footer>
+  </main>
+
+  <!-- Modal -->
+  <div class="modal" id="productModal">
+    <div class="modal-content">
+      <div class="modal-header">
+        <span>Add New Product</span>
+        <button class="close-btn" id="closeModal">&times;</button>
+      </div>
+      <form id="productForm" enctype="multipart/form-data">
+      <div class="modal-body">
+        <!-- Left Panel -->
+        <div class="left-panel">
+          <div class="form-group">
+              <label>Product Name *</label>
+              <input type="text" name="name" id="productName" placeholder="Enter product name" required>
+          </div>
+          <div class="form-group">
+              <label>Category *</label>
+              <select name="category" id="productCategory" required>
+                <option value="">Select category</option>
+                <option value="Food & Treats">Food & Treats</option>
+                <option value="Health & Wellness">Health & Wellness</option>
+                <option value="Grooming & Hygiene">Grooming & Hygiene</option>
+                <option value="Toys & Entertainment">Toys & Entertainment</option>
+                <option value="Bedding & Housing">Bedding & Housing</option>
+                <option value="Clothing & Accessories">Clothing & Accessories</option>
+                <option value="Training & Behavior">Training & Behavior</option>
+                <option value="Travel & Outdoors">Travel & Outdoors</option>
+                <option value="Feeding Supplies">Feeding Supplies</option>
+                <option value="Cleaning & Waste Management">Cleaning & Waste Management</option>
+                <option value="Safety & Security">Safety & Security</option>
+                <option value="Breeding & Habitat Essentials">Breeding & Habitat Essentials</option>
+                <option value="Furniture & Décor">Furniture & Décor</option>
+                <option value="Other">Other</option>
+            </select>
+          </div>
+          <div class="form-group">
+              <label>Base Price (₱) *</label>
+              <input type="number" name="price" id="productPrice" placeholder="Enter base price" step="0.01" min="0" required>
+              <small style="color:var(--muted);font-size:0.85rem;">Default price for variations (can be overridden per variation)</small>
+          </div>
+          <div class="form-group">
+              <label>Description *</label>
+              <textarea name="description" id="productDescription" placeholder="Enter description" required></textarea>
+          </div>
+          <div class="form-group image-upload">
+              <input type="file" id="productImage" name="image" accept="image/*">
+            <label for="productImage"><i class="fa fa-upload"></i> Upload Product Image</label>
+            <img id="previewImage" class="preview-img">
+          </div>
+          <div class="form-group">
+            <button type="button" class="btn btn-accent" id="openVariationModalBtn" style="width:100%;margin-top:8px;">
+              <i class="fa-solid fa-plus"></i> Add Variation
+            </button>
+          </div>
+        </div>
+        <!-- Right Panel -->
+        <div class="right-panel">
+          <div class="variation-section">
+            <div class="variation-header">
+              <span>Product Variations</span>
+            </div>
+            <div class="variation-list" id="variationsList"></div>
+            <small style="color:var(--muted);font-size:0.85rem;display:block;margin-top:8px;">
+              Click "Add Variation" to add product variations with color, size, weight, stock, and optional price override.
+            </small>
+          </div>
+        </div>
+      </div>
+<div class="modal-footer">
+          <button type="button" class="btn" id="saveProductBtn">Save Product</button>
+</div>
+      </form>
+
+  <!-- Variation Modal -->
+  <div class="variation-modal" id="variationModal">
+    <div class="variation-modal-content">
+      <div class="variation-modal-header">
+        <h3 id="variationModalTitle">Add Variation</h3>
+        <button class="close-btn" id="closeVariationModal">&times;</button>
+      </div>
+      <form id="variationForm">
+        <div class="form-group">
+          <label>Color</label>
+          <input type="text" id="variationColor" placeholder="e.g., Red" value="">
+        </div>
+        <div class="form-group">
+          <label>Size</label>
+          <input type="text" id="variationSize" placeholder="e.g., Large" value="">
+        </div>
+        <div class="form-group">
+          <label>Weight</label>
+          <input type="text" id="variationWeight" placeholder="e.g., 1kg" value="">
+        </div>
+        <div class="form-group">
+          <label>Stock *</label>
+          <input type="number" id="variationStock" placeholder="0" min="0" step="1" required value="" oninput="this.value = Math.max(0, parseInt(this.value) || 0)">
+        </div>
+        <div class="form-group">
+          <label>Price Override (₱)</label>
+          <input type="number" id="variationPrice" placeholder="Optional" step="0.01" min="0" value="">
+          <small style="font-size:0.75rem;color:var(--muted);">Leave empty to use base price</small>
+        </div>
+        <div class="form-group image-upload">
+          <input type="file" id="variationColorImage" accept="image/*">
+          <label for="variationColorImage"><i class="fa fa-upload"></i> Upload Color Image</label>
+          <img id="variationColorImagePreview" class="preview-img">
+          <input type="hidden" id="variationColorExistingImage" value="">
+        </div>
+        <div style="display:flex;gap:0.6rem;margin-top:1rem;">
+          <button type="button" class="btn" style="flex:1;background:#6c757d;color:#fff;" id="cancelVariationBtn">Cancel</button>
+          <button type="button" class="btn btn-accent" style="flex:1;" id="saveVariationBtn">Save Variation</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+<script>
+  // Custom alert function to replace browser alert dialogs
+  function showCustomAlert(message, type = 'error', title = null) {
+    const div = document.createElement('div');
+    div.id = 'customAlertModal';
+    div.style = 'position:fixed;top:0;left:0;width:100vw;height:100vh;z-index:9999;background:rgba(0,0,0,.25);backdrop-filter:blur(2px);display:flex;align-items:center;justify-content:center;';
+    
+    // Determine icon and colors based on type
+    let iconBg, iconColor, iconClass, alertTitle, borderColor;
+    const errorColor = '#ff6b6b';
+    const successColor = '#4ade80';
+    const warningColor = '#fbbf24';
+    const infoColor = '#8bb6ff';
+    
+    if (type === 'success') {
+      iconBg = 'rgba(74,222,128,.15)';
+      iconColor = successColor;
+      iconClass = 'fa-circle-check';
+      alertTitle = title || 'Success';
+      borderColor = successColor;
+    } else if (type === 'warning') {
+      iconBg = 'rgba(251,191,36,.15)';
+      iconColor = warningColor;
+      iconClass = 'fa-triangle-exclamation';
+      alertTitle = title || 'Warning';
+      borderColor = warningColor;
+    } else if (type === 'info') {
+      iconBg = 'rgba(139,182,255,.15)';
+      iconColor = infoColor;
+      iconClass = 'fa-circle-info';
+      alertTitle = title || 'Notice';
+      borderColor = infoColor;
+    } else {
+      // error (default)
+      iconBg = 'rgba(255,107,107,.15)';
+      iconColor = errorColor;
+      iconClass = 'fa-circle-exclamation';
+      alertTitle = title || 'Error';
+      borderColor = errorColor;
+    }
+    
+    // Remove emoji from message for cleaner display
+    const cleanMessage = message.replace(/[✅❌⚠️]/g, '').trim();
+    
+    div.innerHTML = `
+      <div style="background:rgba(255,255,255,.97);border-radius:18px;max-width:500px;width:90vw;box-shadow:0 10px 40px rgba(16,24,40,.22);position:relative;overflow:hidden;">
+        <div style="padding:32px;text-align:center;">
+          <div style="width:64px;height:64px;border-radius:50%;background:${iconBg};display:flex;align-items:center;justify-content:center;margin:0 auto 20px;border:2px solid ${borderColor};">
+            <i class="fa-solid ${iconClass}" style="font-size:2rem;color:${iconColor};"></i>
+          </div>
+          <h3 style="font-size:1.5rem;font-weight:800;color:#23272f;margin-bottom:12px;">${alertTitle}</h3>
+          <p style="color:#5b6378;font-weight:600;font-size:1rem;line-height:1.6;margin-bottom:24px;">${cleanMessage}</p>
+          <div style="display:flex;gap:12px;justify-content:center;">
+            <button id="alertOk" style="padding:12px 32px;border-radius:10px;background:linear-gradient(135deg, var(--accent), var(--accent-2));color:#051014;font-weight:700;border:none;cursor:pointer;font-size:1rem;box-shadow:0 8px 26px rgba(139,182,255,.08);transition:all .2s ease;">OK</button>
+          </div>
+        </div>
+      </div>
+    `;
+    document.body.appendChild(div);
+    
+    const closeHandler = function() {
+      div.remove();
+    };
+    
+    document.getElementById('alertOk').addEventListener('click', closeHandler);
+    
+    div.addEventListener('click', function(e) {
+      if (e.target === div) closeHandler();
+    });
+    
+    const escapeHandler = function(e) {
+      if (e.key === 'Escape') {
+        closeHandler();
+        document.removeEventListener('keydown', escapeHandler);
+      }
+    };
+    document.addEventListener('keydown', escapeHandler);
+  }
+
+  // Custom confirmation function to replace browser confirm dialogs
+  function showCustomConfirm(message, onConfirm, onCancel = null) {
+    const div = document.createElement('div');
+    div.id = 'customConfirmModal';
+    div.style = 'position:fixed;top:0;left:0;width:100vw;height:100vh;z-index:9999;background:rgba(0,0,0,.25);backdrop-filter:blur(2px);display:flex;align-items:center;justify-content:center;';
+    
+    div.innerHTML = `
+      <div style="background:rgba(255,255,255,.97);border-radius:18px;max-width:500px;width:90vw;box-shadow:0 10px 40px rgba(16,24,40,.22);position:relative;overflow:hidden;">
+        <div style="padding:32px;text-align:center;">
+          <div style="width:64px;height:64px;border-radius:50%;background:rgba(251,191,36,.15);display:flex;align-items:center;justify-content:center;margin:0 auto 20px;border:2px solid #fbbf24;">
+            <i class="fa-solid fa-circle-question" style="font-size:2rem;color:#fbbf24;"></i>
+          </div>
+          <h3 style="font-size:1.5rem;font-weight:800;color:#23272f;margin-bottom:12px;">Confirm Action</h3>
+          <p style="color:#5b6378;font-weight:600;font-size:1rem;line-height:1.6;margin-bottom:24px;">${message}</p>
+          <div style="display:flex;gap:12px;justify-content:center;">
+            <button id="confirmCancel" style="padding:12px 24px;border-radius:10px;background:#e5e8f0;color:#23272f;font-weight:700;border:none;cursor:pointer;font-size:1rem;transition:all .2s ease;">Cancel</button>
+            <button id="confirmOk" style="padding:12px 24px;border-radius:10px;background:linear-gradient(135deg, var(--accent), var(--accent-2));color:#051014;font-weight:700;border:none;cursor:pointer;font-size:1rem;box-shadow:0 8px 26px rgba(139,182,255,.08);transition:all .2s ease;">Confirm</button>
+          </div>
+        </div>
+      </div>
+    `;
+    document.body.appendChild(div);
+    
+    const closeHandler = function() {
+      div.remove();
+    };
+    
+    document.getElementById('confirmOk').addEventListener('click', function() {
+      closeHandler();
+      if (onConfirm) onConfirm();
+    });
+    
+    document.getElementById('confirmCancel').addEventListener('click', function() {
+      closeHandler();
+      if (onCancel) onCancel();
+    });
+    
+    div.addEventListener('click', function(e) {
+      if (e.target === div) {
+        closeHandler();
+        if (onCancel) onCancel();
+      }
+    });
+    
+    const escapeHandler = function(e) {
+      if (e.key === 'Escape') {
+        closeHandler();
+        if (onCancel) onCancel();
+        document.removeEventListener('keydown', escapeHandler);
+      }
+    };
+    document.addEventListener('keydown', escapeHandler);
+  }
+
+  const searchInput = document.querySelector(".search input");
+  const modal = document.getElementById('productModal');
+  const openBtn = document.getElementById('openModalBtn');
+  const closeBtn = document.getElementById('closeModal');
+  const imgInput = document.getElementById('productImage');
+  const preview = document.getElementById('previewImage');
+  const form = document.getElementById('productForm');
+  const variationModal = document.getElementById('variationModal');
+  const openVariationModalBtn = document.getElementById('openVariationModalBtn');
+  const closeVariationModalBtn = document.getElementById('closeVariationModal');
+  const cancelVariationBtn = document.getElementById('cancelVariationBtn');
+  const saveVariationBtn = document.getElementById('saveVariationBtn');
+  const variationForm = document.getElementById('variationForm');
+  let editingProductId = null;
+  let editingVariationIndex = null;
+  let variations = []; // Store variations data
+
+  // 🔍 Search filter
+  searchInput.addEventListener("keyup", () => {
+    const searchText = searchInput.value.toLowerCase();
+    const tableRows = document.querySelectorAll("table.clean tbody tr");
+    tableRows.forEach(row => {
+      if (row.querySelector('td[colspan]')) return; // Skip "no products" row
+      const productName = row.cells[2].textContent.toLowerCase();
+      const category = row.cells[3].textContent.toLowerCase();
+      row.style.display = (productName.includes(searchText) || category.includes(searchText)) ? "" : "none";
+    });
+  });
+
+  // Modal open (Add)
+  openBtn.onclick = () => { 
+    editingProductId = null; 
+    modal.style.display = 'flex'; 
+    clearForm(); 
+    document.querySelector('.modal-header span').textContent = 'Add New Product';
+  };
+  
+  closeBtn.onclick = () => { modal.style.display = 'none'; clearForm(); };
+  window.onclick = e => { if (e.target == modal) { modal.style.display = 'none'; clearForm(); } };
+
+  // Image preview
+  imgInput.onchange = e => {
+    const file = e.target.files[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onload = () => { preview.src = reader.result; preview.style.display = 'block'; };
+      reader.readAsDataURL(file);
+    }
+  };
+
+  // Open variation modal
+  openVariationModalBtn.onclick = () => {
+    editingVariationIndex = null;
+    variationModal.style.display = 'flex';
+    document.getElementById('variationModalTitle').textContent = 'Add Variation';
+    clearVariationForm();
+  };
+  
+  closeVariationModalBtn.onclick = () => {
+    variationModal.style.display = 'none';
+    clearVariationForm();
+  };
+  
+  cancelVariationBtn.onclick = () => {
+    variationModal.style.display = 'none';
+    clearVariationForm();
+  };
+  
+  window.onclick = e => {
+    if (e.target == variationModal) {
+      variationModal.style.display = 'none';
+      clearVariationForm();
+    }
+  };
+  
+  // Handle variation color image preview
+  document.getElementById('variationColorImage').onchange = function(e) {
+    const file = e.target.files[0];
+    const preview = document.getElementById('variationColorImagePreview');
+    if (file) {
+      const reader = new FileReader();
+      reader.onload = function() {
+        preview.src = reader.result;
+        preview.style.display = 'block';
+      };
+      reader.readAsDataURL(file);
+    } else {
+      preview.style.display = 'none';
+    }
+  };
+  
+  // Save variation from modal
+  saveVariationBtn.onclick = () => {
+    const color = document.getElementById('variationColor').value.trim();
+    const size = document.getElementById('variationSize').value.trim();
+    const weight = document.getElementById('variationWeight').value.trim();
+    const stock = document.getElementById('variationStock').value.trim();
+    const price = document.getElementById('variationPrice').value.trim();
+    const colorImageFile = document.getElementById('variationColorImage').files[0];
+    const existingImage = document.getElementById('variationColorExistingImage').value;
+    
+    if (!stock) {
+      showCustomAlert('Please enter stock quantity.', 'warning', 'Stock Required');
+      return;
+    }
+    
+    // Validate stock is not negative
+    const stockValue = parseInt(stock);
+    if (isNaN(stockValue) || stockValue < 0) {
+      showCustomAlert('Stock quantity must be a positive number (0 or greater).', 'warning', 'Invalid Stock');
+      document.getElementById('variationStock').focus();
+      return;
+    }
+    
+    const variationData = {
+      color: color,
+      size: size,
+      weight: weight,
+      stock: parseInt(stock),
+      price: price ? parseFloat(price) : null,
+      color_image_url: existingImage,
+      color_image_file: colorImageFile
+    };
+    
+    if (editingVariationIndex !== null) {
+      // Update existing variation
+      variations[editingVariationIndex] = variationData;
+    } else {
+      // Add new variation
+      variations.push(variationData);
+    }
+    
+    renderVariationsList();
+    variationModal.style.display = 'none';
+    clearVariationForm();
+  };
+  
+  // Clear variation form
+  function clearVariationForm() {
+    variationForm.reset();
+    document.getElementById('variationColorImagePreview').src = '';
+    document.getElementById('variationColorImagePreview').style.display = 'none';
+    document.getElementById('variationColorExistingImage').value = '';
+    editingVariationIndex = null;
+  }
+  
+  // Render variations list
+  function renderVariationsList() {
+    const list = document.getElementById('variationsList');
+    list.innerHTML = '';
+    
+    if (variations.length === 0) {
+      list.innerHTML = '<div style="text-align:center;padding:20px;color:var(--muted);">No variations added yet.</div>';
+      return;
+    }
+    
+    variations.forEach((variation, index) => {
+      const item = document.createElement('div');
+      item.className = 'variation-item-display';
+      
+      const details = [];
+      if (variation.color) details.push(`<span><strong>Color:</strong> ${variation.color}</span>`);
+      if (variation.size) details.push(`<span><strong>Size:</strong> ${variation.size}</span>`);
+      if (variation.weight) details.push(`<span><strong>Weight:</strong> ${variation.weight}</span>`);
+      details.push(`<span><strong>Stock:</strong> ${variation.stock}</span>`);
+      if (variation.price) details.push(`<span><strong>Price:</strong> ₱${variation.price}</span>`);
+      
+      const colorImageHtml = variation.color_image_url ? 
+        `<img src="/static/uploads/${variation.color_image_url}" style="max-width:40px;max-height:40px;border-radius:4px;margin-left:8px;vertical-align:middle;" alt="Color">` : '';
+      
+      item.innerHTML = `
+        <div class="variation-item-info">
+          <div class="variation-label">
+            Variation ${index + 1}
+            ${colorImageHtml}
+          </div>
+          <div class="variation-details">${details.join('')}</div>
+        </div>
+        <div class="variation-item-actions">
+          <button type="button" class="edit-variation-btn" onclick="editVariation(${index})">
+            <i class="fa-solid fa-pen"></i> Edit
+          </button>
+          <button type="button" class="remove-variation-display-btn" onclick="removeVariation(${index})">
+            <i class="fa-solid fa-trash"></i> Remove
+          </button>
+        </div>
+      `;
+      
+      list.appendChild(item);
+    });
+  }
+  
+  // Edit variation
+  function editVariation(index) {
+    const variation = variations[index];
+    editingVariationIndex = index;
+    
+    document.getElementById('variationColor').value = variation.color || '';
+    document.getElementById('variationSize').value = variation.size || '';
+    document.getElementById('variationWeight').value = variation.weight || '';
+    document.getElementById('variationStock').value = variation.stock || '';
+    document.getElementById('variationPrice').value = variation.price || '';
+    document.getElementById('variationColorExistingImage').value = variation.color_image_url || '';
+    
+    if (variation.color_image_url) {
+      const preview = document.getElementById('variationColorImagePreview');
+      preview.src = `/static/uploads/${variation.color_image_url}`;
+      preview.style.display = 'block';
+    }
+    
+    document.getElementById('variationModalTitle').textContent = 'Edit Variation';
+    variationModal.style.display = 'flex';
+  }
+  
+  // Remove variation
+  function removeVariation(index) {
+    showCustomConfirm('Are you sure you want to remove this variation?', function() {
+      variations.splice(index, 1);
+      renderVariationsList();
+    });
+  }
+  
+  // Build form data with variations before submit
+  function buildVariationsFormData(formData) {
+    // Add variation data to FormData
+    variations.forEach((variation, index) => {
+      // Add text fields
+      if (variation.color) formData.append(`variations[${index}][color]`, variation.color);
+      if (variation.size) formData.append(`variations[${index}][size]`, variation.size);
+      if (variation.weight) formData.append(`variations[${index}][weight]`, variation.weight);
+      formData.append(`variations[${index}][stock]`, variation.stock);
+      if (variation.price) formData.append(`variations[${index}][price]`, variation.price);
+      if (variation.color_image_url) {
+        formData.append(`variations[${index}][color_existing_image]`, variation.color_image_url);
+      }
+      
+      // Handle color image file if it exists
+      if (variation.color_image_file) {
+        formData.append(`variations[${index}][color_image]`, variation.color_image_file);
+      }
+    });
+  }
+
+  // 🧹 Clear form
+  function clearForm() {
+    form.reset();
+    preview.src = "";
+    preview.style.display = "none";
+    variations = [];
+    renderVariationsList();
+    editingProductId = null;
+  }
+
+  // ✏️ Edit product
+  function editProduct(productId) {
+    editingProductId = productId;
+      modal.style.display = "flex";
+    document.querySelector('.modal-header span').textContent = 'Edit Product';
+    
+    // Fetch product details from server
+    fetch(`/get_product/${productId}`)
+    .then(response => response.json())
+    .then(data => {
+      if (data.success) {
+        const product = data.product;
+        
+        // Fill form with product data
+        document.getElementById('productName').value = product.name;
+        document.getElementById('productCategory').value = product.category;
+        document.getElementById('productPrice').value = product.price;
+        document.getElementById('productDescription').value = product.description;
+        
+        // Set image preview
+        if (product.image_url) {
+          preview.src = `/static/uploads/${product.image_url}`;
+          preview.style.display = 'block';
+        }
+        
+        // Clear and populate variations
+        variations = [];
+        
+        // Check if product has new variations format
+        if (product.variations && Array.isArray(product.variations) && product.variations.length > 0) {
+          // New format: array of variation objects
+          variations = product.variations.map(v => ({
+            color: v.color || '',
+            size: v.size || '',
+            weight: v.weight || '',
+            stock: v.stock || 0,
+            price: v.price || null,
+            color_image_url: v.color_image_url || ''
+          }));
+              } else {
+          // Old format: separate colors, sizes, weights arrays - convert to new format
+          const colors = product.colors || [];
+          const sizes = product.sizes || [];
+          const weights = product.weights || [];
+          
+          // Convert old format to new format
+          const maxLen = Math.max(colors.length, sizes.length, weights.length, 1);
+          for (let i = 0; i < maxLen; i++) {
+            const variation = {
+              color: (colors[i] && (typeof colors[i] === 'object' ? colors[i].value : colors[i])) || "",
+              size: (sizes[i] && (typeof sizes[i] === 'object' ? sizes[i].value : sizes[i])) || "",
+              weight: (weights[i] && (typeof weights[i] === 'object' ? weights[i].value : weights[i])) || "",
+              stock: product.stock || 0,
+              price: (sizes[i] && typeof sizes[i] === 'object' && sizes[i].price) || 
+                     (weights[i] && typeof weights[i] === 'object' && weights[i].price) || null,
+              color_image_url: (colors[i] && typeof colors[i] === 'object' && colors[i].image_url) || ""
+            };
+            variations.push(variation);
+          }
+        }
+        
+        renderVariationsList();
+      } else {
+        showCustomAlert('Error loading product: ' + data.message, 'error', 'Load Error');
+        modal.style.display = 'none';
+      }
+    })
+    .catch(error => {
+      console.error('Error:', error);
+      showCustomAlert('An error occurred while loading the product.', 'error', 'Network Error');
+      modal.style.display = 'none';
+    });
+  }
+
+  // 📦 Archive product
+  function archiveProduct(productId) {
+    showCustomConfirm('Are you sure you want to archive this product?', function() {
+      fetch(`/archive_product/${productId}`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        }
+      })
+      .then(response => response.json())
+      .then(data => {
+        if (data.success) {
+          showCustomAlert('Product archived successfully!', 'success', 'Archived');
+          location.reload(); // Refresh the page to show updated list
+        } else {
+          showCustomAlert('Error: ' + data.message, 'error', 'Archive Error');
+        }
+      })
+      .catch(error => {
+        console.error('Error:', error);
+        showCustomAlert('An error occurred while archiving the product.', 'error', 'Network Error');
+      });
+    });
+  }
+
+  // ✅ Save Product
+  document.getElementById("saveProductBtn").addEventListener("click", () => {
+    // Validate required fields
+    if (!form.querySelector('#productName').value || !form.querySelector('#productCategory').value || 
+        !form.querySelector('#productPrice').value || !form.querySelector('#productDescription').value) {
+      showCustomAlert('Please fill in all required fields.', 'warning', 'Validation Error');
+      return;
+    }
+    
+    // Validate that at least one variation exists with stock
+    if (variations.length === 0) {
+      showCustomAlert('Please add at least one product variation.', 'warning', 'Variation Required');
+      return;
+    }
+    
+    let hasValidVariation = false;
+    variations.forEach(v => {
+      if (v.stock && parseInt(v.stock) >= 0) {
+        hasValidVariation = true;
+      }
+    });
+    
+    if (!hasValidVariation) {
+      showCustomAlert('Please ensure at least one variation has a valid stock quantity.', 'warning', 'Stock Required');
+      return;
+    }
+
+    // Build form data with variations
+    const formData = new FormData(form);
+    buildVariationsFormData(formData);
+
+    const url = editingProductId ? `/edit_product/${editingProductId}` : '/add_product';
+    
+    fetch(url, {
+      method: 'POST',
+      body: formData
+    })
+    .then(response => response.json())
+    .then(data => {
+      if (data.success) {
+        showCustomAlert(data.message || 'Product saved successfully!', 'success', 'Success');
+        modal.style.display = 'none';
+        clearForm();
+        location.reload(); // Refresh the page to show updated list
+      } else {
+        showCustomAlert('Error: ' + data.message, 'error', 'Save Error');
+      }
+    })
+    .catch(error => {
+      console.error('Error:', error);
+      showCustomAlert('An error occurred while saving the product.', 'error', 'Network Error');
+    });
+  });
+
+  // Logout confirmation
+  function confirmLogout() {
+    showCustomConfirm('Are you sure you want to logout?', function() {
+      window.location.href = "{{ url_for('logout') }}";
+    });
+  }
+
+</script>
+
+</body>
+</html>

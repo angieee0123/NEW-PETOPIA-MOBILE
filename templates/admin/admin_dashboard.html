@@ -1,0 +1,1554 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Petopia • Admin Dashboard</title>
+
+  <!-- Fonts + Icons + Chart.js -->
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+
+  <style>
+    :root{
+      --bg: #f6f8ff;
+      --panel: rgba(255,255,255,.60);
+      --panel-strong: rgba(255,255,255,.95);
+      --text: #0b0f1a;
+      --muted: #5b6378;
+      --accent: #7cf4d1;
+      --accent-2: #8bb6ff;
+      --glass-shadow: 0 10px 30px rgba(16,24,40,.08);
+      --card-radius: 12px;
+      --gap: 18px;
+      --sidebar-w: 260px;
+    }
+    *{box-sizing:border-box}
+    body{
+      margin:0;
+      font-family: "Inter", system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
+      background: var(--bg);
+      color: var(--text);
+      min-height:100vh;
+      display:flex;
+      -webkit-font-smoothing:antialiased;
+      -moz-osx-font-smoothing:grayscale;
+    }
+
+    /* SIDEBAR */
+    .sidebar{ width:var(--sidebar-w); position:fixed; top:0; left:0; bottom:0; padding:22px 18px; background:var(--panel-strong); backdrop-filter:blur(10px); box-shadow:var(--glass-shadow); display:flex; flex-direction:column; gap:14px; z-index:50; }
+    .brand{ display:flex; align-items:center; gap:10px; margin-bottom:6px; }
+    .brand .logo{ width:44px; height:44px; border-radius:10px; background:linear-gradient(135deg,var(--accent),var(--accent-2)); display:flex; align-items:center; justify-content:center; color:#051014; font-weight:800; font-size:1.05rem; box-shadow:0 6px 18px rgba(139,182,255,.09); }
+    .brand .title{ font-weight:800; letter-spacing:0.3px; color:#23272f; font-size:1.05rem; }
+
+    nav.side-nav{ display:flex; flex-direction:column; gap:6px; margin-top:8px; padding-top:6px; }
+    /* default nav link style */
+    nav.side-nav > a,
+    .dropdown > .dropdown-toggle {
+      display:flex;
+      gap:12px;
+      align-items:center;
+      padding:10px 12px;
+      border-radius:10px;
+      color:var(--text);
+      text-decoration:none;
+      font-weight:600;
+      cursor:pointer;
+      transition:all .16s ease;
+    }
+    nav.side-nav a i{ width:20px; text-align:center; color:#5b6378; }
+    nav.side-nav a span{ font-size:0.95rem; color:var(--text); }
+    /* active / hover */
+    nav.side-nav a:hover,
+    nav.side-nav a.active,
+    .dropdown > .dropdown-toggle.active,
+    .dropdown > .dropdown-toggle:hover{
+      background: linear-gradient(135deg, var(--accent), var(--accent-2));
+      color:#051014;
+      box-shadow: 0 8px 26px rgba(139,182,255,.08);
+    }
+
+    .sidebar .spacer{ flex:1 }
+    .sidebar .small{ font-size:0.85rem; color:var(--muted); text-align:center; padding:6px 8px; }
+
+    /* Dropdown */
+    .dropdown { display:flex; flex-direction:column; }
+    .dropdown-toggle { position:relative; }
+    .dropdown-toggle i.chev { margin-left:auto; transition: transform .2s ease; color: #5b6378; }
+    .dropdown.open .dropdown-toggle i.chev { transform: rotate(180deg); }
+
+    /* Dropdown menu container (different bg) */
+    .dropdown-menu {
+      display:none;
+      flex-direction:column;
+      margin-left:12px;
+      gap:4px;
+      background: #eef3ff; /* custom dropdown background you asked for */
+      border-radius: 8px;
+      padding: 6px;
+      box-shadow: 0 4px 12px rgba(0,0,0,.06);
+    }
+    .dropdown.open .dropdown-menu { display:flex; }
+
+    /* links inside dropdown - override global nav styles to avoid covering container bg */
+    .dropdown-menu a {
+      padding:8px 12px;
+      font-weight:500;
+      font-size:0.95rem;
+      border-radius:6px;
+      background: transparent; /* keep container bg visible */
+      display:flex;
+      align-items:center;
+      gap:10px;
+      color:var(--text);
+      text-decoration:none;
+    }
+    .dropdown-menu a:hover { background: rgba(139,182,255,0.12); color:#051014; }
+
+    /* small circular badge to the right of a link */
+    .side-badge {
+      margin-left:auto;
+      background: var(--accent-2);
+      color: #051014;
+      border-radius: 999px;
+      padding: 2px 7px;
+      font-weight:800;
+      font-size:0.72rem;
+      display:inline-block;
+      line-height:1;
+    }
+
+    /* MAIN */
+    .main{ margin-left:calc(var(--sidebar-w) + 20px); padding:26px; flex:1; display:flex; flex-direction:column; gap:var(--gap); }
+    header.topbar{ display:flex; justify-content:space-between; align-items:center; gap:12px; background:var(--panel); padding:12px 16px; border-radius:12px; box-shadow:var(--glass-shadow); }
+    .search{ display:flex; align-items:center; gap:8px; flex:1; max-width:720px; }
+    .search input{ flex:1; padding:10px 12px; border-radius:10px; border:1px solid rgba(11,15,26,.06); background:#fff; font-size:0.95rem; }
+    .top-actions{ display:flex; gap:8px; align-items:center; }
+    .icon-btn{ position:relative; border:none; background:transparent; font-size:1.05rem; padding:8px; border-radius:8px; cursor:pointer; color:var(--text); }
+    .icon-btn:hover{ color:var(--accent-2); }
+    .badge{ position:absolute; top:4px; right:4px; background:var(--accent-2); color:#051014; border-radius:999px; padding:1px 4px; font-weight:800; font-size:0.6rem; }
+    /* GRID */
+    .grid-4{ display:grid; grid-template-columns:repeat(auto-fit,minmax(200px,1fr)); gap:var(--gap); }
+    .stat-card{ background:linear-gradient(180deg,rgba(255,255,255,0.98),rgba(250,250,255,0.96)); border-radius:var(--card-radius); padding:16px; box-shadow:var(--glass-shadow); display:flex; justify-content:space-between; align-items:center; gap:12px; }
+    .stat-left small{ color:var(--muted); font-weight:600; }
+    .stat-left h3{ margin:0; font-size:1.15rem; }
+    .stat-right{ width:56px; height:56px; border-radius:12px; display:flex; align-items:center; justify-content:center; font-size:1.1rem; background:linear-gradient(135deg,rgba(139,182,255,0.12),rgba(124,244,209,0.10)); color:var(--accent-2); }
+    .status-pill{ display:inline-block; padding:4px 10px; border-radius:999px; font-weight:700; font-size:0.78rem; border:1px solid transparent; }
+    .status-pending{ background:rgba(255,184,107,.2); color:#ffb86b; border-color:rgba(255,184,107,.45); }
+    .status-processing{ background:rgba(139,182,255,.2); color:var(--accent-2); border-color:rgba(139,182,255,.45); }
+    .status-shipped{ background:rgba(124,244,209,.2); color:var(--accent); border-color:rgba(124,244,209,.45); }
+    .status-delivered{ background:rgba(74,222,128,.2); color:#4ade80; border-color:rgba(74,222,128,.45); }
+    .status-cancelled{ background:rgba(239,68,68,.15); color:#ef4444; border-color:rgba(239,68,68,.35); }
+    .panels{ display:grid; grid-template-columns:1fr 420px; gap:var(--gap); }
+    .panel{ background:var(--panel-strong); border-radius:12px; padding:14px; box-shadow:var(--glass-shadow); }
+    .panel h4{ margin:0 0 12px 0; font-size:1.05rem; color:#23272f; }
+    table.clean{ width:100%; border-collapse:collapse; font-size:0.95rem; }
+    table.clean thead th{ text-align:left; font-weight:700; color:#3b4250; padding:10px; background:rgba(11,15,26,.03); }
+    table.clean tbody td{ padding:10px; border-bottom:1px solid rgba(11,15,26,.04); color:#1b2230; }
+    table.clean tbody tr:hover td{ background:rgba(139,182,255,.03); }
+    .chart-wrapper{ background:#fff; padding:12px; border-radius:10px; box-shadow:var(--glass-shadow); height:260px; }
+    footer{ margin-top:16px; padding:18px; text-align:center; color:var(--muted); font-size:0.9rem; }
+    @media(max-width:980px){ .panels{grid-template-columns:1fr;} .main{margin-left:calc(var(--sidebar-w) + 12px); padding:18px;} .sidebar{width:220px} }
+    @media(max-width:700px){ .sidebar{position:static; width:100%; display:none;} body{display:block;} .main{margin-left:0; padding:16px;} }
+  </style>
+</head>
+<body>
+  <aside class="sidebar">
+    <div class="brand"><div class="logo">P</div><div class="title">Petopia</div></div>
+    <nav class="side-nav">
+      <a href="{{ url_for('admin_dashboard') }}" class="active"><i class="fa-solid fa-chart-line"></i><span>Overview / Stats</span></a>
+
+      <!-- User Management Dropdown -->
+      <div class="dropdown">
+        <a href="#" class="dropdown-toggle">
+          <i class="fa-solid fa-users"></i><span>User Management</span>
+          <i class="fa-solid fa-chevron-down chev"></i>
+        </a>
+
+        <div class="dropdown-menu">
+          <a href="{{ url_for('admin_all_users') }}" data-path="users.html">
+              <i class="fa-solid fa-user"></i>
+              <span>View All Users</span>
+          </a>
+
+          <a href="{{ url_for('admin_seller_requests') }}" data-path="seller_request.html">
+              <i class="fa-solid fa-store"></i>
+              <span>Seller Requests</span>
+              <span id="sellerBadge" class="side-badge" style="display:none">0</span>
+          </a>
+
+
+          <a href="{{ url_for('admin_rider_requests') }}" data-path="rider_request.html">
+              <i class="fa-solid fa-motorcycle"></i>
+              <span>Rider Requests</span>
+              <span id="riderBadge" class="side-badge" style="display:none">0</span>
+          </a>
+
+        </div>
+      </div>
+
+      <a href="{{ url_for('admin_product_management') }}" data-path="products.html"><i class="fa-solid fa-box"></i><span>Product Management</span></a>
+      <a href="{{ url_for('admin_order_management') }}" data-path="orders.html"><i class="fa-solid fa-cart-shopping"></i><span>Order Management</span></a>
+      <a href="{{ url_for('admin_commission') }}" data-path="commission.html"><i class="fa-solid fa-sack-dollar"></i><span>Commission Tracking</span></a>
+      <a href="{{ url_for('admin_offenses') }}" data-path="offenses.html"><i class="fa-solid fa-triangle-exclamation"></i><span>Offenses & Violations</span></a>
+      <a href="{{ url_for('admin_reports') }}" data-path="reports.html"><i class="fa-solid fa-file-lines"></i><span>Reports & Analytics</span></a>
+      <a href="#" onclick="confirmLogout()"><i class="fa-solid fa-right-from-bracket"></i><span>Logout</span></a>
+    </nav>
+    <div class="spacer"></div>
+    <div class="small">Signed in as <strong>Admin</strong></div>
+  </aside>
+
+  <!-- MAIN -->
+  <main class="main">
+    <header class="topbar">
+      <div style="display:flex;gap:12px;align-items:center;flex:1">
+        <div style="min-width:260px;">
+          <div style="font-weight:800;font-size:1.05rem">Welcome back, Admin 🐾</div>
+          <div style="font-size:0.88rem;color:var(--muted)">Control center of the marketplace</div>
+        </div>
+        <div class="search" style="margin-left:12px;">
+          <input type="text" id="searchInput" placeholder="Search users, products, orders..." />
+          <button class="icon-btn" id="searchBtn"><i class="fa-solid fa-magnifying-glass"></i></button>
+        </div>
+      </div>
+
+      <div class="top-actions">
+        <button class="icon-btn" id="notifBtn"><i class="fa-regular fa-bell"></i><span class="badge" id="notifBadge" style="display:none">0</span></button>
+        <button class="icon-btn"><i class="fa-regular fa-envelope"></i></button>
+      </div>
+    </header>
+
+    <!-- overview stats -->
+    <section class="grid-4" aria-hidden="false">
+      <div class="stat-card"><div class="stat-left"><small>Total Sales</small><h3 id="totalSales">₱ 0.00</h3></div><div class="stat-right"><i class="fa-solid fa-peso-sign"></i></div></div>
+      <div class="stat-card"><div class="stat-left"><small>Total Users</small><h3 id="totalUsers">0</h3></div><div class="stat-right"><i class="fa-solid fa-users"></i></div></div>
+      <div class="stat-card"><div class="stat-left"><small>Total Products</small><h3 id="totalProducts">0</h3></div><div class="stat-right"><i class="fa-solid fa-box"></i></div></div>
+      <div class="stat-card"><div class="stat-left"><small>Total Commission</small><h3 id="totalCommissionStat">₱ 0.00</h3></div><div class="stat-right"><i class="fa-solid fa-sack-dollar"></i></div></div>
+    </section>
+
+    <!-- panels -->
+    <section class="panels">
+      <div>
+        <div class="panel" style="margin-bottom:var(--gap);">
+          <h4>Recent Offenses & Violations</h4>
+          <table class="clean">
+            <thead><tr><th>User</th><th>Type</th><th>Level</th><th>Date</th></tr></thead>
+            <tbody id="offenseTable">
+              <tr><td colspan="4" style="text-align:center;color:var(--muted);font-weight:600;padding:20px;">Loading offenses...</td></tr>
+            </tbody>
+          </table>
+          <a href="{{ url_for('admin_offenses') }}" data-role="offense-view-all" style="display:none;text-align:right;margin-top:10px;color:var(--accent-2);font-weight:600;">View all →</a>
+        </div>
+
+        <!-- ✅ Recent Orders -->
+        <div class="panel">
+          <h4>Recent Orders</h4>
+          <table class="clean">
+            <thead>
+              <tr><th>Order ID</th><th>Customer</th><th>Status</th><th>Date</th></tr>
+            </thead>
+            <tbody>
+              {% if recent_orders %}
+                {% for order in recent_orders %}
+                  <tr>
+                    <td>#{{ order.id }}</td>
+                    <td>{{ order.customer_name or '—' }}</td>
+                    <td><span class="status-pill {{ order.status_class }}">{{ order.status_label }}</span></td>
+                    <td>{{ order.created_at_display }}</td>
+                  </tr>
+                {% endfor %}
+              {% else %}
+                <tr>
+                  <td colspan="4" style="text-align:center;color:var(--muted);font-weight:600;">No recent orders yet.</td>
+                </tr>
+              {% endif %}
+            </tbody>
+          </table>
+          <!-- View all link -->
+          <a href="{{ url_for('admin_order_management') }}" data-role="orders-view-all" style="display:block;text-align:right;margin-top:10px;color:var(--accent-2);font-weight:600;">View all →</a>
+        </div>
+      </div>
+
+
+      <aside style="display:flex;flex-direction:column;gap:var(--gap);">
+        <div class="panel chart-wrapper">
+          <h4>Sales Trend (7 days)</h4>
+          <canvas id="salesChart"></canvas>
+        </div>
+        <div class="panel">
+          <h4>Commission Snapshot</h4>
+          <table class="clean">
+            <thead><tr><th>Source</th><th>Amount</th><th>Percentage</th></tr></thead>
+            <tbody id="commissionTable">
+              <tr><td colspan="3" style="text-align:center;color:var(--muted);font-weight:600;padding:20px;">Loading commission data...</td></tr>
+            </tbody>
+          </table>
+          <div id="commissionSummary" style="margin-top:12px;">
+            <strong>Total Commission:</strong> <span id="totalCommission">₱ 0.00</span><br>
+            <strong>This Month:</strong> <span id="thisMonthCommission">₱ 0.00</span>
+          </div>
+        </div>
+      </aside>
+    </section>
+
+    <footer>© 2025 Petopia — Admin Dashboard</footer>
+  </main>
+
+  <!-- Pending counts from backend -->
+  <meta id="pendingCounts" data-seller="{{ seller_pending_count|default(0) }}" data-rider="{{ rider_pending_count|default(0) }}">
+
+  <!-- Chart.js + behavior JS -->
+  <script>
+    // Custom alert function to replace browser alert dialogs
+    function showCustomAlert(message, type = 'error', title = null) {
+      const div = document.createElement('div');
+      div.id = 'customAlertModal';
+      div.style = 'position:fixed;top:0;left:0;width:100vw;height:100vh;z-index:9999;background:rgba(0,0,0,.25);backdrop-filter:blur(2px);display:flex;align-items:center;justify-content:center;';
+      
+      // Determine icon and colors based on type
+      let iconBg, iconColor, iconClass, alertTitle, borderColor;
+      const errorColor = '#ff6b6b';
+      const successColor = '#4ade80';
+      const warningColor = '#fbbf24';
+      const infoColor = '#8bb6ff';
+      
+      if (type === 'success') {
+        iconBg = 'rgba(74,222,128,.15)';
+        iconColor = successColor;
+        iconClass = 'fa-circle-check';
+        alertTitle = title || 'Success';
+        borderColor = successColor;
+      } else if (type === 'warning') {
+        iconBg = 'rgba(251,191,36,.15)';
+        iconColor = warningColor;
+        iconClass = 'fa-triangle-exclamation';
+        alertTitle = title || 'Warning';
+        borderColor = warningColor;
+      } else if (type === 'info') {
+        iconBg = 'rgba(139,182,255,.15)';
+        iconColor = infoColor;
+        iconClass = 'fa-circle-info';
+        alertTitle = title || 'Notice';
+        borderColor = infoColor;
+      } else {
+        // error (default)
+        iconBg = 'rgba(255,107,107,.15)';
+        iconColor = errorColor;
+        iconClass = 'fa-circle-exclamation';
+        alertTitle = title || 'Error';
+        borderColor = errorColor;
+      }
+      
+      div.innerHTML = `
+        <div style="background:rgba(255,255,255,.97);border-radius:18px;max-width:500px;width:90vw;box-shadow:0 10px 40px rgba(16,24,40,.22);position:relative;overflow:hidden;">
+          <div style="padding:32px;text-align:center;">
+            <div style="width:64px;height:64px;border-radius:50%;background:${iconBg};display:flex;align-items:center;justify-content:center;margin:0 auto 20px;border:2px solid ${borderColor};">
+              <i class="fa-solid ${iconClass}" style="font-size:2rem;color:${iconColor};"></i>
+            </div>
+            <h3 style="font-size:1.5rem;font-weight:800;color:#23272f;margin-bottom:12px;">${alertTitle}</h3>
+            <p style="color:#5b6378;font-weight:600;font-size:1rem;line-height:1.6;margin-bottom:24px;white-space:pre-line;">${message}</p>
+            <div style="display:flex;gap:12px;justify-content:center;">
+              <button id="alertOk" style="padding:12px 32px;border-radius:10px;background:linear-gradient(135deg, var(--accent), var(--accent-2));color:#051014;font-weight:700;border:none;cursor:pointer;font-size:1rem;box-shadow:0 8px 26px rgba(139,182,255,.08);transition:all .2s ease;">OK</button>
+            </div>
+          </div>
+        </div>
+      `;
+      document.body.appendChild(div);
+      
+      const closeHandler = function() {
+        div.remove();
+      };
+      
+      document.getElementById('alertOk').addEventListener('click', closeHandler);
+      
+      div.addEventListener('click', function(e) {
+        if (e.target === div) closeHandler();
+      });
+      
+      const escapeHandler = function(e) {
+        if (e.key === 'Escape') {
+          closeHandler();
+          document.removeEventListener('keydown', escapeHandler);
+        }
+      };
+      document.addEventListener('keydown', escapeHandler);
+    }
+
+    // Custom confirmation function to replace browser confirm dialogs
+    function showCustomConfirm(message, onConfirm, onCancel = null) {
+      const div = document.createElement('div');
+      div.id = 'customConfirmModal';
+      div.style = 'position:fixed;top:0;left:0;width:100vw;height:100vh;z-index:9999;background:rgba(0,0,0,.25);backdrop-filter:blur(2px);display:flex;align-items:center;justify-content:center;';
+      
+      div.innerHTML = `
+        <div style="background:rgba(255,255,255,.97);border-radius:18px;max-width:500px;width:90vw;box-shadow:0 10px 40px rgba(16,24,40,.22);position:relative;overflow:hidden;">
+          <div style="padding:32px;text-align:center;">
+            <div style="width:64px;height:64px;border-radius:50%;background:rgba(251,191,36,.15);display:flex;align-items:center;justify-content:center;margin:0 auto 20px;border:2px solid #fbbf24;">
+              <i class="fa-solid fa-circle-question" style="font-size:2rem;color:#fbbf24;"></i>
+            </div>
+            <h3 style="font-size:1.5rem;font-weight:800;color:#23272f;margin-bottom:12px;">Confirm Action</h3>
+            <p style="color:#5b6378;font-weight:600;font-size:1rem;line-height:1.6;margin-bottom:24px;">${message}</p>
+            <div style="display:flex;gap:12px;justify-content:center;">
+              <button id="confirmCancel" style="padding:12px 24px;border-radius:10px;background:#e5e8f0;color:#23272f;font-weight:700;border:none;cursor:pointer;font-size:1rem;transition:all .2s ease;">Cancel</button>
+              <button id="confirmOk" style="padding:12px 24px;border-radius:10px;background:linear-gradient(135deg, var(--accent), var(--accent-2));color:#051014;font-weight:700;border:none;cursor:pointer;font-size:1rem;box-shadow:0 8px 26px rgba(139,182,255,.08);transition:all .2s ease;">Confirm</button>
+            </div>
+          </div>
+        </div>
+      `;
+      document.body.appendChild(div);
+      
+      const closeHandler = function() {
+        div.remove();
+      };
+      
+      document.getElementById('confirmOk').addEventListener('click', function() {
+        closeHandler();
+        if (onConfirm) onConfirm();
+      });
+      
+      document.getElementById('confirmCancel').addEventListener('click', function() {
+        closeHandler();
+        if (onCancel) onCancel();
+      });
+      
+      div.addEventListener('click', function(e) {
+        if (e.target === div) {
+          closeHandler();
+          if (onCancel) onCancel();
+        }
+      });
+      
+      const escapeHandler = function(e) {
+        if (e.key === 'Escape') {
+          closeHandler();
+          if (onCancel) onCancel();
+          document.removeEventListener('keydown', escapeHandler);
+        }
+      };
+      document.addEventListener('keydown', escapeHandler);
+    }
+
+    // --- Admin Messaging (Customer Service with Sellers) ---
+    // Reuse backend messaging API; admin is treated as 'buyer' in admin-seller threads
+    let adminConversationsCache = [];
+    let adminMessagesCache = {};
+
+    async function fetchAdminConvos(){
+      try{
+        const res = await fetch('/messages/conversations', { credentials:'same-origin' });
+        if (!res.ok) throw new Error('Failed to fetch conversations');
+        const data = await res.json();
+        adminConversationsCache = Array.isArray(data) ? data : [];
+        return adminConversationsCache;
+      }catch(e){
+        console.error('Admin: error fetching conversations:', e);
+        return [];
+      }
+    }
+    async function fetchAdminConvMsgs(convId){
+      try{
+        const res = await fetch(`/messages/conversations/${convId}`, { credentials:'same-origin' });
+        if (!res.ok) throw new Error('Failed to fetch messages');
+        const data = await res.json();
+        adminMessagesCache[convId] = Array.isArray(data) ? data : [];
+        return adminMessagesCache[convId];
+      }catch(e){
+        console.error('Admin: error fetching messages:', e);
+        return [];
+      }
+    }
+    async function sendAdminMessage(convId, text){
+      const body = String(text||'').trim();
+      if (!body) return;
+      const res = await fetch('/messages/send', {
+        method:'POST',
+        headers:{ 'Content-Type':'application/json' },
+        credentials:'same-origin',
+        body: JSON.stringify({ conversationId: convId, message: body })
+      });
+      if (!res.ok) throw new Error('Failed to send');
+      return await res.json();
+    }
+    async function markAdminMessagesRead(convId){
+      try{
+        await fetch('/messages/mark-read', {
+          method:'POST',
+          headers:{ 'Content-Type':'application/json' },
+          credentials:'same-origin',
+          body: JSON.stringify({ conversationId: convId })
+        });
+      }catch(e){
+        console.error('Admin: error mark read:', e);
+      }
+    }
+
+    function adminTotalUnread(){ return adminConversationsCache.reduce((s,c)=> s + (c.unreadCount||0), 0); }
+    function refreshAdminMsgBadge(){
+      const headerBtn = document.querySelector('.top-actions .fa-regular.fa-envelope')?.closest('button');
+      if (!headerBtn) return;
+      let badge = headerBtn.querySelector('.badge');
+      if (!badge){
+        badge = document.createElement('span');
+        badge.className = 'badge';
+        headerBtn.appendChild(badge);
+      }
+      const count = adminTotalUnread();
+      badge.textContent = count;
+      badge.style.display = count > 0 ? 'inline-block' : 'none';
+    }
+
+    // Build panel anchored to the envelope button
+    (function setupAdminMsgPanel(){
+      const btn = document.querySelector('.top-actions .fa-regular.fa-envelope')?.closest('button');
+      if (!btn) return;
+      const panel = document.createElement('div');
+      panel.id='adminMsgPanel';
+      panel.style.position='fixed';
+      panel.style.width='480px';
+      panel.style.maxHeight='70vh';
+      panel.style.display='none';
+      panel.style.zIndex='200';
+      panel.style.background='var(--panel-strong)';
+      panel.style.border='1px solid rgba(11,15,26,.08)';
+      panel.style.borderRadius='12px';
+      panel.style.boxShadow='var(--glass-shadow)';
+      panel.style.overflow='hidden';
+      panel.innerHTML = `
+        <div id="adminMsgArrow" style="position:absolute;top:-10px;right:20px;width:0;height:0;">
+          <div style="position:absolute;top:-1px;right:-1px;width:0;height:0;border-left:9px solid transparent;border-right:9px solid transparent;border-bottom:9px solid rgba(11,15,26,.08);"></div>
+          <div style="position:relative;width:0;height:0;border-left:8px solid transparent;border-right:8px solid transparent;border-bottom:8px solid var(--panel-strong);"></div>
+        </div>
+        <div style="padding:12px 12px 10px 12px;display:flex;align-items:center;gap:8px;justify-content:space-between;border-bottom:1px solid rgba(11,15,26,.08);">
+          <div style="display:flex;align-items:center;gap:8px;">
+            <button id="adminMsgBack" class="btn" style="display:none;padding:6px 10px;border-radius:8px;border:1px solid rgba(11,15,26,.1);background:#fff;font-weight:800;color:#23272f;cursor:pointer">←</button>
+            <div id="adminMsgTitle" style="font-weight:800;color:#23272f;">Messages</div>
+          </div>
+          <div style="display:flex;align-items:center;gap:8px;">
+            <button id="adminMsgMarkAll" class="btn" style="padding:6px 10px;border-radius:8px;border:1px solid rgba(11,15,26,.1);background:#fff;font-weight:700;color:#23272f;cursor:pointer">Mark all read</button>
+          </div>
+        </div>
+        <div id="adminInbox" style="display:grid;gap:0;max-height:calc(70vh - 56px);overflow-y:auto;background:#fff;"></div>
+        <div id="adminChat" style="display:none;max-height:58vh;grid-template-rows:auto 1fr auto;">
+          <div id="adminChatList" style="padding:12px;display:grid;gap:8px;overflow-y:auto;overflow-x:hidden;background:#fff;max-height:48vh;width:100%;box-sizing:border-box;"></div>
+          <div style="padding:10px;border-top:1px solid #e5e8f0;background:var(--panel-strong);display:flex;gap:8px;align-items:center;">
+            <input id="adminChatInput" class="input" placeholder="Type a message..." style="flex:1;border-radius:999px;">
+            <button id="adminSendBtn" class="icon-btn" title="Send" aria-label="Send"><i class="fa-solid fa-paper-plane"></i></button>
+          </div>
+        </div>
+      `;
+      document.body.appendChild(panel);
+
+      function placePanel(){
+        const rect = btn.getBoundingClientRect();
+        const width = Math.min(480, Math.max(300, Math.floor(window.innerWidth * 0.95)));
+        panel.style.width = width + 'px';
+        const margin=12; const top=rect.bottom+8; let left = rect.right - width;
+        left = Math.max(margin, Math.min(left, window.innerWidth - margin - width));
+        panel.style.top = top+'px'; panel.style.left = left+'px';
+        const arrow = panel.querySelector('#adminMsgArrow');
+        const rightOffset = Math.max(12, Math.min(width - 24, width - (rect.right - left) - 12));
+        if (arrow) arrow.style.right = rightOffset + 'px';
+      }
+      window.addEventListener('resize', function(){ if (panel.style.display==='block') placePanel(); });
+      window.addEventListener('scroll', function(){ if (panel.style.display==='block') placePanel(); }, { passive:true });
+      document.addEventListener('click', function(e){ if (!panel.contains(e.target) && e.target !== btn && !btn.contains(e.target)) panel.style.display='none'; });
+
+      function snippet(t){ const s=String(t||''); return s.length>40? s.slice(0,40)+'…': s; }
+      function timeStr(ts){ try{ return new Date(ts).toLocaleTimeString(); }catch(_){ return ''; } }
+
+      let currentConvId = null;
+      async function renderInbox(){
+        currentConvId = null;
+        document.getElementById('adminMsgTitle').textContent = 'Messages';
+        document.getElementById('adminMsgBack').style.display = 'none';
+        document.getElementById('adminMsgMarkAll').style.display = 'inline-block';
+        document.getElementById('adminChat').style.display = 'none';
+        const wrap = document.getElementById('adminInbox');
+        wrap.style.display = 'block';
+        wrap.innerHTML = '<div style="color:var(--muted);font-weight:700;text-align:center;padding:20px;">Loading...</div>';
+
+        const convos = await fetchAdminConvos();
+        adminConversationsCache = convos;
+        refreshAdminMsgBadge();
+
+        if (!convos.length){
+          wrap.innerHTML = '<div style="color:var(--muted);font-weight:700;text-align:center;padding:20px;">No conversations</div>';
+          return;
+        }
+        const sorted = convos.slice().sort((a,b)=> (b.updatedAt||0)-(a.updatedAt||0));
+        wrap.innerHTML = sorted.map(c=>{
+          const badge = c.unreadCount>0 ? `<span style="background:#ef4444;color:#fff;border-radius:999px;padding:1px 5px;font-weight:800;font-size:0.65rem;">${c.unreadCount}</span>` : '';
+          return `<button class="conv-item" data-id="${c.id}" style="text-align:left;display:flex;gap:10px;align-items:center;width:100%;padding:10px 12px;border:none;background:#fff;cursor:pointer;border-bottom:1px solid #e5e8f0;">
+            <img src="${c.avatar}" alt="${c.name}" style="width:36px;height:36px;border-radius:50%;object-fit:cover;box-shadow:0 2px 8px #eef;">
+            <div style="flex:1;min-width:0;">
+              <div style="display:flex;justify-content:space-between;align-items:center;gap:8px;">
+                <div style="font-weight:800;color:#23272f;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${c.name}</div>
+                <div style="color:var(--muted);font-size:.8rem;">${timeStr(c.updatedAt||Date.now())}</div>
+              </div>
+              <div style="display:flex;justify-content:space-between;align-items:center;gap:8px;">
+                <div style="color:${c.unreadCount>0?'#23272f':'var(--muted)'};font-weight:700;font-size:.9rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${snippet(c.lastMessage||'')}</div>
+                ${badge}
+              </div>
+            </div>
+          </button>`;
+        }).join('');
+      }
+
+      async function renderChat(){
+        if (!currentConvId) return;
+        const conv = adminConversationsCache.find(c=>c.id===currentConvId);
+        if (!conv){ await renderInbox(); return; }
+        document.getElementById('adminMsgTitle').textContent = conv.name;
+        document.getElementById('adminMsgBack').style.display = 'inline-flex';
+        document.getElementById('adminMsgMarkAll').style.display = 'none';
+        document.getElementById('adminInbox').style.display = 'none';
+        const chat = document.getElementById('adminChat'); chat.style.display = 'grid';
+        const list = document.getElementById('adminChatList');
+        list.innerHTML = '<div style="color:var(--muted);font-weight:700;text-align:center;padding:20px;">Loading...</div>';
+
+        const items = await fetchAdminConvMsgs(currentConvId);
+        adminMessagesCache[currentConvId] = items;
+        await markAdminMessagesRead(currentConvId);
+        const idx = adminConversationsCache.findIndex(c=>c.id===currentConvId);
+        if (idx>-1){ adminConversationsCache[idx].unreadCount = 0; }
+        refreshAdminMsgBadge();
+
+        if (!items.length){
+          list.innerHTML = '<div style="color:var(--muted);font-weight:700;text-align:center;padding:20px;">No messages yet</div>';
+        } else {
+          list.innerHTML = items.map(m=>{
+            const isIn = m.direction==='in';
+            const bubbleBg = isIn ? 'rgba(139,182,255,.12)' : 'rgba(124,244,209,.15)';
+            const border = isIn ? '1px solid rgba(139,182,255,.35)' : '1px solid rgba(124,244,209,.45)';
+            const justify = isIn ? 'flex-start' : 'flex-end';
+            return `<div style="display:flex;justify-content:${justify};min-width:0;width:100%;">
+              <div style="max-width:78%;min-width:0;background:${bubbleBg};border:${border};border-radius:12px;padding:8px 10px;word-wrap:break-word;overflow-wrap:break-word;word-break:break-word;overflow:hidden;box-sizing:border-box;">
+                <div style="font-weight:700;font-size:.95rem;color:#23272f;word-wrap:break-word;overflow-wrap:anywhere;word-break:break-word;white-space:pre-wrap;overflow:hidden;">${String(m.body).replace(/</g,'&lt;')}</div>
+                <div style="color:var(--muted);font-size:.75rem;margin-top:4px;">${new Date(m.createdAt).toLocaleTimeString()}</div>
+              </div>
+            </div>`;
+          }).join('');
+        }
+        list.scrollTop = list.scrollHeight;
+      }
+
+      function openConv(id){ currentConvId = Number(id); renderChat(); }
+
+      // Events
+      btn.addEventListener('click', async function(){
+        const willShow = panel.style.display === 'none';
+        panel.style.display = willShow ? 'block' : 'none';
+        if (willShow){
+          placePanel();
+          await renderInbox();
+        }
+      });
+      panel.addEventListener('click', function(e){
+        const item = e.target.closest('.conv-item'); if (item){ openConv(Number(item.dataset.id)); return; }
+      });
+      document.getElementById('adminMsgBack').addEventListener('click', function(){ currentConvId=null; renderInbox(); });
+      document.getElementById('adminMsgMarkAll').addEventListener('click', async function(){
+        // Mark all as read
+        for (const conv of adminConversationsCache) { await markAdminMessagesRead(conv.id); }
+        await fetchAdminConvos();
+        refreshAdminMsgBadge();
+        await renderInbox();
+      });
+      document.getElementById('adminSendBtn').addEventListener('click', async function(){
+        const inp = document.getElementById('adminChatInput');
+        const v = inp.value; inp.value='';
+        if (!currentConvId || !v.trim()) return;
+        try{
+          await sendAdminMessage(currentConvId, v);
+          await fetchAdminConvMsgs(currentConvId);
+          await fetchAdminConvos();
+          refreshAdminMsgBadge();
+          await renderChat();
+        }catch(e){
+          showCustomAlert('Failed to send message. Please try again.', 'error', 'Message Error');
+          console.error(e);
+        }
+      });
+      document.getElementById('adminChatInput').addEventListener('keydown', async function(e){
+        if (e.key==='Enter'){
+          e.preventDefault();
+          const v=this.value; this.value='';
+          if (!currentConvId || !v.trim()) return;
+          try{
+            await sendAdminMessage(currentConvId, v);
+            await fetchAdminConvMsgs(currentConvId);
+            await fetchAdminConvos();
+            refreshAdminMsgBadge();
+            await renderChat();
+          }catch(err){
+            showCustomAlert('Failed to send message. Please try again.', 'error', 'Message Error');
+            console.error(err);
+          }
+        }
+      });
+
+      // Initial badge refresh + polling
+      fetchAdminConvos().then(refreshAdminMsgBadge);
+      setInterval(async ()=>{
+        await fetchAdminConvos();
+        refreshAdminMsgBadge();
+        if (panel.style.display==='block'){
+          if (currentConvId){
+            await fetchAdminConvMsgs(currentConvId);
+            await renderChat();
+          } else {
+            await renderInbox();
+          }
+        }
+      }, 10000);
+    })();
+
+    // --- Admin Notifications ---
+    let adminNotificationsCache = [];
+    let adminReadNotifications = new Set(JSON.parse(localStorage.getItem('admin_read_notifications') || '[]'));
+
+    async function fetchAdminNotifications(){
+      try{
+        const res = await fetch('/admin/notifications', { credentials:'same-origin' });
+        if (!res.ok) throw new Error('Failed to fetch notifications');
+        const data = await res.json();
+        adminNotificationsCache = Array.isArray(data) ? data : [];
+        return adminNotificationsCache;
+      }catch(e){
+        console.error('Admin: error fetching notifications:', e);
+        return [];
+      }
+    }
+
+    function getUnreadCount(){
+      return adminNotificationsCache.filter(n => !adminReadNotifications.has(n.id)).length;
+    }
+
+    function refreshNotifBadge(){
+      const badge = document.getElementById('notifBadge');
+      if (!badge) return;
+      const count = getUnreadCount();
+      badge.textContent = count;
+      badge.style.display = count > 0 ? 'inline-block' : 'none';
+    }
+
+    function markNotificationRead(notifId){
+      adminReadNotifications.add(notifId);
+      localStorage.setItem('admin_read_notifications', JSON.stringify(Array.from(adminReadNotifications)));
+      refreshNotifBadge();
+    }
+
+    function markAllNotificationsRead(){
+      adminNotificationsCache.forEach(n => adminReadNotifications.add(n.id));
+      localStorage.setItem('admin_read_notifications', JSON.stringify(Array.from(adminReadNotifications)));
+      refreshNotifBadge();
+      renderNotifications();
+    }
+
+    function getNotificationLink(notif){
+      const type = notif.type || '';
+      if (type === 'seller_request' && notif.sellerId){
+        return "{{ url_for('admin_seller_requests') }}";
+      } else if (type === 'rider_request' && notif.riderId){
+        return "{{ url_for('admin_rider_requests') }}";
+      } else if (type === 'product_upload' && notif.productId){
+        return "{{ url_for('admin_product_management') }}";
+      } else if ((type === 'buyer_report' || type === 'seller_report') && notif.reportId){
+        return "{{ url_for('admin_offenses') }}";
+      } else if (type === 'buyer_signup' && notif.userId){
+        return "{{ url_for('admin_all_users') }}";
+      }
+      return null;
+    }
+
+    function renderNotifications(){
+      const list = document.getElementById('adminNotifList');
+      if (!list) return;
+
+      const sorted = adminNotificationsCache.slice().sort((a,b) => (b.timestamp||0) - (a.timestamp||0));
+      
+      if (!sorted.length){
+        list.innerHTML = '<div style="color:var(--muted);font-weight:700;text-align:center;padding:20px;">No notifications</div>';
+        return;
+      }
+
+      list.innerHTML = sorted.map(n => {
+        const isRead = adminReadNotifications.has(n.id);
+        const link = getNotificationLink(n);
+        const timeStr = n.timestamp ? new Date(n.timestamp).toLocaleString() : '';
+        const bgColor = isRead ? '#fff' : 'rgba(139,182,255,.05)';
+        const borderColor = isRead ? 'transparent' : 'rgba(139,182,255,.2)';
+        
+        const itemContent = `
+          <div style="display:flex;gap:10px;align-items:flex-start;padding:12px;border-bottom:1px solid #e5e8f0;background:${bgColor};border-left:3px solid ${borderColor};cursor:pointer;" 
+               class="notif-item" 
+               data-id="${n.id}"
+               data-link="${link || ''}">
+            <div style="flex:1;min-width:0;">
+              <div style="font-weight:800;color:#23272f;font-size:0.95rem;margin-bottom:4px;">${String(n.title || 'Notification').replace(/</g,'&lt;').replace(/>/g,'&gt;')}</div>
+              <div style="color:${isRead ? 'var(--muted)' : '#23272f'};font-size:0.9rem;line-height:1.4;">${String(n.body || '').replace(/</g,'&lt;').replace(/>/g,'&gt;')}</div>
+              <div style="color:var(--muted);font-size:0.75rem;margin-top:6px;">${timeStr}</div>
+            </div>
+            ${!isRead ? '<div style="width:8px;height:8px;background:var(--accent-2);border-radius:50%;margin-top:6px;flex-shrink:0;"></div>' : ''}
+          </div>
+        `;
+        return itemContent;
+      }).join('');
+
+      // Add click handlers to mark as read and navigate
+      list.querySelectorAll('.notif-item').forEach(item => {
+        item.addEventListener('click', function(e){
+          const notifId = item.dataset.id;
+          const link = item.dataset.link;
+          
+          // Mark as read
+          if (notifId && !adminReadNotifications.has(notifId)){
+            markNotificationRead(notifId);
+            item.style.background = '#fff';
+            item.style.borderLeftColor = 'transparent';
+            const dot = item.querySelector('div[style*="border-radius:50%"]');
+            if (dot) dot.remove();
+          }
+          
+          // Navigate if link exists
+          if (link){
+            window.location.href = link;
+          }
+        });
+      });
+    }
+
+    // Build notification panel
+    (function setupAdminNotifPanel(){
+      const btn = document.getElementById('notifBtn');
+      if (!btn) return;
+      
+      const panel = document.createElement('div');
+      panel.id = 'adminNotifPanel';
+      panel.style.position = 'fixed';
+      panel.style.width = '480px';
+      panel.style.maxHeight = '70vh';
+      panel.style.display = 'none';
+      panel.style.zIndex = '200';
+      panel.style.background = 'var(--panel-strong)';
+      panel.style.border = '1px solid rgba(11,15,26,.08)';
+      panel.style.borderRadius = '12px';
+      panel.style.boxShadow = 'var(--glass-shadow)';
+      panel.style.overflow = 'hidden';
+      panel.innerHTML = `
+        <div id="adminNotifArrow" style="position:absolute;top:-10px;right:20px;width:0;height:0;">
+          <div style="position:absolute;top:-1px;right:-1px;width:0;height:0;border-left:9px solid transparent;border-right:9px solid transparent;border-bottom:9px solid rgba(11,15,26,.08);"></div>
+          <div style="position:relative;width:0;height:0;border-left:8px solid transparent;border-right:8px solid transparent;border-bottom:8px solid var(--panel-strong);"></div>
+        </div>
+        <div style="padding:12px 12px 10px 12px;display:flex;align-items:center;gap:8px;justify-content:space-between;border-bottom:1px solid rgba(11,15,26,.08);">
+          <div style="font-weight:800;color:#23272f;">Notifications</div>
+          <button id="adminNotifMarkAll" class="btn" style="padding:6px 10px;border-radius:8px;border:1px solid rgba(11,15,26,.1);background:#fff;font-weight:700;color:#23272f;cursor:pointer;font-size:0.85rem;">Mark all read</button>
+        </div>
+        <div id="adminNotifList" style="max-height:calc(70vh - 56px);overflow-y:auto;background:#fff;"></div>
+      `;
+      document.body.appendChild(panel);
+
+      function placePanel(){
+        const rect = btn.getBoundingClientRect();
+        const width = Math.min(480, Math.max(300, Math.floor(window.innerWidth * 0.95)));
+        panel.style.width = width + 'px';
+        const margin = 12;
+        const top = rect.bottom + 8;
+        let left = rect.right - width;
+        left = Math.max(margin, Math.min(left, window.innerWidth - margin - width));
+        panel.style.top = top + 'px';
+        panel.style.left = left + 'px';
+        const arrow = panel.querySelector('#adminNotifArrow');
+        const rightOffset = Math.max(12, Math.min(width - 24, width - (rect.right - left) - 12));
+        if (arrow) arrow.style.right = rightOffset + 'px';
+      }
+
+      window.addEventListener('resize', function(){ if (panel.style.display === 'block') placePanel(); });
+      window.addEventListener('scroll', function(){ if (panel.style.display === 'block') placePanel(); }, { passive: true });
+      document.addEventListener('click', function(e){ 
+        if (!panel.contains(e.target) && e.target !== btn && !btn.contains(e.target)) {
+          panel.style.display = 'none';
+        }
+      });
+
+      btn.addEventListener('click', async function(){
+        const willShow = panel.style.display === 'none';
+        panel.style.display = willShow ? 'block' : 'none';
+        if (willShow){
+          placePanel();
+          await fetchAdminNotifications();
+          refreshNotifBadge();
+          renderNotifications();
+        }
+      });
+
+      document.getElementById('adminNotifMarkAll').addEventListener('click', function(){
+        markAllNotificationsRead();
+      });
+
+      // Initial fetch and badge refresh
+      fetchAdminNotifications().then(() => {
+        refreshNotifBadge();
+      });
+
+      // Poll for new notifications every 30 seconds
+      setInterval(async () => {
+        await fetchAdminNotifications();
+        refreshNotifBadge();
+        if (panel.style.display === 'block'){
+          renderNotifications();
+        }
+      }, 30000);
+    })();
+
+    function setActiveByPath(path) {
+      // Remove all active highlights
+      document.querySelectorAll('.side-nav a, .dropdown-toggle').forEach(el => el.classList.remove('active'));
+      document.querySelectorAll('.dropdown').forEach(d => d.classList.remove('open'));
+    
+      if (!path) return;
+    
+      // Find link either by data-path or href
+      let target = document.querySelector('[data-path="' + path + '"]');
+      if (!target) target = document.querySelector('a[href*="' + path + '"]');
+    
+      if (target) {
+        target.classList.add('active');
+    
+        // If it's inside a dropdown (e.g. All Users, Seller Requests), open dropdown
+        const parentDropdown = target.closest('.dropdown');
+        if (parentDropdown) {
+          parentDropdown.classList.add('open');
+          const toggle = parentDropdown.querySelector('.dropdown-toggle');
+          if (toggle) toggle.classList.add('active');
+        }
+      }
+    }
+    
+    document.addEventListener('DOMContentLoaded', function () {
+      let filename = location.pathname.split('/').pop() || 'overview';
+      if (!filename || filename === 'index.html') filename = 'overview';
+    
+      // ✅ If currently on admin_dashboard, highlight Overview only, close dropdowns
+      if (location.pathname.endsWith('/admin_dashboard')) {
+        // remove all previous state
+        localStorage.removeItem('activeNav');
+        setActiveByPath('admin_dashboard');
+      } else {
+        // Otherwise, use saved active path or current filename
+        const pathToUse = localStorage.getItem('activeNav') || filename;
+        setActiveByPath(pathToUse);
+      }
+    
+      // Save active state when clicking links (except dropdown toggles)
+      document.querySelectorAll('.side-nav a:not(.dropdown-toggle), .dropdown-menu a').forEach(link => {
+        link.addEventListener('click', function () {
+          const path = link.getAttribute('data-path') || link.getAttribute('href') || null;
+          if (path && !path.includes('logout')) {
+            localStorage.setItem('activeNav', path);
+            setActiveByPath(path);
+          }
+        });
+      });
+    
+      // Dropdown toggle behavior
+      document.querySelectorAll('.dropdown-toggle').forEach(toggle => {
+        toggle.addEventListener('click', function (e) {
+          e.preventDefault();
+          const parent = toggle.closest('.dropdown');
+          const wasOpen = parent.classList.contains('open');
+          parent.classList.toggle('open');
+          toggle.classList.toggle('active');
+          
+          // If User Management dropdown is being opened, remove highlight from Overview/Stats
+          const isUserManagement = toggle.querySelector('span')?.textContent.includes('User Management');
+          if (isUserManagement && !wasOpen) {
+            const overviewLink = document.querySelector('a[href*="admin_dashboard"]');
+            if (overviewLink) {
+              overviewLink.classList.remove('active');
+            }
+          }
+        });
+      });
+    
+      // ---------- Pending counts badges ----------
+      const pendingCounts = document.getElementById('pendingCounts');
+      if (pendingCounts) {
+        const sellerCount = parseInt(pendingCounts.dataset.seller) || 0;
+        const riderCount = parseInt(pendingCounts.dataset.rider) || 0;
+        const sellerBadge = document.getElementById('sellerBadge');
+        const riderBadge  = document.getElementById('riderBadge');
+    
+        if (sellerBadge) {
+          sellerBadge.style.display = sellerCount > 0 ? 'inline-block' : 'none';
+          if (sellerCount > 0) sellerBadge.textContent = sellerCount;
+        }
+        if (riderBadge) {
+          riderBadge.style.display = riderCount > 0 ? 'inline-block' : 'none';
+          if (riderCount > 0) riderBadge.textContent = riderCount;
+        }
+      }
+    
+      // Store original table data for filtering
+      let originalOffensesData = [];
+
+      // ---------- Load Recent Offenses & Violations ----------
+      async function loadRecentOffenses() {
+        const tbody = document.getElementById('offenseTable');
+        if (!tbody) return;
+        
+        try {
+          const response = await fetch('/admin/reports', { credentials: 'same-origin' });
+          if (!response.ok) throw new Error('Failed to fetch offenses');
+          
+          const reports = await response.json();
+          if (!Array.isArray(reports)) throw new Error('Invalid data format');
+          
+          // Sort by creation date (newest first) and take first 4
+          const recentOffenses = reports
+            .sort((a, b) => (b.createdAt || 0) - (a.createdAt || 0))
+            .slice(0, 4);
+          
+          // Store original data for search filtering
+          originalOffensesData = recentOffenses;
+          
+          // Map severity to level labels
+          const severityToLevel = {
+            'low': 'Warning',
+            'medium': 'Warning',
+            'high': 'Temporary Ban',
+            'critical': 'Permanent Ban'
+          };
+          
+          // Map status to additional context
+          const statusLabels = {
+            'pending': 'Pending',
+            'reviewed': 'Under Review',
+            'resolved': 'Resolved',
+            'dismissed': 'Dismissed'
+          };
+          
+          if (recentOffenses.length === 0) {
+            tbody.innerHTML = '<tr><td colspan="4" style="text-align:center;color:var(--muted);font-weight:600;padding:20px;">No offenses found.</td></tr>';
+            return;
+          }
+          
+          tbody.innerHTML = recentOffenses.map(offense => {
+            const userName = offense.userName || offense.reporter_name || 'Unknown User';
+            const offenseType = offense.offenseTypeLabel || offense.offenseType || 'Unknown';
+            const level = severityToLevel[offense.severity] || 'Warning';
+            const date = offense.createdAt 
+              ? new Date(offense.createdAt).toLocaleDateString('en-PH', { 
+                  year: 'numeric', 
+                  month: 'short', 
+                  day: 'numeric' 
+                })
+              : 'N/A';
+            
+            return `<tr>
+              <td>${escapeHtml(userName)}</td>
+              <td>${escapeHtml(offenseType)}</td>
+              <td>${escapeHtml(level)}</td>
+              <td>${escapeHtml(date)}</td>
+            </tr>`;
+          }).join('');
+          
+          // Show "View all" link if there are 4 or more offenses
+          const viewAllLink = tbody.closest('.panel').querySelector('[data-role="offense-view-all"]');
+          if (viewAllLink && reports.length >= 4) {
+            viewAllLink.style.display = 'block';
+          }
+          
+        } catch (error) {
+          console.error('Error loading recent offenses:', error);
+          tbody.innerHTML = '<tr><td colspan="4" style="text-align:center;color:var(--muted);font-weight:600;padding:20px;">Failed to load offenses. Please refresh.</td></tr>';
+        }
+      }
+      
+      // Helper function to escape HTML
+      function escapeHtml(text) {
+        const div = document.createElement('div');
+        div.textContent = text;
+        return div.innerHTML;
+      }
+      
+      // Load offenses on page load
+      loadRecentOffenses();
+    
+      // ---------- Search Functionality ----------
+      // Debounce utility function
+      function debounce(func, wait) {
+        let timeout;
+        return function executedFunction(...args) {
+          const later = () => {
+            clearTimeout(timeout);
+            func(...args);
+          };
+          clearTimeout(timeout);
+          timeout = setTimeout(later, wait);
+        };
+      }
+
+      // Filter offenses table
+      function filterOffensesTable(searchTerm) {
+        const tbody = document.getElementById('offenseTable');
+        if (!tbody) return;
+
+        if (!searchTerm || searchTerm.trim() === '') {
+          // Restore original data if search is cleared
+          if (originalOffensesData.length > 0) {
+            renderOffensesTable(originalOffensesData);
+            return;
+          }
+        }
+
+        const term = searchTerm.toLowerCase().trim();
+        const filtered = originalOffensesData.filter(offense => {
+          const userName = (offense.userName || offense.reporter_name || 'Unknown User').toLowerCase();
+          const offenseType = (offense.offenseTypeLabel || offense.offenseType || 'Unknown').toLowerCase();
+          const level = (offense.severity || '').toLowerCase();
+          const date = offense.createdAt 
+            ? new Date(offense.createdAt).toLocaleDateString('en-PH', { 
+                year: 'numeric', 
+                month: 'short', 
+                day: 'numeric' 
+              }).toLowerCase()
+            : '';
+          
+          return userName.includes(term) || 
+                 offenseType.includes(term) || 
+                 level.includes(term) || 
+                 date.includes(term);
+        });
+
+        renderOffensesTable(filtered);
+      }
+
+      // Render offenses table
+      function renderOffensesTable(offenses) {
+        const tbody = document.getElementById('offenseTable');
+        if (!tbody) return;
+
+        const severityToLevel = {
+          'low': 'Warning',
+          'medium': 'Warning',
+          'high': 'Temporary Ban',
+          'critical': 'Permanent Ban'
+        };
+
+        if (offenses.length === 0) {
+          tbody.innerHTML = '<tr><td colspan="4" style="text-align:center;color:var(--muted);font-weight:600;padding:20px;">No offenses found.</td></tr>';
+          return;
+        }
+
+        tbody.innerHTML = offenses.map(offense => {
+          const userName = offense.userName || offense.reporter_name || 'Unknown User';
+          const offenseType = offense.offenseTypeLabel || offense.offenseType || 'Unknown';
+          const level = severityToLevel[offense.severity] || 'Warning';
+          const date = offense.createdAt 
+            ? new Date(offense.createdAt).toLocaleDateString('en-PH', { 
+                year: 'numeric', 
+                month: 'short', 
+                day: 'numeric' 
+              })
+            : 'N/A';
+          
+          return `<tr>
+            <td>${escapeHtml(userName)}</td>
+            <td>${escapeHtml(offenseType)}</td>
+            <td>${escapeHtml(level)}</td>
+            <td>${escapeHtml(date)}</td>
+          </tr>`;
+        }).join('');
+      }
+
+      // Filter orders table
+      function filterOrdersTable(searchTerm) {
+        const ordersTable = document.querySelector('.panel:has(h4:contains("Recent Orders")) table.clean tbody');
+        if (!ordersTable) {
+          // Try alternative selector
+          const ordersPanel = Array.from(document.querySelectorAll('.panel')).find(p => {
+            const heading = p.querySelector('h4');
+            return heading && heading.textContent.trim() === 'Recent Orders';
+          });
+          if (!ordersPanel) return;
+          const tbody = ordersPanel.querySelector('table.clean tbody');
+          if (!tbody) return;
+          
+          filterOrdersInTable(tbody, searchTerm);
+          return;
+        }
+        filterOrdersInTable(ordersTable, searchTerm);
+      }
+
+      function filterOrdersInTable(tbody, searchTerm) {
+        const rows = Array.from(tbody.querySelectorAll('tr'));
+        
+        if (!searchTerm || searchTerm.trim() === '') {
+          // Show all rows if search is cleared
+          rows.forEach(row => row.style.display = '');
+          return;
+        }
+
+        const term = searchTerm.toLowerCase().trim();
+        rows.forEach(row => {
+          const cells = row.querySelectorAll('td');
+          if (cells.length === 0) {
+            row.style.display = '';
+            return;
+          }
+          
+          const orderId = cells[0]?.textContent?.toLowerCase() || '';
+          const customer = cells[1]?.textContent?.toLowerCase() || '';
+          const status = cells[2]?.textContent?.toLowerCase() || '';
+          const date = cells[3]?.textContent?.toLowerCase() || '';
+          
+          const matches = orderId.includes(term) || 
+                         customer.includes(term) || 
+                         status.includes(term) || 
+                         date.includes(term);
+          
+          row.style.display = matches ? '' : 'none';
+        });
+      }
+
+
+      // Main search function
+      function performSearch() {
+        const searchInput = document.getElementById('searchInput');
+        if (!searchInput) return;
+        
+        const searchTerm = searchInput.value;
+        filterOffensesTable(searchTerm);
+        filterOrdersTable(searchTerm);
+      }
+
+      // Setup search event listeners
+      const searchInput = document.getElementById('searchInput');
+      const searchBtn = document.getElementById('searchBtn');
+      
+      if (searchInput) {
+        searchInput.addEventListener('input', debounce(performSearch, 300));
+      }
+      
+      if (searchBtn) {
+        searchBtn.addEventListener('click', performSearch);
+      }
+    
+      // ---------- Limit "Recent Orders" rows ----------
+      const ordersPanel = Array.from(document.querySelectorAll('.panel')).find(p => {
+        const heading = p.querySelector('h4');
+        return heading && heading.textContent.trim() === 'Recent Orders';
+      });
+      if (ordersPanel) {
+        const ordersTable = ordersPanel.querySelector('table.clean tbody');
+        if (ordersTable) {
+          const orderRows = Array.from(ordersTable.querySelectorAll('tr'));
+          if (orderRows.length > 4) {
+            orderRows.slice(4).forEach(r => r.style.display = 'none');
+            if (!ordersPanel.querySelector('[data-role="orders-view-all"]')) {
+              const viewAll = document.createElement('a');
+              viewAll.href = 'orders.html';
+              viewAll.textContent = 'View all →';
+              viewAll.dataset.role = 'orders-view-all';
+              viewAll.style.cssText = 'display:block;text-align:right;margin-top:10px;color:var(--accent-2);font-weight:600;';
+              ordersPanel.appendChild(viewAll);
+            }
+          }
+        }
+      }
+    
+      // ---------- Sales Chart ----------
+      let salesChartInstance = null;
+      
+      async function loadSalesChart() {
+        const ctx = document.getElementById('salesChart');
+        if (!ctx || !window.Chart) return;
+        
+        try {
+          // Fetch last 7 days of sales data
+          const response = await fetch('/admin/revenue-trends?days=7', { credentials: 'same-origin' });
+          if (!response.ok) throw new Error('Failed to fetch sales data');
+          
+          const result = await response.json();
+          if (!result.success) throw new Error(result.message || 'Failed to load sales data');
+          
+          const labels = result.labels || [];
+          const revenueData = result.revenue || [];
+          
+          // Destroy existing chart if it exists
+          if (salesChartInstance) {
+            salesChartInstance.destroy();
+          }
+          
+          // Create new chart with real data
+          salesChartInstance = new Chart(ctx, {
+            type: 'bar',
+            data: {
+              labels: labels.length > 0 ? labels : ['No data'],
+              datasets: [{
+                label: 'Sales (₱)',
+                data: revenueData.length > 0 ? revenueData : [0],
+                backgroundColor: 'rgba(139,182,255,0.6)',
+                borderRadius: 6,
+                borderColor: 'rgba(139,182,255,0.8)',
+                borderWidth: 1
+              }]
+            },
+            options: {
+              responsive: true,
+              maintainAspectRatio: false,
+              plugins: {
+                legend: { display: false },
+                tooltip: {
+                  callbacks: {
+                    label: function(context) {
+                      return '₱' + parseFloat(context.parsed.y).toLocaleString('en-PH', {
+                        minimumFractionDigits: 2,
+                        maximumFractionDigits: 2
+                      });
+                    }
+                  }
+                }
+              },
+              scales: {
+                y: {
+                  beginAtZero: true,
+                  ticks: {
+                    callback: function(value) {
+                      return '₱' + value.toLocaleString('en-PH');
+                    }
+                  }
+                }
+              }
+            }
+          });
+          
+        } catch (error) {
+          console.error('Error loading sales chart:', error);
+          // Create chart with error message or empty data
+          if (salesChartInstance) {
+            salesChartInstance.destroy();
+          }
+          salesChartInstance = new Chart(ctx, {
+            type: 'bar',
+            data: {
+              labels: ['Error'],
+              datasets: [{
+                label: 'Sales (₱)',
+                data: [0],
+                backgroundColor: 'rgba(239,68,68,0.2)',
+                borderRadius: 6
+              }]
+            },
+            options: {
+              responsive: true,
+              maintainAspectRatio: false,
+              plugins: {
+                legend: { display: false },
+                title: {
+                  display: true,
+                  text: 'Failed to load sales data',
+                  color: '#ef4444',
+                  font: { size: 12 }
+                }
+              }
+            }
+          });
+        }
+      }
+      
+      // Load sales chart on page load
+      loadSalesChart();
+      
+      // ---------- Load Commission Snapshot ----------
+      async function loadCommissionSnapshot() {
+        const tbody = document.getElementById('commissionTable');
+        if (!tbody) return;
+        
+        try {
+          const response = await fetch('/admin/commission-stats', { credentials: 'same-origin' });
+          if (!response.ok) throw new Error('Failed to fetch commission data');
+          
+          const data = await response.json();
+          if (data.error) throw new Error(data.error);
+          
+          // Get commission values
+          const totalCommission = parseFloat(data.total_commission || data.platform_fees || 0);
+          const sellerCommissions = parseFloat(data.seller_commissions || 0);
+          const thisMonthCommission = parseFloat(data.paid_this_month || 0);
+          
+          // Calculate percentage (seller commissions as percentage of total platform revenue)
+          // Total platform revenue = admin commission + seller commissions
+          const totalPlatformRevenue = totalCommission + sellerCommissions;
+          const sellerPercentage = totalPlatformRevenue > 0 
+            ? ((sellerCommissions / totalPlatformRevenue) * 100).toFixed(1)
+            : '0.0';
+          
+          // Format currency
+          const formatCurrency = (amount) => {
+            return '₱ ' + parseFloat(amount).toLocaleString('en-PH', {
+              minimumFractionDigits: 2,
+              maximumFractionDigits: 2
+            });
+          };
+          
+          // Update table (only sellers, no riders)
+          tbody.innerHTML = `
+            <tr>
+              <td>Sellers</td>
+              <td>${formatCurrency(sellerCommissions)}</td>
+              <td>${sellerPercentage}%</td>
+            </tr>
+          `;
+          
+          // Update summary
+          document.getElementById('totalCommission').textContent = formatCurrency(totalCommission);
+          document.getElementById('thisMonthCommission').textContent = formatCurrency(thisMonthCommission);
+          
+        } catch (error) {
+          console.error('Error loading commission snapshot:', error);
+          const tbody = document.getElementById('commissionTable');
+          if (tbody) {
+            tbody.innerHTML = '<tr><td colspan="3" style="text-align:center;color:var(--muted);font-weight:600;padding:20px;">Failed to load commission data. Please refresh.</td></tr>';
+          }
+        }
+      }
+      
+      // Load commission snapshot on page load
+      loadCommissionSnapshot();
+      
+      // ---------- Load Total Sales Stat ----------
+      async function loadTotalSales() {
+        const totalSalesElement = document.getElementById('totalSales');
+        if (!totalSalesElement) return;
+        
+        try {
+          // Fetch all-time total revenue (no date filter = all time)
+          const response = await fetch('/admin/kpi-stats', { credentials: 'same-origin' });
+          if (!response.ok) throw new Error('Failed to fetch sales data');
+          
+          const data = await response.json();
+          if (!data.success) throw new Error(data.message || 'Failed to load sales data');
+          
+          const totalSales = parseFloat(data.total_revenue || 0);
+          
+          // Format currency
+          const formattedSales = '₱ ' + totalSales.toLocaleString('en-PH', {
+            minimumFractionDigits: 2,
+            maximumFractionDigits: 2
+          });
+          
+          totalSalesElement.textContent = formattedSales;
+          
+        } catch (error) {
+          console.error('Error loading total sales:', error);
+          totalSalesElement.textContent = '₱ 0.00';
+        }
+      }
+      
+      // Load total sales on page load
+      loadTotalSales();
+      
+      // ---------- Load Total Users Stat ----------
+      async function loadTotalUsers() {
+        const totalUsersElement = document.getElementById('totalUsers');
+        if (!totalUsersElement) return;
+        
+        try {
+          // Fetch all-time user count (no date filter = all time)
+          const response = await fetch('/admin/kpi-stats', { credentials: 'same-origin' });
+          if (!response.ok) throw new Error('Failed to fetch users data');
+          
+          const data = await response.json();
+          if (!data.success) throw new Error(data.message || 'Failed to load users data');
+          
+          const totalUsers = parseInt(data.active_users || 0);
+          
+          // Format number with commas
+          const formattedUsers = totalUsers.toLocaleString('en-PH');
+          
+          totalUsersElement.textContent = formattedUsers;
+          
+        } catch (error) {
+          console.error('Error loading total users:', error);
+          totalUsersElement.textContent = '0';
+        }
+      }
+      
+      // Load total users on page load
+      loadTotalUsers();
+      
+      // ---------- Load Total Products Stat ----------
+      async function loadTotalProducts() {
+        const totalProductsElement = document.getElementById('totalProducts');
+        if (!totalProductsElement) return;
+        
+        try {
+          // Fetch product statistics
+          const response = await fetch('/admin/product-stats', { credentials: 'same-origin' });
+          if (!response.ok) throw new Error('Failed to fetch products data');
+          
+          const data = await response.json();
+          if (!data.success) throw new Error(data.message || 'Failed to load products data');
+          
+          const totalProducts = parseInt(data.active_products || 0);
+          
+          // Format number with commas
+          const formattedProducts = totalProducts.toLocaleString('en-PH');
+          
+          totalProductsElement.textContent = formattedProducts;
+          
+        } catch (error) {
+          console.error('Error loading total products:', error);
+          totalProductsElement.textContent = '0';
+        }
+      }
+      
+      // Load total products on page load
+      loadTotalProducts();
+      
+      // ---------- Load Total Commission Stat ----------
+      async function loadTotalCommission() {
+        const totalCommissionElement = document.getElementById('totalCommissionStat');
+        if (!totalCommissionElement) return;
+        
+        try {
+          // Fetch commission statistics
+          const response = await fetch('/admin/commission-stats', { credentials: 'same-origin' });
+          if (!response.ok) throw new Error('Failed to fetch commission data');
+          
+          const data = await response.json();
+          if (data.error) throw new Error(data.error);
+          
+          const totalCommission = parseFloat(data.total_commission || data.platform_fees || 0);
+          
+          // Format currency
+          const formattedCommission = '₱ ' + totalCommission.toLocaleString('en-PH', {
+            minimumFractionDigits: 2,
+            maximumFractionDigits: 2
+          });
+          
+          totalCommissionElement.textContent = formattedCommission;
+          
+        } catch (error) {
+          console.error('Error loading total commission:', error);
+          totalCommissionElement.textContent = '₱ 0.00';
+        }
+      }
+      
+      // Load total commission on page load
+      loadTotalCommission();
+    }); // DOMContentLoaded
+    
+    // Logout confirmation
+    function confirmLogout() {
+      showCustomConfirm('Are you sure you want to logout?', function() {
+        window.location.href = "{{ url_for('logout') }}";
+      });
+    }
+    </script>
+    
+</body>
+</html>

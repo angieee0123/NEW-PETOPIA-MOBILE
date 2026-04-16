@@ -1,0 +1,576 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Petopia • Seller Earnings & Commission</title>
+
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+
+  <style>
+    :root{
+      --bg: #f6f8ff;
+      --panel: rgba(255,255,255,.60);
+      --panel-strong: rgba(255,255,255,.95);
+      --text: #0b0f1a;
+      --muted: #5b6378;
+      --accent: #7cf4d1;
+      --accent-2: #8bb6ff;
+      --glass-shadow: 0 10px 30px rgba(16,24,40,.08);
+      --card-radius: 12px;
+      --gap: 18px;
+      --sidebar-w: 260px;
+      --success: #4ade80;
+    }
+    *{box-sizing:border-box}
+    body{ margin:0; font-family:"Inter",system-ui,-apple-system,"Segoe UI",Roboto,"Helvetica Neue",Arial; background:var(--bg); color:var(--text); min-height:100vh; display:flex; }
+
+    /* Sidebar (match seller) */
+    .sidebar{ width:var(--sidebar-w); position:fixed; top:0; left:0; bottom:0; padding:22px 18px; background:var(--panel-strong); backdrop-filter:blur(10px); box-shadow:var(--glass-shadow); display:flex; flex-direction:column; gap:14px; z-index:50; }
+    .brand{ display:flex; align-items:center; gap:10px; margin-bottom:6px; }
+    .brand .logo{ width:44px; height:44px; border-radius:10px; background:linear-gradient(135deg,var(--accent),var(--accent-2)); display:flex; align-items:center; justify-content:center; color:#051014; font-weight:800; font-size:1.05rem; }
+    .brand .title{ font-weight:800; color:#23272f; font-size:1.05rem; }
+    nav.side-nav{ display:flex; flex-direction:column; gap:6px; margin-top:8px; padding-top:6px; }
+    nav.side-nav a{ display:flex; gap:12px; align-items:center; padding:10px 12px; border-radius:10px; color:var(--text); text-decoration:none; font-weight:600; transition:all .16s ease; }
+    nav.side-nav a i{ width:20px; text-align:center; color:#5b6378; }
+    nav.side-nav a:hover, nav.side-nav a.active{ background:linear-gradient(135deg,var(--accent),var(--accent-2)); color:#051014; }
+    .sidebar .spacer{ flex:1 }
+    .sidebar .small{ font-size:0.85rem; color:var(--muted); text-align:center; padding:6px 8px; }
+
+    /* Main */
+    .main{ margin-left:calc(var(--sidebar-w) + 20px); padding:26px; flex:1; display:flex; flex-direction:column; gap:var(--gap); }
+    header.topbar{ display:flex; justify-content:space-between; align-items:center; gap:12px; background:var(--panel); padding:12px 16px; border-radius:12px; box-shadow:var(--glass-shadow); }
+    .search{ display:flex; align-items:center; gap:8px; flex:1; max-width:560px; }
+    .search input{ flex:1; padding:10px 12px; border-radius:10px; border:1px solid rgba(11,15,26,.06); background:#fff; }
+    .icon-btn{ border:none; background:transparent; font-size:1.05rem; padding:8px; border-radius:8px; cursor:pointer; color:var(--text); position:relative; }
+    .badge{ position:absolute; top:2px; right:2px; background:var(--accent-2); color:#051014; border-radius:999px; padding:2px 6px; font-weight:800; font-size:0.72rem; }
+
+    .grid-4{ display:grid; grid-template-columns:repeat(auto-fit,minmax(200px,1fr)); gap:var(--gap); }
+    .stat-card{ background:#fff; border-radius:var(--card-radius); padding:16px; box-shadow:var(--glass-shadow); display:flex; justify-content:space-between; align-items:center; }
+    .stat-left small{ color:var(--muted); font-weight:600; }
+    .stat-left h3{ margin:0; font-size:1.15rem; }
+    .stat-right{ width:56px; height:56px; border-radius:12px; display:flex; align-items:center; justify-content:center; background:linear-gradient(135deg,rgba(139,182,255,0.12),rgba(124,244,209,0.10)); color:var(--accent-2); font-size:1.2rem; }
+
+    .panels{ display:grid; grid-template-columns:1fr 420px; gap:var(--gap); }
+    .panel{ background:var(--panel-strong); border-radius:12px; padding:14px; box-shadow:var(--glass-shadow); }
+    .panel h4{ margin:0 0 12px 0; font-size:1.05rem; color:#23272f; }
+    .table-wrap{ width:100%; overflow:auto; border-radius:10px; background:#fff; border:1px solid #e5e8f0; }
+    table.clean{ width:100%; border-collapse:separate; border-spacing:0; font-size:0.95rem; }
+    table.clean thead th{ position:sticky; top:0; text-align:left; padding:10px; background:#f8faff; font-weight:700; border-bottom:1px solid #e5e8f0; z-index:1; }
+    table.clean tbody td{ padding:10px; border-bottom:1px solid #eef1f7; }
+    table.clean tbody tr:hover td{ background:rgba(139,182,255,.06); }
+    .chart-wrapper{ background:#fff; padding:12px; border-radius:10px; height:260px; }
+    footer{ margin-top:16px; padding:18px; text-align:center; color:var(--muted); font-size:0.9rem; }
+    
+    /* Status pills to match seller dashboard */
+    .status-pill{ display:inline-block; padding:4px 10px; border-radius:999px; font-weight:800; font-size:.78rem; border:1px solid transparent; }
+    .status-pending{ background: rgba(255,184,107,.2); color: #ffb86b; border-color: rgba(255,184,107,.45); }
+    .status-processing{ background: rgba(139,182,255,.2); color: var(--accent-2); border-color: rgba(139,182,255,.45); }
+    .status-shipped{ background: rgba(124,244,209,.2); color: var(--accent); border-color: rgba(124,244,209,.45); }
+    .status-delivered{ background: rgba(74,222,128,.2); color: #4ade80; border-color: rgba(74,222,128,.45); }
+    .status-cancelled{ background: rgba(239,68,68,.15); color: #ef4444; border-color: rgba(239,68,68,.35); }
+    
+    @media(max-width:1080px){ .panels{ grid-template-columns:1fr; } }
+  </style>
+</head>
+<body>
+  <!-- SIDEBAR -->
+  <aside class="sidebar">
+    <div class="brand"><div class="logo">P</div><div class="title">Petopia</div></div>
+    <nav class="side-nav">
+      <a href="{{ url_for('seller_dashboard') }}"><i class="fa-solid fa-chart-line"></i><span>Dashboard</span></a>
+      <a href="{{ url_for('seller_products') }}"><i class="fa-solid fa-box"></i><span>My Products</span></a>
+      <a href="{{ url_for('seller_orders') }}"><i class="fa-solid fa-cart-shopping"></i><span>My Orders</span></a>
+      <a href="{{ url_for('seller_earnings_commission') }}" class="active"><i class="fa-solid fa-sack-dollar"></i><span>Earnings & Commission</span></a>
+      <a href="{{ url_for('seller_promotions') }}"><i class="fa-solid fa-bullhorn"></i><span>Promotions</span></a>
+      <a href="{{ url_for('seller_reports') }}"><i class="fa-solid fa-chart-pie"></i><span>Reports & Analytics</span></a>
+      <a href="{{ url_for('logout') }}" id="logoutLink"><i class="fa-solid fa-right-from-bracket"></i><span>Logout</span></a>
+    </nav>
+    <div class="spacer"></div>
+    <div class="small">Signed in as <strong>Seller</strong></div>
+  </aside>
+
+  <!-- MAIN -->
+  <main class="main">
+    <header class="topbar">
+      <div>
+        <div style="font-weight:800;font-size:1.05rem">Earnings & Commission 💸</div>
+        <div style="font-size:0.88rem;color:var(--muted)">Track fees and net income</div>
+      </div>
+      <div class="search">
+        <input type="text" id="searchOrders" placeholder="Search order ID or customer..." />
+        <button class="icon-btn" title="Search"><i class="fa-solid fa-magnifying-glass"></i></button>
+      </div>
+    </header>
+
+    <!-- Top stats -->
+    <section class="grid-4">
+      <div class="stat-card"><div class="stat-left"><small>Total Earnings</small><h3 id="statTotalEarnings">₱ 0</h3></div><div class="stat-right"><i class="fa-solid fa-wallet"></i></div></div>
+      <div class="stat-card"><div class="stat-left"><small>This Month</small><h3 id="statThisMonth">₱ 0</h3></div><div class="stat-right"><i class="fa-solid fa-calendar"></i></div></div>
+      <div class="stat-card"><div class="stat-left"><small>Total Commission Paid</small><h3 id="statCommission">₱ 0</h3></div><div class="stat-right"><i class="fa-solid fa-receipt"></i></div></div>
+    </section>
+
+    <!-- Panels -->
+    <section class="panels">
+      <!-- Left -->
+      <div>
+        <div class="panel">
+          <h4>Earnings by Order</h4>
+          <div class="table-wrap" id="earningsTableWrap">
+            <table class="clean" id="earningsTable">
+              <thead>
+                <tr><th>Order ID</th><th>Customer</th><th>Status</th><th>Subtotal</th><th>Admin Fee</th><th>Rider Fee</th><th>Seller Net</th><th>Date</th></tr>
+              </thead>
+              <tbody></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- Right -->
+      <aside style="display:flex;flex-direction:column;gap:var(--gap);">
+        <div class="panel chart-wrapper">
+          <div style="display:flex;justify-content:space-between;align-items:center;gap:10px;">
+            <h4 id="earningsChartTitle">Earnings Trend (Last 7 days)</h4>
+            <select id="earningsRange" style="padding:6px 10px;border-radius:8px;border:1px solid rgba(11,15,26,.1);background:#fff;font-weight:700;">
+              <option value="7d" selected>Last 7 days</option>
+              <option value="monthly">Monthly</option>
+              <option value="yearly">Yearly</option>
+            </select>
+          </div>
+          <canvas id="earningsChart"></canvas>
+        </div>
+
+        <div class="panel">
+          <h4>Commission Breakdown</h4>
+          <div class="table-wrap">
+            <table class="clean" id="summaryTable">
+              <thead><tr><th>Type</th><th>Amount</th><th>Notes</th></tr></thead>
+              <tbody>
+                <tr><td>Admin Commission</td><td id="sumAdmin">₱ 0</td><td>10% of item subtotal</td></tr>
+                <tr><td>Rider Commission</td><td id="sumRider">₱ 0</td><td>Full shipping fee</td></tr>
+                <tr><td>Seller Net</td><td id="sumSeller">₱ 0</td><td>Subtotal − 10% admin fee</td></tr>
+              </tbody>
+            </table>
+          </div>
+          <div style="margin-top:12px; color:var(--muted); font-weight:600; font-size:.9rem;">
+            Note: Buyer pays subtotal + shipping. Admin deducts 10% of subtotal. Shipping goes to rider. Seller gets remaining 90% of subtotal.
+          </div>
+        </div>
+      </aside>
+    </section>
+
+    <footer>© <span id="yr"></span> Petopia — Earnings & Commission</footer>
+  </main>
+
+  <script>
+    document.getElementById('yr').textContent = new Date().getFullYear();
+
+    // Custom alert function to replace browser alert dialogs
+    function showCustomAlert(message, type = 'error', title = null) {
+      const div = document.createElement('div');
+      div.id = 'customAlertModal';
+      div.style = 'position:fixed;top:0;left:0;width:100vw;height:100vh;z-index:9999;background:rgba(0,0,0,.25);backdrop-filter:blur(2px);display:flex;align-items:center;justify-content:center;';
+      
+      // Determine icon and colors based on type
+      let iconBg, iconColor, iconClass, alertTitle, borderColor;
+      const errorColor = '#ff6b6b';
+      const successColor = '#4ade80';
+      const warningColor = '#fbbf24';
+      const infoColor = '#8bb6ff';
+      
+      if (type === 'success') {
+        iconBg = 'rgba(74,222,128,.15)';
+        iconColor = successColor;
+        iconClass = 'fa-circle-check';
+        alertTitle = title || 'Success';
+        borderColor = successColor;
+      } else if (type === 'warning') {
+        iconBg = 'rgba(251,191,36,.15)';
+        iconColor = warningColor;
+        iconClass = 'fa-triangle-exclamation';
+        alertTitle = title || 'Warning';
+        borderColor = warningColor;
+      } else if (type === 'info') {
+        iconBg = 'rgba(139,182,255,.15)';
+        iconColor = infoColor;
+        iconClass = 'fa-circle-info';
+        alertTitle = title || 'Notice';
+        borderColor = infoColor;
+      } else {
+        // error (default)
+        iconBg = 'rgba(255,107,107,.15)';
+        iconColor = errorColor;
+        iconClass = 'fa-circle-exclamation';
+        alertTitle = title || 'Error';
+        borderColor = errorColor;
+      }
+      
+      div.innerHTML = `
+        <div style="background:rgba(255,255,255,.97);border-radius:18px;max-width:500px;width:90vw;box-shadow:0 10px 40px rgba(16,24,40,.22);position:relative;overflow:hidden;">
+          <div style="padding:32px;text-align:center;">
+            <div style="width:64px;height:64px;border-radius:50%;background:${iconBg};display:flex;align-items:center;justify-content:center;margin:0 auto 20px;border:2px solid ${borderColor};">
+              <i class="fa-solid ${iconClass}" style="font-size:2rem;color:${iconColor};"></i>
+            </div>
+            <h3 style="font-size:1.5rem;font-weight:800;color:#23272f;margin-bottom:12px;">${alertTitle}</h3>
+            <p style="color:#5b6378;font-weight:600;font-size:1rem;line-height:1.6;margin-bottom:24px;">${message}</p>
+            <div style="display:flex;gap:12px;justify-content:center;">
+              <button id="alertOk" style="padding:12px 32px;border-radius:10px;background:linear-gradient(135deg, var(--accent), var(--accent-2));color:#051014;font-weight:700;border:none;cursor:pointer;font-size:1rem;box-shadow:0 8px 26px rgba(139,182,255,.08);transition:all .2s ease;">OK</button>
+            </div>
+          </div>
+        </div>
+      `;
+      document.body.appendChild(div);
+      
+      const closeHandler = function() {
+        div.remove();
+      };
+      
+      document.getElementById('alertOk').addEventListener('click', closeHandler);
+      
+      div.addEventListener('click', function(e) {
+        if (e.target === div) closeHandler();
+      });
+      
+      const escapeHandler = function(e) {
+        if (e.key === 'Escape') {
+          closeHandler();
+          document.removeEventListener('keydown', escapeHandler);
+        }
+      };
+      document.addEventListener('keydown', escapeHandler);
+    }
+
+    // Custom confirmation function to replace browser confirm dialogs
+    function showCustomConfirm(message, onConfirm, onCancel = null) {
+      const div = document.createElement('div');
+      div.id = 'customConfirmModal';
+      div.style = 'position:fixed;top:0;left:0;width:100vw;height:100vh;z-index:9999;background:rgba(0,0,0,.25);backdrop-filter:blur(2px);display:flex;align-items:center;justify-content:center;';
+      
+      div.innerHTML = `
+        <div style="background:rgba(255,255,255,.97);border-radius:18px;max-width:500px;width:90vw;box-shadow:0 10px 40px rgba(16,24,40,.22);position:relative;overflow:hidden;">
+          <div style="padding:32px;text-align:center;">
+            <div style="width:64px;height:64px;border-radius:50%;background:rgba(251,191,36,.15);display:flex;align-items:center;justify-content:center;margin:0 auto 20px;border:2px solid #fbbf24;">
+              <i class="fa-solid fa-circle-question" style="font-size:2rem;color:#fbbf24;"></i>
+            </div>
+            <h3 style="font-size:1.5rem;font-weight:800;color:#23272f;margin-bottom:12px;">Confirm Action</h3>
+            <p style="color:#5b6378;font-weight:600;font-size:1rem;line-height:1.6;margin-bottom:24px;">${message}</p>
+            <div style="display:flex;gap:12px;justify-content:center;">
+              <button id="confirmCancel" style="padding:12px 24px;border-radius:10px;background:#e5e8f0;color:#23272f;font-weight:700;border:none;cursor:pointer;font-size:1rem;transition:all .2s ease;">Cancel</button>
+              <button id="confirmOk" style="padding:12px 24px;border-radius:10px;background:linear-gradient(135deg, var(--accent), var(--accent-2));color:#051014;font-weight:700;border:none;cursor:pointer;font-size:1rem;box-shadow:0 8px 26px rgba(139,182,255,.08);transition:all .2s ease;">Confirm</button>
+            </div>
+          </div>
+        </div>
+      `;
+      document.body.appendChild(div);
+      
+      const closeHandler = function() {
+        div.remove();
+      };
+      
+      document.getElementById('confirmOk').addEventListener('click', function() {
+        closeHandler();
+        if (onConfirm) onConfirm();
+      });
+      
+      document.getElementById('confirmCancel').addEventListener('click', function() {
+        closeHandler();
+        if (onCancel) onCancel();
+      });
+      
+      div.addEventListener('click', function(e) {
+        if (e.target === div) {
+          closeHandler();
+          if (onCancel) onCancel();
+        }
+      });
+      
+      const escapeHandler = function(e) {
+        if (e.key === 'Escape') {
+          closeHandler();
+          if (onCancel) onCancel();
+          document.removeEventListener('keydown', escapeHandler);
+        }
+      };
+      document.addEventListener('keydown', escapeHandler);
+    }
+
+    document.getElementById('logoutLink').addEventListener('click', function(e){
+      e.preventDefault();
+      showCustomConfirm('Are you sure you want to logout?', function() {
+        window.location.href = "{{ url_for('logout') }}";
+      });
+    });
+
+    function peso(n){ return '₱ ' + Number(n||0).toLocaleString(); }
+    
+    // Fetch earnings data from backend API
+    async function loadOrders(){
+      try {
+        const res = await fetch('/seller/earnings', { credentials: 'same-origin' });
+        if (!res.ok) {
+          console.error('Failed to fetch earnings data:', res.status, res.statusText);
+          return [];
+        }
+        const data = await res.json();
+        return Array.isArray(data) ? data : [];
+      } catch (error) {
+        console.error('Error fetching earnings data:', error);
+        return [];
+      }
+    }
+
+    // Shopee-like: 10% admin fee on subtotal; shipping to rider
+    const ADMIN_RATE = 0.10;
+    function computeForOrder(order){
+      // Use pre-calculated values from backend if available
+      if (order.adminFee !== undefined && order.riderFee !== undefined && order.sellerNet !== undefined) {
+        return {
+          subtotal: Number(order.subtotal || 0),
+          shipping: Number(order.shipping || 0),
+          adminFee: Number(order.adminFee || 0),
+          riderFee: Number(order.riderFee || 0),
+          sellerNet: Number(order.sellerNet || 0)
+        };
+      }
+      
+      // Fallback calculation for backward compatibility
+      const subtotal = Number(order.subtotal||0);
+      const shipping = Number(order.shipping||0);
+      const adminFee = Math.round(subtotal * ADMIN_RATE);
+      const riderFee = shipping;
+      const sellerNet = subtotal - adminFee;
+      return { subtotal, shipping, adminFee, riderFee, sellerNet };
+    }
+
+    function formatDate(ts){ try { return new Date(ts).toLocaleDateString('en-PH', { year:'numeric', month:'short', day:'numeric' }); } catch(e){ return '-'; } }
+
+    async function renderEarnings(){
+      const q = (document.getElementById('searchOrders').value||'').toLowerCase().trim();
+      
+      // Show loading state
+      const tbody = document.querySelector('#earningsTable tbody');
+      tbody.innerHTML = '<tr><td colspan="8" style="color:var(--muted);font-weight:700;text-align:center;">Loading earnings data...</td></tr>';
+      
+      const orders = await loadOrders();
+      
+      // Handle empty or error state
+      if (!orders || orders.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="8" style="color:var(--muted);font-weight:700;text-align:center;">No earnings data available</td></tr>';
+        // Reset all stats to zero
+        document.getElementById('sumAdmin').textContent = peso(0);
+        document.getElementById('sumRider').textContent = peso(0);
+        document.getElementById('sumSeller').textContent = peso(0);
+        document.getElementById('statTotalEarnings').textContent = peso(0);
+        document.getElementById('statThisMonth').textContent = peso(0);
+        document.getElementById('statCommission').textContent = peso(0);
+        return;
+      }
+      
+      const filtered = orders
+        .filter(o => !q || (String(o.id||'').toLowerCase().includes(q) || String(o.customer?.name||'').toLowerCase().includes(q)))
+        .sort((a,b)=> (b.createdAt||0) - (a.createdAt||0));
+      const limited = filtered.slice(0, 10);
+      const rowsHtml = limited
+        .map(o => { 
+          const c=computeForOrder(o);
+          const raw = String(o.status||'').toLowerCase();
+          // Map backend statuses to UI labels and classes (same as seller dashboard)
+          const statusMap = {
+            'to_pay': { label: 'Pending', cls: 'status-pending' },
+            'pending': { label: 'Pending', cls: 'status-pending' },
+            'to_ship': { label: 'Processing', cls: 'status-processing' },
+            'processing': { label: 'Processing', cls: 'status-processing' },
+            'to_receive': { label: 'Shipped', cls: 'status-shipped' },
+            'shipped': { label: 'Shipped', cls: 'status-shipped' },
+            'completed': { label: 'Delivered', cls: 'status-delivered' },
+            'delivered': { label: 'Delivered', cls: 'status-delivered' },
+            'cancelled': { label: 'Cancelled', cls: 'status-cancelled' }
+          };
+          const mapped = statusMap[raw] || { label: (o.status||'').toString(), cls: '' };
+          
+          return `
+          <tr>
+            <td>#${o.id}</td>
+            <td>${o.customer?.name||'-'}</td>
+            <td><span class="status-pill ${mapped.cls}">${mapped.label}</span></td>
+            <td>${peso(c.subtotal)}</td>
+            <td>${peso(c.adminFee)}</td>
+            <td>${peso(c.riderFee)}</td>
+            <td style="font-weight:800;">${peso(c.sellerNet)}</td>
+            <td>${formatDate(o.createdAt)}</td>
+          </tr>`; 
+        }).join('');
+      tbody.innerHTML = rowsHtml || `<tr><td colspan="8" style="color:var(--muted);font-weight:700;text-align:center;">No matching orders</td></tr>`;
+
+      // Totals based on filtered results
+      let totalAdmin=0,totalRider=0,totalSeller=0,totalEarnings=0,thisMonth=0; const now=new Date();
+      const m=now.getMonth(), y=now.getFullYear();
+      filtered.forEach(o=>{ const c=computeForOrder(o); totalAdmin+=c.adminFee; totalRider+=c.riderFee; totalSeller+=c.sellerNet; totalEarnings+=c.sellerNet; const d=new Date(o.createdAt||0); if(d.getMonth()===m && d.getFullYear()===y) thisMonth+=c.sellerNet; });
+      document.getElementById('sumAdmin').textContent = peso(totalAdmin);
+      document.getElementById('sumRider').textContent = peso(totalRider);
+      document.getElementById('sumSeller').textContent = peso(totalSeller);
+      document.getElementById('statTotalEarnings').textContent = peso(totalEarnings);
+      document.getElementById('statThisMonth').textContent = peso(thisMonth);
+      document.getElementById('statCommission').textContent = peso(totalAdmin);
+
+      // If more than 10, make the table area scrollable
+      const wrap = document.getElementById('earningsTableWrap');
+      if (wrap){
+        if (filtered.length > 10){
+          wrap.style.maxHeight = '360px';
+          wrap.style.overflowY = 'auto';
+        } else {
+          wrap.style.maxHeight = '';
+          wrap.style.overflowY = '';
+        }
+      }
+
+      // Update chart to reflect filtered results
+      buildChart(filtered);
+    }
+
+    async function buildChart(rows){
+      const ctx = document.getElementById('earningsChart'); if(!ctx || !window.Chart) return;
+      const select = document.getElementById('earningsRange');
+      const range = select ? select.value : '7d';
+      const orders = Array.isArray(rows) ? rows : await loadOrders();
+
+      let labels = [], values = [], title = 'Earnings Trend (Last 7 days)';
+
+      if (range === 'monthly'){
+        title = 'Earnings Trend (Monthly)';
+        labels = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+        const byMonth = new Array(12).fill(0);
+        orders.forEach(o=>{
+          const d=new Date(o.createdAt||0); 
+          const m=d.getMonth();
+          if (m >= 0 && m < 12) {
+          byMonth[m] += computeForOrder(o).sellerNet;
+          }
+        });
+        values = byMonth;
+      } else if (range === 'yearly'){
+        title = 'Earnings Trend (Yearly)';
+        // Aggregate last 5 years including current
+        const nowY = new Date().getFullYear();
+        const years = [nowY-4, nowY-3, nowY-2, nowY-1, nowY];
+        labels = years.map(y=> String(y));
+        const byYear = years.map(()=>0);
+        orders.forEach(o=>{
+          const y=new Date(o.createdAt||0).getFullYear();
+          const idx = years.indexOf(y);
+          if (idx>-1) byYear[idx] += computeForOrder(o).sellerNet;
+        });
+        values = byYear;
+      } else {
+        title = 'Earnings Trend (Last 7 days)';
+        const days = [...Array(7)].map((_,i)=>{ 
+          const d=new Date(); 
+          d.setDate(d.getDate()-(6-i)); 
+          d.setHours(0,0,0,0); 
+          return d; 
+        });
+        labels = days.map(d=> d.toLocaleDateString('en-PH', { month:'short', day:'numeric' }));
+        values = days.map(d=>{ 
+          const start=d.getTime(); 
+          const end=start+24*60*60*1000; 
+          return orders.filter(o=> {
+            const orderTime = o.createdAt||0;
+            return orderTime >= start && orderTime < end;
+          }).reduce((s,o)=> s + computeForOrder(o).sellerNet, 0); 
+        });
+      }
+
+      const titleEl = document.getElementById('earningsChartTitle'); 
+      if (titleEl) titleEl.textContent = title;
+      
+      if (window._earningsChart) { 
+        window._earningsChart.destroy(); 
+      }
+      
+      window._earningsChart = new Chart(ctx, { 
+        type:'line', 
+        data:{ 
+          labels, 
+          datasets:[{ 
+            label:'Seller Net (₱)', 
+            data:values, 
+            backgroundColor:'rgba(139,182,255,0.25)', 
+            borderColor:'rgba(139,182,255,1)', 
+            borderWidth: 2,
+            pointBackgroundColor: 'rgba(139,182,255,1)',
+            pointBorderColor: '#fff',
+            pointBorderWidth: 2,
+            pointRadius: 4,
+            pointHoverRadius: 6,
+            fill:true, 
+            tension:0.3 
+          }] 
+        }, 
+        options:{ 
+          responsive:true, 
+          maintainAspectRatio:false, 
+          plugins:{ 
+            legend:{ display:false },
+            tooltip: {
+              backgroundColor: 'rgba(0,0,0,0.8)',
+              titleColor: '#fff',
+              bodyColor: '#fff',
+              borderColor: 'rgba(139,182,255,0.3)',
+              borderWidth: 1,
+              callbacks: {
+                label: function(context) {
+                  return 'Earnings: ₱' + context.parsed.y.toLocaleString();
+                }
+              }
+            }
+          },
+          scales: {
+            y: {
+              beginAtZero: true,
+              ticks: {
+                callback: function(value) {
+                  return '₱' + value.toLocaleString();
+                }
+              },
+              grid: {
+                color: 'rgba(0,0,0,0.1)'
+              }
+            },
+            x: {
+              grid: {
+                color: 'rgba(0,0,0,0.1)'
+              }
+            }
+          },
+          interaction: {
+            intersect: false,
+            mode: 'index'
+          }
+        } 
+      });
+    }
+
+    // Debounced search + Enter support
+    (function(){
+      const input = document.getElementById('searchOrders'); if(!input) return;
+      let t; const debounced = function(){ clearTimeout(t); t = setTimeout(() => renderEarnings(), 160); };
+      input.addEventListener('input', debounced);
+      input.addEventListener('keydown', function(e){ if(e.key==='Enter'){ e.preventDefault(); renderEarnings(); }});
+    })();
+    // Timeframe selector wiring
+    (function(){
+      const sel = document.getElementById('earningsRange'); if(!sel) return;
+      sel.addEventListener('change', function(){ renderEarnings(); });
+    })();
+    
+    // Initialize on page load
+    renderEarnings();
+  </script>
+</body>
+</html>
+
+

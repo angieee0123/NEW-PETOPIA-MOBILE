@@ -1,0 +1,1950 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Petopia • Offenses & Violations</title>
+
+  <!-- Fonts + Icons + Chart.js -->
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+
+  <style>
+    :root{
+      --bg: #f6f8ff;
+      --panel: rgba(255,255,255,.60);
+      --panel-strong: rgba(255,255,255,.95);
+      --text: #0b0f1a;
+      --muted: #5b6378;
+      --accent: #7cf4d1;
+      --accent-2: #8bb6ff;
+      --glass-shadow: 0 10px 30px rgba(16,24,40,.08);
+      --card-radius: 12px;
+      --gap: 18px;
+      --sidebar-w: 260px;
+      --warning: #ffb86b;
+      --success: #4ade80;
+      --error: #ff6b6b;
+    }
+    *{box-sizing:border-box}
+    body{
+      margin:0;
+      font-family: "Inter", system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
+      background: var(--bg);
+      color: var(--text);
+      min-height:100vh;
+      display:flex;
+      -webkit-font-smoothing:antialiased;
+      -moz-osx-font-smoothing:grayscale;
+    }
+
+    /* SIDEBAR */
+    .sidebar{ width:var(--sidebar-w); position:fixed; top:0; left:0; bottom:0; padding:22px 18px; background:var(--panel-strong); backdrop-filter:blur(10px); box-shadow:var(--glass-shadow); display:flex; flex-direction:column; gap:14px; z-index:50; }
+    .brand{ display:flex; align-items:center; gap:10px; margin-bottom:6px; }
+    .brand .logo{ width:44px; height:44px; border-radius:10px; background:linear-gradient(135deg,var(--accent),var(--accent-2)); display:flex; align-items:center; justify-content:center; color:#051014; font-weight:800; font-size:1.05rem; box-shadow:0 6px 18px rgba(139,182,255,.09); }
+    .brand .title{ font-weight:800; letter-spacing:0.3px; color:#23272f; font-size:1.05rem; }
+
+    nav.side-nav{ display:flex; flex-direction:column; gap:6px; margin-top:8px; padding-top:6px; }
+    /* default nav link style */
+    nav.side-nav > a,
+    .dropdown > .dropdown-toggle {
+      display:flex;
+      gap:12px;
+      align-items:center;
+      padding:10px 12px;
+      border-radius:10px;
+      color:var(--text);
+      text-decoration:none;
+      font-weight:600;
+      cursor:pointer;
+      transition:all .16s ease;
+    }
+    nav.side-nav a i{ width:20px; text-align:center; color:#5b6378; }
+    nav.side-nav a span{ font-size:0.95rem; color:var(--text); }
+    /* active / hover */
+    nav.side-nav a:hover,
+    nav.side-nav a.active,
+    .dropdown > .dropdown-toggle.active,
+    .dropdown > .dropdown-toggle:hover{
+      background: linear-gradient(135deg, var(--accent), var(--accent-2));
+      color:#051014;
+      box-shadow: 0 8px 26px rgba(139,182,255,.08);
+    }
+
+    .sidebar .spacer{ flex:1 }
+    .sidebar .small{ font-size:0.85rem; color:var(--muted); text-align:center; padding:6px 8px; }
+
+    /* Dropdown */
+    .dropdown { display:flex; flex-direction:column; }
+    .dropdown-toggle { position:relative; }
+    .dropdown-toggle i.chev { margin-left:auto; transition: transform .2s ease; color: #5b6378; }
+    .dropdown.open .dropdown-toggle i.chev { transform: rotate(180deg); }
+
+    /* Dropdown menu container (different bg) */
+    .dropdown-menu {
+      display:none;
+      flex-direction:column;
+      margin-left:12px;
+      gap:4px;
+      background: #eef3ff; /* custom dropdown background you asked for */
+      border-radius: 8px;
+      padding: 6px;
+      box-shadow: 0 4px 12px rgba(0,0,0,.06);
+    }
+    .dropdown.open .dropdown-menu { display:flex; }
+
+    /* links inside dropdown - override global nav styles to avoid covering container bg */
+    .dropdown-menu a {
+      padding:8px 12px;
+      font-weight:500;
+      font-size:0.95rem;
+      border-radius:6px;
+      background: transparent; /* keep container bg visible */
+      display:flex;
+      align-items:center;
+      gap:10px;
+      color:var(--text);
+      text-decoration:none;
+    }
+    .dropdown-menu a:hover { background: rgba(139,182,255,0.12); color:#051014; }
+
+    /* small circular badge to the right of a link */
+    .side-badge {
+      margin-left:auto;
+      background: var(--accent-2);
+      color: #051014;
+      border-radius: 999px;
+      padding: 2px 7px;
+      font-weight:800;
+      font-size:0.72rem;
+      display:inline-block;
+      line-height:1;
+    }
+
+    /* MAIN */
+    .main{ margin-left:calc(var(--sidebar-w) + 20px); padding:26px; flex:1; display:flex; flex-direction:column; gap:var(--gap); }
+    header.topbar{ display:flex; justify-content:space-between; align-items:center; gap:12px; background:var(--panel); padding:12px 16px; border-radius:12px; box-shadow:var(--glass-shadow); }
+    .search{ display:flex; align-items:center; gap:8px; flex:1; max-width:720px; }
+    .search input{ flex:1; padding:10px 12px; border-radius:10px; border:1px solid rgba(11,15,26,.06); background:#fff; font-size:0.95rem; }
+    .top-actions{ display:flex; gap:8px; align-items:center; }
+    .icon-btn{ position:relative; border:none; background:transparent; font-size:1.05rem; padding:8px; border-radius:8px; cursor:pointer; color:var(--text); }
+    .icon-btn:hover{ color:var(--accent-2); }
+    .badge{ position:absolute; top:4px; right:4px; background:var(--accent-2); color:#051014; border-radius:999px; padding:2px 6px; font-weight:800; font-size:0.72rem; }
+
+    /* GRID */
+    .grid-4{ display:grid; grid-template-columns:repeat(auto-fit,minmax(200px,1fr)); gap:var(--gap); }
+    .stat-card{ background:linear-gradient(180deg,rgba(255,255,255,0.98),rgba(250,250,255,0.96)); border-radius:var(--card-radius); padding:16px; box-shadow:var(--glass-shadow); display:flex; justify-content:space-between; align-items:center; gap:12px; }
+    .stat-left small{ color:var(--muted); font-weight:600; }
+    .stat-left h3{ margin:0; font-size:1.15rem; }
+    .stat-right{ width:56px; height:56px; border-radius:12px; display:flex; align-items:center; justify-content:center; font-size:1.1rem; background:linear-gradient(135deg,rgba(139,182,255,0.12),rgba(124,244,209,0.10)); color:var(--accent-2); }
+
+    /* Filters */
+    .filters {
+        background: var(--panel-strong);
+        padding: 20px;
+        border-radius: var(--card-radius);
+        box-shadow: var(--glass-shadow);
+        margin-bottom: var(--gap);
+        display: flex;
+        gap: 15px;
+        align-items: center;
+        flex-wrap: wrap;
+    }
+
+    .filter-group {
+        display: flex;
+        flex-direction: column;
+        gap: 5px;
+    }
+
+    .filter-group label {
+        font-size: 12px;
+        font-weight: 600;
+        color: var(--muted);
+        text-transform: uppercase;
+    }
+
+    .filter-group select,
+    .filter-group input {
+        padding: 8px 12px;
+        border: 1px solid rgba(11,15,26,.06);
+        border-radius: 8px;
+        font-size: 14px;
+        min-width: 150px;
+        background: #fff;
+    }
+
+    /* Panels */
+    .panels{ display:grid; grid-template-columns:1fr 420px; gap:var(--gap); }
+    .panel{ background:var(--panel-strong); border-radius:12px; padding:14px; box-shadow:var(--glass-shadow); }
+    .panel h4{ margin:0 0 12px 0; font-size:1.05rem; color:#23272f; }
+
+    /* Tables */
+    table.clean{ width:100%; border-collapse:collapse; font-size:0.95rem; }
+    table.clean thead th{ text-align:left; font-weight:700; color:#3b4250; padding:10px; background:rgba(11,15,26,.03); }
+    table.clean tbody td{ padding:10px; border-bottom:1px solid rgba(11,15,26,.04); color:#1b2230; }
+    table.clean tbody tr:hover td{ background:rgba(139,182,255,.03); }
+
+    /* Status badges */
+    .status-badge {
+        padding: 4px 8px;
+        border-radius: 12px;
+        font-size: 0.8rem;
+        font-weight: 700;
+        text-transform: uppercase;
+    }
+    .status-badge.warning { background: rgba(255,184,107,.2); color: var(--warning); }
+    .status-badge.temp-ban { background: rgba(255,184,107,.3); color: #e67e22; }
+    .status-badge.perm-ban { background: rgba(239,68,68,.2); color: var(--error); }
+    .status-badge.resolved { background: rgba(74,222,128,.2); color: var(--success); }
+    .status-badge.pending { background: rgba(139,182,255,.2); color: var(--accent-2); }
+    .status-badge.dismissed { background: rgba(139,182,255,.15); color: var(--muted); }
+    .status-badge.reviewed { background: rgba(255,184,107,.2); color: var(--warning); }
+
+    /* Severity badges */
+    .severity-badge {
+        padding: 3px 6px;
+        border-radius: 8px;
+        font-size: 0.75rem;
+        font-weight: 700;
+        text-transform: uppercase;
+    }
+    .severity-badge.low { background: rgba(74,222,128,.2); color: var(--success); }
+    .severity-badge.medium { background: rgba(255,184,107,.2); color: var(--warning); }
+    .severity-badge.high { background: rgba(239,68,68,.2); color: var(--error); }
+    .severity-badge.critical { background: rgba(139,0,0,.2); color: #8b0000; }
+
+    /* Chart wrapper */
+    .chart-wrapper{ background:#fff; padding:12px; border-radius:10px; box-shadow:var(--glass-shadow); height:260px; }
+
+    /* Buttons */
+    .btn{ padding:8px 14px; border-radius:8px; border:none; font-weight:700; cursor:pointer; transition:all .2s ease; }
+    .btn-primary{ background:linear-gradient(135deg,var(--accent),var(--accent-2)); color:#051014; }
+    .btn-secondary{ background:#fff; border:1px solid rgba(11,15,26,.1); color:#23272f; }
+    .btn-danger{ background:var(--error); color:#fff; }
+    .btn-warning{ background:var(--warning); color:#051014; }
+    .btn-success{ background:var(--success); color:#fff; }
+    .btn:hover{ transform:translateY(-1px); box-shadow:0 4px 12px rgba(0,0,0,.1); }
+
+    /* Offense cards */
+    .offense-card {
+        border: 1px solid #e5e8f0;
+        border-radius: 12px;
+        background: #fff;
+        padding: 16px;
+        margin-bottom: 12px;
+        box-shadow: 0 2px 8px rgba(0,0,0,.04);
+    }
+    /* Scrollable offenses list */
+    #offensesList {
+        max-height: 800px;
+        overflow-y: auto;
+        overflow-x: hidden;
+        padding-right: 4px;
+    }
+    #offensesList::-webkit-scrollbar {
+        width: 8px;
+    }
+    #offensesList::-webkit-scrollbar-track {
+        background: rgba(11,15,26,.04);
+        border-radius: 4px;
+    }
+    #offensesList::-webkit-scrollbar-thumb {
+        background: rgba(139,182,255,.3);
+        border-radius: 4px;
+    }
+    #offensesList::-webkit-scrollbar-thumb:hover {
+        background: rgba(139,182,255,.5);
+    }
+    .offense-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 12px;
+    }
+    .offense-id {
+        font-weight: 800;
+        color: #23272f;
+        font-size: 0.95rem;
+    }
+    .offense-body {
+        margin-bottom: 12px;
+    }
+    .offense-user {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        margin-bottom: 8px;
+    }
+    .user-avatar {
+        width: 32px;
+        height: 32px;
+        border-radius: 50%;
+        background: linear-gradient(135deg, var(--accent), var(--accent-2));
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: #051014;
+        font-weight: 800;
+        font-size: 0.9rem;
+    }
+    .user-details {
+        flex: 1;
+    }
+    .user-name {
+        font-weight: 700;
+        color: #23272f;
+        font-size: 0.9rem;
+    }
+    .user-type {
+        color: var(--muted);
+        font-size: 0.8rem;
+        font-weight: 600;
+    }
+    .offense-details {
+        margin-bottom: 8px;
+    }
+    .offense-type {
+        font-weight: 700;
+        color: #23272f;
+        font-size: 0.9rem;
+        margin-bottom: 4px;
+    }
+    .offense-description {
+        color: var(--muted);
+        font-size: 0.85rem;
+        line-height: 1.4;
+    }
+    .offense-meta {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        font-size: 0.8rem;
+        color: var(--muted);
+    }
+    .offense-actions {
+        display: flex;
+        gap: 8px;
+        margin-top: 12px;
+    }
+
+    /* Modal */
+    .modal{ display:none; position:fixed; inset:0; background:rgba(0,0,0,0.5); justify-content:center; align-items:center; z-index:1000; }
+    .modal-content{ background:#fff; width:600px; max-width:95%; border-radius:12px; max-height:90vh; overflow:auto; }
+    .modal-header{ padding:16px; border-bottom:1px solid #e5e8f0; display:flex; justify-content:space-between; align-items:center; }
+    .modal-title{ font-weight:800; font-size:1.1rem; color:#23272f; }
+    .close-btn{ border:none; background:none; font-size:1.5rem; cursor:pointer; color:var(--muted); }
+    .modal-body{ padding:20px; }
+    .form-group{ margin-bottom:16px; }
+    .form-group label{ display:block; font-weight:700; color:#23272f; margin-bottom:6px; }
+    .form-group select, .form-group textarea{ width:100%; padding:10px 12px; border-radius:8px; border:1px solid rgba(11,15,26,.1); }
+    .form-group textarea{ resize:vertical; min-height:80px; }
+
+    footer{ margin-top:16px; padding:18px; text-align:center; color:var(--muted); font-size:0.9rem; }
+    @media(max-width:980px){ .panels{grid-template-columns:1fr;} .main{margin-left:calc(var(--sidebar-w) + 12px); padding:18px;} .sidebar{width:220px} }
+    @media(max-width:700px){ .sidebar{position:static; width:100%; display:none;} body{display:block;} .main{margin-left:0; padding:16px;} }
+  </style>
+</head>
+<body>
+  <meta id="pendingCounts" data-seller="{{ seller_pending_count|default(0) }}" data-rider="{{ rider_pending_count|default(0) }}">
+
+  <!-- SIDEBAR -->
+  <aside class="sidebar">
+    <div class="brand"><div class="logo">P</div><div class="title">Petopia</div></div>
+    <nav class="side-nav">
+      <a href="{{ url_for('admin_dashboard') }}" data-path="admin_dashboard"><i class="fa-solid fa-chart-line"></i><span>Overview / Stats</span></a>
+
+      <!-- User Management Dropdown -->
+      <div class="dropdown">
+        <a href="#" class="dropdown-toggle" aria-expanded="false">
+          <i class="fa-solid fa-users"></i><span>User Management</span>
+          <i class="fa-solid fa-chevron-down chev"></i>
+        </a>
+
+        <div class="dropdown-menu">
+          <a href="{{ url_for('admin_all_users') }}" data-path="users.html"><i class="fa-solid fa-user"></i><span>View All Users</span></a>
+
+          <a href="{{ url_for('admin_seller_requests') }}" data-path="seller_request.html">
+            <i class="fa-solid fa-store"></i><span>Seller Requests</span>
+            <span id="sellerBadge" class="side-badge" style="display:none">0</span>
+          </a>
+
+          <a href="{{ url_for('admin_rider_requests') }}" data-path="rider_request.html">
+            <i class="fa-solid fa-motorcycle"></i><span>Rider Requests</span>
+            <span id="riderBadge" class="side-badge" style="display:none">0</span>
+          </a>
+        </div>
+      </div>
+
+      <a href="{{ url_for('admin_product_management') }}" data-path="products.html"><i class="fa-solid fa-box"></i><span>Product Management</span></a>
+      <a href="{{ url_for('admin_order_management') }}" data-path="orders.html"><i class="fa-solid fa-cart-shopping"></i><span>Order Management</span></a>
+      <a href="{{ url_for('admin_commission') }}" data-path="commission.html"><i class="fa-solid fa-sack-dollar"></i><span>Commission Tracking</span></a>
+      <a href="{{ url_for('admin_offenses') }}" data-path="offenses.html"><i class="fa-solid fa-triangle-exclamation"></i><span>Offenses & Violations</span></a>
+      <a href="{{ url_for('admin_reports') }}" data-path="reports.html"><i class="fa-solid fa-file-lines"></i><span>Reports & Analytics</span></a>
+      <a href="#" onclick="confirmLogout()"><i class="fa-solid fa-right-from-bracket"></i><span>Logout</span></a>
+    </nav>
+    <div class="spacer"></div>
+    <div class="small">Signed in as <strong>Admin</strong></div>
+  </aside>
+
+  <!-- MAIN -->
+  <main class="main">
+    <header class="topbar">
+      <div style="display:flex;gap:12px;align-items:center;flex:1">
+        <div style="min-width:260px;">
+          <div style="font-weight:800;font-size:1.05rem">Offenses & Violations ⚠️</div>
+          <div style="font-size:0.88rem;color:var(--muted)">Monitor and manage user violations</div>
+        </div>
+      </div>
+
+      <div class="search" style="margin-left:12px;">
+        <input type="text" id="searchInput" placeholder="Search users, offenses, violations..." />
+        <button class="icon-btn" onclick="filterOffenses()"><i class="fa-solid fa-magnifying-glass"></i></button>
+      </div>
+    </header>
+
+    <!-- Offense Stats -->
+    <section class="grid-4" aria-hidden="false">
+      <div class="stat-card"><div class="stat-left"><small>Total Offenses</small><h3 id="totalOffenses">0</h3></div><div class="stat-right"><i class="fa-solid fa-triangle-exclamation"></i></div></div>
+      <div class="stat-card"><div class="stat-left"><small>Pending Review</small><h3 id="pendingOffenses">0</h3></div><div class="stat-right"><i class="fa-solid fa-clock"></i></div></div>
+      <div class="stat-card"><div class="stat-left"><small>Active Offenses</small><h3 id="activeBans">0</h3></div><div class="stat-right"><i class="fa-solid fa-ban"></i></div></div>
+      <div class="stat-card"><div class="stat-left"><small>Resolved</small><h3 id="resolvedOffenses">0</h3></div><div class="stat-right"><i class="fa-solid fa-check-circle"></i></div></div>
+    </section>
+
+    <!-- Filters -->
+    <div class="filters">
+        <div class="filter-group">
+            <label>Status</label>
+            <select id="statusFilter">
+                <option value="all">All Status</option>
+                <option value="pending">Pending</option>
+                <option value="reviewed">Reviewed</option>
+                <option value="resolved">Resolved</option>
+                <option value="dismissed">Dismissed</option>
+            </select>
+        </div>
+        <div class="filter-group">
+            <label>Severity</label>
+            <select id="severityFilter">
+                <option value="all">All Severity</option>
+                <option value="low">Low</option>
+                <option value="medium">Medium</option>
+                <option value="high">High</option>
+                <option value="critical">Critical</option>
+            </select>
+        </div>
+        <div class="filter-group">
+            <label>User Type</label>
+            <select id="userTypeFilter">
+                <option value="all">All Types</option>
+                <option value="buyer">Buyer</option>
+                <option value="seller">Seller</option>
+                <option value="rider">Rider</option>
+            </select>
+        </div>
+        <div class="filter-group">
+            <label>Date Range</label>
+            <select id="dateFilter">
+                <option value="all">All Time</option>
+                <option value="today">Today</option>
+                <option value="week">This Week</option>
+                <option value="month">This Month</option>
+            </select>
+        </div>
+        <div class="filter-group">
+            <label>&nbsp;</label>
+            <div style="display: flex; gap: 8px;">
+                <button class="btn btn-secondary" onclick="clearFilters()">Clear Filters</button>
+                <button class="btn btn-primary" onclick="printReport()">
+                    <i class="fa-solid fa-print"></i> Print Report
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <section class="panels">
+      <div>
+        <!-- Recent Offenses -->
+        <div class="panel" style="margin-bottom:var(--gap);">
+          <h4>Recent Offenses</h4>
+          <div id="offensesList">
+            <!-- Offenses will be populated by JavaScript -->
+          </div>
+        </div>
+      </div>
+
+      <aside style="display:flex;flex-direction:column;gap:var(--gap);">
+        <!-- Offense Trends Chart -->
+        <div class="panel chart-wrapper">
+          <h4>Offense Trends (7 days)</h4>
+          <canvas id="offenseChart"></canvas>
+        </div>
+
+        <!-- Severity Distribution -->
+        <div class="panel">
+          <h4>Severity Distribution</h4>
+          <div style="display: grid; gap: 8px; margin-top: 12px;">
+            <div style="display: flex; justify-content: space-between; align-items: center; padding: 8px 12px; background: rgba(74,222,128,.1); border-radius: 6px;">
+              <span style="font-weight: 600; color: var(--success);">Low</span>
+              <span style="font-weight: 800; color: var(--success);" id="lowCount">0</span>
+            </div>
+            <div style="display: flex; justify-content: space-between; align-items: center; padding: 8px 12px; background: rgba(255,184,107,.1); border-radius: 6px;">
+              <span style="font-weight: 600; color: var(--warning);">Medium</span>
+              <span style="font-weight: 800; color: var(--warning);" id="mediumCount">0</span>
+            </div>
+            <div style="display: flex; justify-content: space-between; align-items: center; padding: 8px 12px; background: rgba(239,68,68,.1); border-radius: 6px;">
+              <span style="font-weight: 600; color: var(--error);">High</span>
+              <span style="font-weight: 800; color: var(--error);" id="highCount">0</span>
+            </div>
+            <div style="display: flex; justify-content: space-between; align-items: center; padding: 8px 12px; background: rgba(139,0,0,.1); border-radius: 6px;">
+              <span style="font-weight: 600; color: #8b0000;">Critical</span>
+              <span style="font-weight: 800; color: #8b0000;" id="criticalCount">0</span>
+            </div>
+          </div>
+        </div>
+
+      </aside>
+    </section>
+
+    <footer>© 2025 Petopia — Offenses & Violations</footer>
+  </main>
+
+  <!-- Add Offense Modal -->
+  <div id="offenseModal" class="modal">
+    <div class="modal-content">
+      <div class="modal-header">
+        <div class="modal-title">Add New Offense</div>
+        <button class="close-btn" onclick="closeOffenseModal()">&times;</button>
+      </div>
+      <div class="modal-body">
+        <div class="form-group">
+          <label>User ID</label>
+          <input type="text" id="modalUserId" placeholder="Enter user ID" style="width:100%;padding:10px 12px;border-radius:8px;border:1px solid rgba(11,15,26,.1);">
+        </div>
+        <div class="form-group">
+          <label>User Type</label>
+          <select id="modalUserType" style="width:100%;padding:10px 12px;border-radius:8px;border:1px solid rgba(11,15,26,.1);">
+            <option value="buyer">Buyer</option>
+            <option value="seller">Seller</option>
+            <option value="rider">Rider</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Offense Type</label>
+          <select id="modalOffenseType" style="width:100%;padding:10px 12px;border-radius:8px;border:1px solid rgba(11,15,26,.1);">
+            <option value="late-delivery">Late Delivery</option>
+            <option value="fake-product">Fake Product</option>
+            <option value="false-dispute">False Dispute</option>
+            <option value="scam">Scam</option>
+            <option value="inappropriate-behavior">Inappropriate Behavior</option>
+            <option value="policy-violation">Policy Violation</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Severity</label>
+          <select id="modalSeverity" style="width:100%;padding:10px 12px;border-radius:8px;border:1px solid rgba(11,15,26,.1);">
+            <option value="low">Low</option>
+            <option value="medium">Medium</option>
+            <option value="high">High</option>
+            <option value="critical">Critical</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Description</label>
+          <textarea id="modalDescription" placeholder="Describe the offense..." style="width:100%;padding:10px 12px;border-radius:8px;border:1px solid rgba(11,15,26,.1);"></textarea>
+        </div>
+        <div style="display:flex;gap:8px;justify-content:flex-end;">
+          <button class="btn btn-secondary" onclick="closeOffenseModal()">Cancel</button>
+          <button class="btn btn-primary" onclick="saveOffense()">Add Offense</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Status Update Modal -->
+  <div id="statusModal" class="modal">
+    <div class="modal-content">
+      <div class="modal-header">
+        <div class="modal-title">Update Report Status</div>
+        <button class="close-btn" onclick="closeStatusModal()">&times;</button>
+      </div>
+      <div class="modal-body">
+        <div class="form-group">
+          <label>Report ID</label>
+          <input type="text" id="statusModalReportId" readonly style="width:100%;padding:10px 12px;border-radius:8px;border:1px solid rgba(11,15,26,.1);background:#f5f5f5;">
+        </div>
+        <div class="form-group">
+          <label>Current Status</label>
+          <input type="text" id="statusModalCurrentStatus" readonly style="width:100%;padding:10px 12px;border-radius:8px;border:1px solid rgba(11,15,26,.1);background:#f5f5f5;">
+        </div>
+        <div class="form-group">
+          <label>New Status <span style="color:#ef4444;">*</span></label>
+          <select id="statusModalNewStatus" style="width:100%;padding:10px 12px;border-radius:8px;border:1px solid rgba(11,15,26,.1);">
+            <option value="pending">Pending</option>
+            <option value="reviewed">Reviewed</option>
+            <option value="resolved">Resolved</option>
+            <option value="dismissed">Dismissed</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Admin Notes</label>
+          <textarea id="statusModalAdminNotes" placeholder="Add notes about this status change..." style="width:100%;padding:10px 12px;border-radius:8px;border:1px solid rgba(11,15,26,.1);min-height:100px;resize:vertical;"></textarea>
+        </div>
+        <div style="display:flex;gap:8px;justify-content:flex-end;">
+          <button class="btn btn-secondary" onclick="closeStatusModal()">Cancel</button>
+          <button class="btn btn-primary" onclick="saveStatusChange()">Update Status</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Chart.js + behavior JS -->
+  <script>
+    // Custom Alert and Confirm Modals
+    function showCustomAlert(message, type = 'error', title = null) {
+      const div = document.createElement('div');
+      div.id = 'customAlertModal';
+      div.style = 'position:fixed;top:0;left:0;width:100vw;height:100vh;z-index:9999;background:rgba(0,0,0,.25);backdrop-filter:blur(2px);display:flex;align-items:center;justify-content:center;';
+      
+      // Determine icon and colors based on type
+      let iconBg, iconColor, iconClass, alertTitle, borderColor;
+      const errorColor = '#ff6b6b';
+      const successColor = '#4ade80';
+      const warningColor = '#fbbf24';
+      const infoColor = '#8bb6ff';
+      
+      if (type === 'success') {
+        iconBg = 'rgba(74,222,128,.15)';
+        iconColor = successColor;
+        iconClass = 'fa-circle-check';
+        alertTitle = title || 'Success';
+        borderColor = successColor;
+      } else if (type === 'warning') {
+        iconBg = 'rgba(251,191,36,.15)';
+        iconColor = warningColor;
+        iconClass = 'fa-triangle-exclamation';
+        alertTitle = title || 'Warning';
+        borderColor = warningColor;
+      } else if (type === 'info') {
+        iconBg = 'rgba(139,182,255,.15)';
+        iconColor = infoColor;
+        iconClass = 'fa-circle-info';
+        alertTitle = title || 'Notice';
+        borderColor = infoColor;
+      } else {
+        // error (default)
+        iconBg = 'rgba(255,107,107,.15)';
+        iconColor = errorColor;
+        iconClass = 'fa-circle-exclamation';
+        alertTitle = title || 'Error';
+        borderColor = errorColor;
+      }
+      
+      div.innerHTML = `
+        <div style="background:rgba(255,255,255,.97);border-radius:18px;max-width:500px;width:90vw;max-height:85vh;box-shadow:0 10px 40px rgba(16,24,40,.22);position:relative;overflow:hidden;display:flex;flex-direction:column;">
+          <div style="padding:32px 32px 0 32px;text-align:center;flex-shrink:0;">
+            <div style="width:64px;height:64px;border-radius:50%;background:${iconBg};display:flex;align-items:center;justify-content:center;margin:0 auto 20px;border:2px solid ${borderColor};">
+              <i class="fa-solid ${iconClass}" style="font-size:2rem;color:${iconColor};"></i>
+            </div>
+            <h3 style="font-size:1.5rem;font-weight:800;color:#23272f;margin-bottom:12px;">${alertTitle}</h3>
+          </div>
+          <div style="flex:1;overflow-y:auto;padding:0 32px;text-align:center;max-height:calc(85vh - 200px);">
+            <p style="color:#5b6378;font-weight:600;font-size:1rem;line-height:1.6;padding:0 0 24px 0;white-space:pre-line;text-align:left;">${message}</p>
+          </div>
+          <div style="padding:0 32px 32px 32px;text-align:center;flex-shrink:0;border-top:1px solid rgba(11,15,26,.05);margin-top:auto;">
+            <div style="display:flex;gap:12px;justify-content:center;padding-top:24px;">
+              <button id="alertOk" style="padding:12px 32px;border-radius:10px;background:linear-gradient(135deg, var(--accent), var(--accent-2));color:#051014;font-weight:700;border:none;cursor:pointer;font-size:1rem;box-shadow:0 8px 26px rgba(139,182,255,.08);transition:all .2s ease;">OK</button>
+            </div>
+          </div>
+        </div>
+      `;
+      document.body.appendChild(div);
+      
+      const closeHandler = function() {
+        div.remove();
+      };
+      
+      document.getElementById('alertOk').addEventListener('click', closeHandler);
+      
+      div.addEventListener('click', function(e) {
+        if (e.target === div) {
+          closeHandler();
+        }
+      });
+      
+      const escapeHandler = function(e) {
+        if (e.key === 'Escape') {
+          closeHandler();
+          document.removeEventListener('keydown', escapeHandler);
+        }
+      };
+      document.addEventListener('keydown', escapeHandler);
+    }
+
+    function showCustomConfirm(message, onConfirm, onCancel = null) {
+      const div = document.createElement('div');
+      div.id = 'customConfirmModal';
+      div.style = 'position:fixed;top:0;left:0;width:100vw;height:100vh;z-index:9999;background:rgba(0,0,0,.25);backdrop-filter:blur(2px);display:flex;align-items:center;justify-content:center;';
+      
+      div.innerHTML = `
+        <div style="background:rgba(255,255,255,.97);border-radius:18px;max-width:500px;width:90vw;box-shadow:0 10px 40px rgba(16,24,40,.22);position:relative;overflow:hidden;">
+          <div style="padding:32px;text-align:center;">
+            <div style="width:64px;height:64px;border-radius:50%;background:rgba(251,191,36,.15);display:flex;align-items:center;justify-content:center;margin:0 auto 20px;border:2px solid #fbbf24;">
+              <i class="fa-solid fa-circle-question" style="font-size:2rem;color:#fbbf24;"></i>
+            </div>
+            <h3 style="font-size:1.5rem;font-weight:800;color:#23272f;margin-bottom:12px;">Confirm Action</h3>
+            <p style="color:#5b6378;font-weight:600;font-size:1rem;line-height:1.6;margin-bottom:24px;">${message}</p>
+            <div style="display:flex;gap:12px;justify-content:center;">
+              <button id="confirmCancel" style="padding:12px 24px;border-radius:10px;background:#e5e8f0;color:#23272f;font-weight:700;border:none;cursor:pointer;font-size:1rem;transition:all .2s ease;">Cancel</button>
+              <button id="confirmOk" style="padding:12px 24px;border-radius:10px;background:linear-gradient(135deg, var(--accent), var(--accent-2));color:#051014;font-weight:700;border:none;cursor:pointer;font-size:1rem;box-shadow:0 8px 26px rgba(139,182,255,.08);transition:all .2s ease;">Confirm</button>
+            </div>
+          </div>
+        </div>
+      `;
+      document.body.appendChild(div);
+      
+      const closeHandler = function() {
+        div.remove();
+      };
+      
+      document.getElementById('confirmOk').addEventListener('click', function() {
+        closeHandler();
+        if (onConfirm) onConfirm();
+      });
+      
+      document.getElementById('confirmCancel').addEventListener('click', function() {
+        closeHandler();
+        if (onCancel) onCancel();
+      });
+      
+      div.addEventListener('click', function(e) {
+        if (e.target === div) {
+          closeHandler();
+          if (onCancel) onCancel();
+        }
+      });
+      
+      const escapeHandler = function(e) {
+        if (e.key === 'Escape') {
+          closeHandler();
+          if (onCancel) onCancel();
+          document.removeEventListener('keydown', escapeHandler);
+        }
+      };
+      document.addEventListener('keydown', escapeHandler);
+    }
+
+    // Global variables
+    let allOffenses = [];
+    let filteredOffenses = [];
+    let offenseChartInstance = null;
+
+    // Initialize page
+    document.addEventListener('DOMContentLoaded', function() {
+        setupEventListeners();
+        setupNavigation();
+        loadOffenses(); // This will call updateStats and renderOffenses
+        initializeChart();
+    });
+
+    // Navigation setup
+    function setActiveByPath(path) {
+      // Remove all active highlights
+      document.querySelectorAll('.side-nav a, .dropdown-toggle').forEach(el => el.classList.remove('active'));
+      document.querySelectorAll('.dropdown').forEach(d => d.classList.remove('open'));
+    
+      if (!path) return;
+    
+      // Find link either by data-path or href
+      let target = document.querySelector('[data-path="' + path + '"]');
+      if (!target) target = document.querySelector('a[href*="' + path + '"]');
+    
+      if (target) {
+        target.classList.add('active');
+    
+        // If it's inside a dropdown (e.g. All Users, Seller Requests), open dropdown
+        const parentDropdown = target.closest('.dropdown');
+        if (parentDropdown) {
+          parentDropdown.classList.add('open');
+          const toggle = parentDropdown.querySelector('.dropdown-toggle');
+          if (toggle) toggle.classList.add('active');
+        }
+      }
+    }
+
+    function setupNavigation() {
+      let filename = location.pathname.split('/').pop() || 'offenses';
+      if (!filename || filename === 'index.html') filename = 'offenses';
+    
+      // If currently on admin_offenses, highlight Offenses only, close dropdowns
+      if (location.pathname.endsWith('/admin_offenses')) {
+        // remove all previous state
+        localStorage.removeItem('activeNav');
+        setActiveByPath('offenses.html');
+      } else {
+        // Otherwise, use saved active path or current filename
+        const pathToUse = localStorage.getItem('activeNav') || filename;
+        setActiveByPath(pathToUse);
+      }
+    
+      // Save active state when clicking links (except dropdown toggles)
+      document.querySelectorAll('.side-nav a:not(.dropdown-toggle), .dropdown-menu a').forEach(link => {
+        link.addEventListener('click', function () {
+          const path = link.getAttribute('data-path') || link.getAttribute('href') || null;
+          if (path && !path.includes('logout')) {
+            localStorage.setItem('activeNav', path);
+            setActiveByPath(path);
+          }
+        });
+      });
+    
+      // Dropdown toggle behavior
+      document.querySelectorAll('.dropdown-toggle').forEach(toggle => {
+        toggle.addEventListener('click', function (e) {
+          e.preventDefault();
+          const parent = toggle.closest('.dropdown');
+          const wasOpen = parent.classList.contains('open');
+          parent.classList.toggle('open');
+          toggle.classList.toggle('active');
+          
+          // If User Management dropdown is being opened, remove highlight from Offenses & Violations
+          const isUserManagement = toggle.querySelector('span')?.textContent.includes('User Management');
+          if (isUserManagement && !wasOpen) {
+            const offensesLink = document.querySelector('a[href*="admin_offenses"]');
+            if (offensesLink) {
+              offensesLink.classList.remove('active');
+            }
+          }
+        });
+      });
+      
+      // ---------- Pending counts badges ----------
+      const pendingCounts = document.getElementById('pendingCounts');
+      if (pendingCounts) {
+        const sellerCount = parseInt(pendingCounts.dataset.seller) || 0;
+        const riderCount = parseInt(pendingCounts.dataset.rider) || 0;
+        const sellerBadge = document.getElementById('sellerBadge');
+        const riderBadge  = document.getElementById('riderBadge');
+    
+        if (sellerBadge) {
+          sellerBadge.style.display = sellerCount > 0 ? 'inline-block' : 'none';
+          if (sellerCount > 0) sellerBadge.textContent = sellerCount;
+        }
+        if (riderBadge) {
+          riderBadge.style.display = riderCount > 0 ? 'inline-block' : 'none';
+          if (riderCount > 0) riderBadge.textContent = riderCount;
+        }
+      }
+    }
+
+    // Event listeners
+    function setupEventListeners() {
+        const searchInput = document.getElementById('searchInput');
+        if (searchInput) {
+            searchInput.addEventListener('input', debounce(filterOffenses, 300));
+            searchInput.addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') {
+                    filterOffenses();
+                }
+            });
+        }
+
+        document.getElementById('statusFilter').addEventListener('change', filterOffenses);
+        document.getElementById('severityFilter').addEventListener('change', filterOffenses);
+        document.getElementById('userTypeFilter').addEventListener('change', filterOffenses);
+        document.getElementById('dateFilter').addEventListener('change', filterOffenses);
+    }
+
+    // Load offense data from API
+    async function loadOffenses() {
+        try {
+            const response = await fetch('/admin/reports');
+            if (!response.ok) {
+                throw new Error('Failed to fetch reports');
+            }
+            const reports = await response.json();
+            allOffenses = reports || [];
+            filteredOffenses = [...allOffenses];
+            updateStats();
+            renderOffenses();
+            updateChart(); // Update chart with new data
+        } catch (error) {
+            console.error('Error loading reports:', error);
+            // Fallback to demo data if API fails
+            seedDemoOffenses();
+            filteredOffenses = [...allOffenses];
+            updateStats();
+            renderOffenses();
+            updateChart(); // Update chart with demo data
+        }
+    }
+
+    function seedDemoOffenses() {
+        const now = Date.now();
+        const demoOffenses = [
+            {
+                id: 'OFF-001',
+                userId: 'seller_001',
+                userName: 'Maria Santos',
+                userType: 'seller',
+                offenseType: 'late-delivery',
+                offenseTypeLabel: 'Late Delivery',
+                severity: 'medium',
+                status: 'warning',
+                description: 'Consistently delivering orders 2-3 days late without prior notice',
+                createdAt: now - 86400000,
+                resolvedAt: null
+            },
+            {
+                id: 'OFF-002',
+                userId: 'buyer_001',
+                userName: 'Juan Dela Cruz',
+                userType: 'buyer',
+                offenseType: 'false-dispute',
+                offenseTypeLabel: 'False Dispute',
+                severity: 'high',
+                status: 'temp-ban',
+                description: 'Filing false disputes to get refunds for legitimate orders',
+                createdAt: now - 172800000,
+                resolvedAt: null
+            },
+            {
+                id: 'OFF-003',
+                userId: 'seller_002',
+                userName: 'Ana Garcia',
+                userType: 'seller',
+                offenseType: 'fake-product',
+                offenseTypeLabel: 'Fake Product',
+                severity: 'critical',
+                status: 'perm-ban',
+                description: 'Selling counterfeit pet products and misleading customers',
+                createdAt: now - 259200000,
+                resolvedAt: now - 172800000
+            },
+            {
+                id: 'OFF-004',
+                userId: 'rider_001',
+                userName: 'Pedro Lopez',
+                userType: 'rider',
+                offenseType: 'inappropriate-behavior',
+                offenseTypeLabel: 'Inappropriate Behavior',
+                severity: 'high',
+                status: 'temp-ban',
+                description: 'Using inappropriate language with customers during delivery',
+                createdAt: now - 345600000,
+                resolvedAt: null
+            },
+            {
+                id: 'OFF-005',
+                userId: 'buyer_002',
+                userName: 'Sofia Reyes',
+                userType: 'buyer',
+                offenseType: 'scam',
+                offenseTypeLabel: 'Scam',
+                severity: 'critical',
+                status: 'perm-ban',
+                description: 'Attempting to scam sellers through fake payment methods',
+                createdAt: now - 432000000,
+                resolvedAt: now - 259200000
+            },
+            {
+                id: 'OFF-006',
+                userId: 'seller_003',
+                userName: 'Luis Torres',
+                userType: 'seller',
+                offenseType: 'policy-violation',
+                offenseTypeLabel: 'Policy Violation',
+                severity: 'low',
+                status: 'resolved',
+                description: 'Minor violation of product listing guidelines',
+                createdAt: now - 518400000,
+                resolvedAt: now - 432000000
+            }
+        ];
+
+        allOffenses = demoOffenses;
+        localStorage.setItem('petopia_offenses', JSON.stringify(demoOffenses));
+    }
+
+    // Filter offenses
+    function filterOffenses() {
+        const searchTerm = document.getElementById('searchInput').value.toLowerCase();
+        const statusFilter = document.getElementById('statusFilter').value;
+        const severityFilter = document.getElementById('severityFilter').value;
+        const userTypeFilter = document.getElementById('userTypeFilter').value;
+        const dateFilter = document.getElementById('dateFilter').value;
+
+        filteredOffenses = allOffenses.filter(offense => {
+            const matchesSearch = !searchTerm || 
+                offense.id.toLowerCase().includes(searchTerm) ||
+                offense.userName.toLowerCase().includes(searchTerm) ||
+                offense.offenseTypeLabel.toLowerCase().includes(searchTerm) ||
+                offense.description.toLowerCase().includes(searchTerm);
+            
+            const matchesStatus = statusFilter === 'all' || offense.status === statusFilter;
+            const matchesSeverity = severityFilter === 'all' || offense.severity === severityFilter;
+            const matchesUserType = userTypeFilter === 'all' || offense.userType === userTypeFilter;
+            
+            let matchesDate = true;
+            if (dateFilter !== 'all') {
+                const now = new Date();
+                const offenseDate = new Date(offense.createdAt);
+                
+                switch (dateFilter) {
+                    case 'today':
+                        matchesDate = offenseDate.toDateString() === now.toDateString();
+                        break;
+                    case 'week':
+                        const weekAgo = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
+                        matchesDate = offenseDate >= weekAgo;
+                        break;
+                    case 'month':
+                        const monthAgo = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000);
+                        matchesDate = offenseDate >= monthAgo;
+                        break;
+                }
+            }
+
+            return matchesSearch && matchesStatus && matchesSeverity && matchesUserType && matchesDate;
+        });
+
+        renderOffenses();
+    }
+
+    // Render offenses
+    function renderOffenses() {
+        const container = document.getElementById('offensesList');
+        if (!container) return;
+
+        if (filteredOffenses.length === 0) {
+            container.innerHTML = '<div style="text-align:center;padding:40px;color:var(--muted);">No reports found</div>';
+            return;
+        }
+
+        container.innerHTML = filteredOffenses.sort((a,b) => (b.createdAt || 0) - (a.createdAt || 0)).map(offense => {
+            const date = offense.createdAt ? new Date(offense.createdAt).toLocaleDateString('en-PH', { 
+                year: 'numeric', month: 'short', day: 'numeric',
+                hour: '2-digit', minute: '2-digit'
+            }) : 'N/A';
+            const initials = offense.userName ? offense.userName.split(' ').map(w => w[0]).join('').toUpperCase().slice(0,2) : '??';
+            
+            // Show evidence images if available
+            let evidenceHtml = '';
+            if (offense.evidence && Array.isArray(offense.evidence) && offense.evidence.length > 0) {
+                evidenceHtml = `
+                    <div style="margin-top:8px;">
+                        <div style="font-weight:600;font-size:0.8rem;color:var(--muted);margin-bottom:4px;">Evidence:</div>
+                        <div style="display:flex;gap:8px;flex-wrap:wrap;">
+                            ${offense.evidence.map(img => `
+                                <a href="/static/uploads/${img}" target="_blank" style="display:block;">
+                                    <img src="/static/uploads/${img}" alt="Evidence" style="width:60px;height:60px;object-fit:cover;border-radius:6px;border:1px solid #e5e8f0;cursor:pointer;">
+                                </a>
+                            `).join('')}
+                        </div>
+                    </div>
+                `;
+            }
+            
+            // Show order and user info
+            let orderInfo = '';
+            if (offense.order_id) {
+                orderInfo = `<div style="font-size:0.8rem;color:var(--muted);margin-top:4px;">Order #${offense.order_id}</div>`;
+            }
+            
+            let reportedByInfo = '';
+            // Helper function to create clickable email link that opens Gmail
+            function createEmailLink(email, displayText) {
+                if (!email || email === 'N/A') {
+                    return displayText || 'N/A';
+                }
+                // Use Gmail compose URL to open Gmail in a new tab
+                const gmailUrl = `https://mail.google.com/mail/?view=cm&fs=1&to=${encodeURIComponent(email)}`;
+                return `<a href="${gmailUrl}" target="_blank" style="color:var(--accent-2);text-decoration:none;font-weight:700;border-bottom:1px solid var(--accent-2);transition:all .2s ease;cursor:pointer;" onmouseover="this.style.color='var(--accent)';this.style.borderBottomColor='var(--accent)'" onmouseout="this.style.color='var(--accent-2)';this.style.borderBottomColor='var(--accent-2)'">${displayText || email}</a>`;
+            }
+            
+            // Use new reporter/reported_against fields if available, otherwise fall back to old logic
+            if (offense.reporter_name && offense.reported_against_name) {
+                const reporterType = capitalizeFirst(offense.reporter_type || 'User');
+                const reportedType = capitalizeFirst(offense.reported_against_type || 'User');
+                const reporterEmail = offense.reporter_email || 'N/A';
+                const reportedEmail = offense.reported_against_email || 'N/A';
+                reportedByInfo = `
+                    <div style="font-size:0.8rem;color:var(--muted);margin-top:4px;">
+                        Reported by: ${offense.reporter_name} (${reporterType}) - ${createEmailLink(reporterEmail, reporterEmail)}<br>
+                        Against: ${offense.reported_against_name} (${reportedType}) - ${createEmailLink(reportedEmail, reportedEmail)}
+                    </div>
+                `;
+            } else if (offense.reporter_name) {
+                const reporterType = capitalizeFirst(offense.reporter_type || 'User');
+                const reporterEmail = offense.reporter_email || 'N/A';
+                reportedByInfo = `
+                    <div style="font-size:0.8rem;color:var(--muted);margin-top:4px;">
+                        Reported by: ${offense.reporter_name} (${reporterType}) - ${createEmailLink(reporterEmail, reporterEmail)}
+                    </div>
+                `;
+            } else if (offense.buyer_name && offense.seller_name) {
+                // Fallback to old logic for backward compatibility
+                const buyerEmail = offense.buyer_email || 'N/A';
+                const sellerEmail = offense.seller_email || 'N/A';
+                reportedByInfo = `
+                    <div style="font-size:0.8rem;color:var(--muted);margin-top:4px;">
+                        Reported by: ${offense.buyer_name} (Buyer) - ${createEmailLink(buyerEmail, buyerEmail)}<br>
+                        Against: ${offense.seller_name} (Seller) - ${createEmailLink(sellerEmail, sellerEmail)}
+                    </div>
+                `;
+            } else if (offense.buyer_name) {
+                const buyerEmail = offense.buyer_email || 'N/A';
+                reportedByInfo = `
+                    <div style="font-size:0.8rem;color:var(--muted);margin-top:4px;">
+                        Reported by: ${offense.buyer_name} (Buyer) - ${createEmailLink(buyerEmail, buyerEmail)}
+                    </div>
+                `;
+            }
+
+            return `
+                <div class="offense-card">
+                    <div class="offense-header">
+                        <div class="offense-id">#${offense.id}</div>
+                        <div style="display: flex; gap: 8px; align-items: center;">
+                            <span class="status-badge ${offense.status}">${capitalizeFirst(offense.status.replace('-', ' '))}</span>
+                            <span class="severity-badge ${offense.severity}">${capitalizeFirst(offense.severity)}</span>
+                        </div>
+                    </div>
+                    <div class="offense-body">
+                        <div class="offense-user">
+                            <div class="user-avatar">${initials}</div>
+                            <div class="user-details">
+                                <div class="user-name">${offense.userName || 'Unknown User'}</div>
+                                <div class="user-type">${capitalizeFirst(offense.userType || 'user')}</div>
+                            </div>
+                        </div>
+                        <div class="offense-details">
+                            <div class="offense-type">${offense.offenseTypeLabel || 'Unknown Offense'}</div>
+                            <div class="offense-description">${offense.description || 'No description'}</div>
+                            ${orderInfo}
+                            ${reportedByInfo}
+                            ${evidenceHtml}
+                            ${offense.admin_notes ? `<div style="margin-top:8px;padding:8px;background:rgba(139,182,255,.06);border-radius:6px;font-size:0.85rem;"><strong>Admin Notes:</strong> ${offense.admin_notes}</div>` : ''}
+                        </div>
+                        <div class="offense-meta">
+                            <span>${date}</span>
+                            <span>${offense.resolvedAt ? 'Resolved' : 'Active'}</span>
+                        </div>
+                    </div>
+                    <div class="offense-actions">
+                        <button class="btn btn-secondary" onclick="viewOffenseDetails('${offense.id}')" style="padding: 4px 8px; font-size: 0.8rem;">
+                            <i class="fa-solid fa-eye"></i> View
+                        </button>
+                        <button class="btn btn-primary" onclick="openStatusModal('${offense.id}', ${offense.report_id || 'null'}, '${offense.status}')" style="padding: 4px 8px; font-size: 0.8rem;">
+                            <i class="fa-solid fa-edit"></i> Change Status
+                        </button>
+                    </div>
+                </div>
+            `;
+        }).join('');
+    }
+
+    // Render offense types
+    function renderOffenseTypes() {
+        const tbody = document.getElementById('offenseTypesTable');
+        if (!tbody) return;
+
+        const typeCounts = {};
+        allOffenses.forEach(offense => {
+            typeCounts[offense.offenseTypeLabel] = (typeCounts[offense.offenseTypeLabel] || 0) + 1;
+        });
+
+        tbody.innerHTML = Object.entries(typeCounts).map(([type, count]) => {
+            const severity = allOffenses.find(o => o.offenseTypeLabel === type)?.severity || 'low';
+            return `
+                <tr>
+                    <td>${type}</td>
+                    <td>${count}</td>
+                    <td><span class="severity-badge ${severity}">${capitalizeFirst(severity)}</span></td>
+                    <td>
+                        <button class="btn btn-secondary" onclick="viewOffensesByType('${type}')" style="padding: 4px 8px; font-size: 0.8rem;">
+                            <i class="fa-solid fa-filter"></i> Filter
+                        </button>
+                    </td>
+                </tr>
+            `;
+        }).join('');
+    }
+
+    // Update statistics
+    function updateStats() {
+        const total = allOffenses.length;
+        const pending = allOffenses.filter(o => o.status === 'pending').length;
+        const activeBans = allOffenses.filter(o => o.status === 'reviewed' || o.status === 'pending').length;
+        const resolved = allOffenses.filter(o => o.status === 'resolved' || o.status === 'dismissed').length;
+
+        document.getElementById('totalOffenses').textContent = total;
+        document.getElementById('pendingOffenses').textContent = pending;
+        document.getElementById('activeBans').textContent = activeBans;
+        document.getElementById('resolvedOffenses').textContent = resolved;
+
+        // Update severity distribution
+        const low = allOffenses.filter(o => o.severity === 'low').length;
+        const medium = allOffenses.filter(o => o.severity === 'medium').length;
+        const high = allOffenses.filter(o => o.severity === 'high').length;
+        const critical = allOffenses.filter(o => o.severity === 'critical').length;
+
+        document.getElementById('lowCount').textContent = low;
+        document.getElementById('mediumCount').textContent = medium;
+        document.getElementById('highCount').textContent = high;
+        document.getElementById('criticalCount').textContent = critical;
+    }
+
+    // Update chart with current data
+    function updateChart() {
+        if (!offenseChartInstance) {
+            initializeChart();
+            return;
+        }
+        
+        const chartData = calculateOffenseTrends();
+        offenseChartInstance.data.labels = chartData.labels;
+        offenseChartInstance.data.datasets[0].data = chartData.data;
+        offenseChartInstance.update();
+    }
+
+    // Initialize chart
+    function initializeChart() {
+        const ctx = document.getElementById('offenseChart');
+        if (!ctx || !window.Chart) return;
+        
+        // Calculate offense trends for last 7 days
+        const chartData = calculateOffenseTrends();
+        
+        // Destroy existing chart if it exists
+        if (offenseChartInstance) {
+            offenseChartInstance.destroy();
+        }
+        
+        // Create new chart
+        offenseChartInstance = new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: chartData.labels,
+                datasets: [{
+                    label: 'Offenses',
+                    data: chartData.data,
+                    backgroundColor: 'rgba(239,68,68,0.6)',
+                    borderRadius: 6,
+                    borderColor: 'rgba(239,68,68,0.8)',
+                    borderWidth: 1
+                }]
+            },
+            options: { 
+                responsive: true, 
+                maintainAspectRatio: false, 
+                plugins: { 
+                    legend: { display: false },
+                    tooltip: {
+                        backgroundColor: 'rgba(11, 15, 26, 0.9)',
+                        padding: 12,
+                        titleColor: '#fff',
+                        bodyColor: '#fff',
+                        borderColor: 'rgba(239,68,68,0.8)',
+                        borderWidth: 1,
+                        callbacks: {
+                            label: function(context) {
+                                const value = context.parsed.y;
+                                return value + ' offense' + (value !== 1 ? 's' : '');
+                            }
+                        }
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        ticks: {
+                            stepSize: 1,
+                            color: '#5b6378',
+                            font: {
+                                size: 11
+                            }
+                        },
+                        grid: {
+                            color: 'rgba(11,15,26,0.05)',
+                            drawBorder: true,
+                            borderColor: 'rgba(11,15,26,0.1)'
+                        }
+                    },
+                    x: {
+                        ticks: {
+                            color: '#5b6378',
+                            font: {
+                                size: 11
+                            }
+                        },
+                        grid: {
+                            display: false,
+                            drawBorder: true,
+                            borderColor: 'rgba(11,15,26,0.1)'
+                        }
+                    }
+                }
+            }
+        });
+    }
+
+    // Calculate offense trends for the last 7 days
+    function calculateOffenseTrends() {
+        const today = new Date();
+        today.setHours(0, 0, 0, 0);
+        
+        // Generate labels for last 7 days
+        const labels = [];
+        const data = [];
+        const offenseCounts = {};
+        
+        // Initialize counts for last 7 days
+        for (let i = 6; i >= 0; i--) {
+            const date = new Date(today);
+            date.setDate(date.getDate() - i);
+            const dateKey = date.toISOString().split('T')[0];
+            const label = date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+            labels.push(label);
+            offenseCounts[dateKey] = 0;
+        }
+        
+        // Count offenses by date
+        allOffenses.forEach(offense => {
+            if (offense.createdAt) {
+                const offenseDate = new Date(offense.createdAt);
+                offenseDate.setHours(0, 0, 0, 0);
+                const dateKey = offenseDate.toISOString().split('T')[0];
+                
+                // Check if this date is within the last 7 days
+                const daysDiff = Math.floor((today - offenseDate) / (1000 * 60 * 60 * 24));
+                if (daysDiff >= 0 && daysDiff <= 6) {
+                    if (offenseCounts.hasOwnProperty(dateKey)) {
+                        offenseCounts[dateKey]++;
+                    }
+                }
+            }
+        });
+        
+        // Convert counts to array in order
+        for (let i = 6; i >= 0; i--) {
+            const date = new Date(today);
+            date.setDate(date.getDate() - i);
+            const dateKey = date.toISOString().split('T')[0];
+            data.push(offenseCounts[dateKey] || 0);
+        }
+        
+        return { labels, data };
+    }
+
+    // Action functions
+    function viewOffenseDetails(offenseId) {
+        const offense = allOffenses.find(o => o.id === offenseId);
+        if (!offense) return;
+        
+        let details = `Report Details:\n\n`;
+        details += `ID: ${offense.id}\n`;
+        details += `Order ID: ${offense.order_id || 'N/A'}\n`;
+        details += `User: ${offense.userName}\n`;
+        details += `User Type: ${capitalizeFirst(offense.userType)}\n`;
+        if (offense.reporter_name) {
+            const reporterEmail = offense.reporter_email || 'N/A';
+            details += `Reported by: ${offense.reporter_name} (${capitalizeFirst(offense.reporter_type || 'User')}) - ${reporterEmail}\n`;
+        }
+        if (offense.reported_against_name) {
+            const reportedEmail = offense.reported_against_email || 'N/A';
+            details += `Against: ${offense.reported_against_name} (${capitalizeFirst(offense.reported_against_type || 'User')}) - ${reportedEmail}\n`;
+        }
+        // Fallback to old fields for backward compatibility
+        if (!offense.reporter_name && offense.buyer_name) {
+            const buyerEmail = offense.buyer_email || 'N/A';
+            details += `Reported by: ${offense.buyer_name} (Buyer) - ${buyerEmail}\n`;
+        }
+        if (!offense.reported_against_name && offense.seller_name) {
+            const sellerEmail = offense.seller_email || 'N/A';
+            details += `Against: ${offense.seller_name} (Seller) - ${sellerEmail}\n`;
+        }
+        details += `Type: ${offense.offenseTypeLabel}\n`;
+        details += `Severity: ${capitalizeFirst(offense.severity)}\n`;
+        details += `Status: ${capitalizeFirst(offense.status.replace('-', ' '))}\n`;
+        details += `Description: ${offense.description}\n`;
+        if (offense.admin_notes) details += `Admin Notes: ${offense.admin_notes}\n`;
+        if (offense.evidence && offense.evidence.length > 0) {
+            details += `\nEvidence: ${offense.evidence.length} image(s) attached`;
+        }
+        
+        showCustomAlert(details, 'info', 'Report Details');
+    }
+
+    async function resolveOffense(offenseId, reportId) {
+        showCustomConfirm('Are you sure you want to resolve this report?', async function() {
+            if (!reportId) {
+                showCustomAlert('Cannot resolve: Report ID missing', 'error', 'Missing Report ID');
+                return;
+            }
+            
+            try {
+                const response = await fetch(`/admin/reports/${reportId}/update`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        status: 'resolved',
+                        admin_notes: ''
+                    })
+                });
+                
+                const data = await response.json();
+                
+                if (response.ok && data.success) {
+                    // Reload offenses
+                    await loadOffenses();
+                    showCustomAlert('Report resolved successfully!', 'success', 'Report Resolved');
+                } else {
+                    showCustomAlert('Error: ' + (data.error || 'Failed to resolve report'), 'error', 'Resolve Failed');
+                }
+            } catch (error) {
+                console.error('Error resolving report:', error);
+                showCustomAlert('Network error. Please try again.', 'error', 'Network Error');
+            }
+        });
+    }
+
+    async function dismissOffense(offenseId, reportId) {
+        showCustomConfirm('Are you sure you want to dismiss this report?', async function() {
+            if (!reportId) {
+                showCustomAlert('Cannot dismiss: Report ID missing', 'error', 'Missing Report ID');
+                return;
+            }
+            
+            try {
+                const response = await fetch(`/admin/reports/${reportId}/update`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        status: 'dismissed',
+                        admin_notes: ''
+                    })
+                });
+                
+                const data = await response.json();
+                
+                if (response.ok && data.success) {
+                    // Reload offenses
+                    await loadOffenses();
+                    showCustomAlert('Report dismissed successfully!', 'success', 'Report Dismissed');
+                } else {
+                    showCustomAlert('Error: ' + (data.error || 'Failed to dismiss report'), 'error', 'Dismiss Failed');
+                }
+            } catch (error) {
+                console.error('Error dismissing report:', error);
+                showCustomAlert('Network error. Please try again.', 'error', 'Network Error');
+            }
+        });
+    }
+
+    // Status modal functions
+    let currentReportId = null;
+    let currentOffenseId = null;
+
+    function openStatusModal(offenseId, reportId, currentStatus) {
+        if (!reportId || reportId === 'null') {
+            showCustomAlert('Cannot update: Report ID missing', 'error', 'Missing Report ID');
+            return;
+        }
+        
+        currentReportId = reportId;
+        currentOffenseId = offenseId;
+        
+        // Find the offense to get admin notes
+        const offense = allOffenses.find(o => o.id === offenseId);
+        const adminNotes = offense?.admin_notes || '';
+        
+        // Set modal values
+        document.getElementById('statusModalReportId').value = `RPT-${String(reportId).padStart(3, '0')}`;
+        document.getElementById('statusModalCurrentStatus').value = capitalizeFirst(currentStatus.replace('-', ' '));
+        document.getElementById('statusModalNewStatus').value = currentStatus;
+        document.getElementById('statusModalAdminNotes').value = adminNotes;
+        
+        // Show modal
+        document.getElementById('statusModal').style.display = 'flex';
+    }
+
+    function closeStatusModal() {
+        document.getElementById('statusModal').style.display = 'none';
+        currentReportId = null;
+        currentOffenseId = null;
+    }
+
+    async function saveStatusChange() {
+        if (!currentReportId) {
+            showCustomAlert('Error: Report ID missing', 'error', 'Missing Report ID');
+            return;
+        }
+        
+        const newStatus = document.getElementById('statusModalNewStatus').value;
+        const adminNotes = document.getElementById('statusModalAdminNotes').value.trim();
+        
+        if (!newStatus) {
+            showCustomAlert('Please select a status', 'warning', 'Status Required');
+            return;
+        }
+        
+        try {
+            const response = await fetch(`/admin/reports/${currentReportId}/update`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    status: newStatus,
+                    admin_notes: adminNotes
+                })
+            });
+            
+            const data = await response.json();
+            
+            if (response.ok && data.success) {
+                // Reload offenses
+                await loadOffenses();
+                closeStatusModal();
+                showCustomAlert('Report status updated successfully!', 'success', 'Status Updated');
+            } else {
+                showCustomAlert('Error: ' + (data.error || 'Failed to update report status'), 'error', 'Update Failed');
+            }
+        } catch (error) {
+            console.error('Error updating report status:', error);
+            showCustomAlert('Network error. Please try again.', 'error', 'Network Error');
+        }
+    }
+
+    function addNewOffense() {
+        document.getElementById('offenseModal').style.display = 'flex';
+    }
+
+    function closeOffenseModal() {
+        document.getElementById('offenseModal').style.display = 'none';
+        // Clear form
+        document.getElementById('modalUserId').value = '';
+        document.getElementById('modalUserType').value = 'buyer';
+        document.getElementById('modalOffenseType').value = 'late-delivery';
+        document.getElementById('modalSeverity').value = 'low';
+        document.getElementById('modalDescription').value = '';
+    }
+
+    function saveOffense() {
+        const userId = document.getElementById('modalUserId').value;
+        const userType = document.getElementById('modalUserType').value;
+        const offenseType = document.getElementById('modalOffenseType').value;
+        const severity = document.getElementById('modalSeverity').value;
+        const description = document.getElementById('modalDescription').value;
+
+        if (!userId || !description) {
+            showCustomAlert('Please fill in all required fields.', 'warning', 'Validation Error');
+            return;
+        }
+
+        const offenseTypeLabels = {
+            'late-delivery': 'Late Delivery',
+            'fake-product': 'Fake Product',
+            'false-dispute': 'False Dispute',
+            'scam': 'Scam',
+            'inappropriate-behavior': 'Inappropriate Behavior',
+            'policy-violation': 'Policy Violation'
+        };
+
+        const newOffense = {
+            id: 'OFF-' + String(allOffenses.length + 1).padStart(3, '0'),
+            userId: userId,
+            userName: 'User ' + userId,
+            userType: userType,
+            offenseType: offenseType,
+            offenseTypeLabel: offenseTypeLabels[offenseType],
+            severity: severity,
+            status: 'pending',
+            description: description,
+            createdAt: Date.now(),
+            resolvedAt: null
+        };
+
+        allOffenses.unshift(newOffense);
+        localStorage.setItem('petopia_offenses', JSON.stringify(allOffenses));
+        updateStats();
+        renderOffenses();
+        closeOffenseModal();
+        showCustomAlert('Offense added successfully!', 'success', 'Offense Added');
+    }
+
+    function viewOffensesByType(type) {
+        document.getElementById('searchInput').value = type;
+        filterOffenses();
+    }
+
+    function exportOffenseReport() {
+        showCustomAlert('Offense report export functionality coming soon!', 'info', 'Coming Soon');
+    }
+
+    function bulkReviewOffenses() {
+        showCustomAlert('Bulk review functionality coming soon!', 'info', 'Coming Soon');
+    }
+
+    function clearFilters() {
+        document.getElementById('searchInput').value = '';
+        document.getElementById('statusFilter').value = 'all';
+        document.getElementById('severityFilter').value = 'all';
+        document.getElementById('userTypeFilter').value = 'all';
+        document.getElementById('dateFilter').value = 'all';
+        filteredOffenses = [...allOffenses];
+        renderOffenses();
+    }
+
+    function printReport() {
+        // Get current filtered offenses
+        const offenses = filteredOffenses.sort((a,b) => (b.createdAt || 0) - (a.createdAt || 0));
+        const now = new Date();
+        const printDate = now.toLocaleDateString('en-PH', { 
+            year: 'numeric', 
+            month: 'long', 
+            day: 'numeric',
+            hour: '2-digit', 
+            minute: '2-digit'
+        });
+
+        // Calculate statistics
+        const total = offenses.length;
+        const pending = offenses.filter(o => o.status === 'pending').length;
+        const resolved = offenses.filter(o => o.status === 'resolved' || o.status === 'dismissed').length;
+        const active = offenses.filter(o => o.status === 'reviewed' || o.status === 'pending').length;
+        const low = offenses.filter(o => o.severity === 'low').length;
+        const medium = offenses.filter(o => o.severity === 'medium').length;
+        const high = offenses.filter(o => o.severity === 'high').length;
+        const critical = offenses.filter(o => o.severity === 'critical').length;
+
+        // Get active filter values
+        const statusFilter = document.getElementById('statusFilter').value;
+        const severityFilter = document.getElementById('severityFilter').value;
+        const userTypeFilter = document.getElementById('userTypeFilter').value;
+        const dateFilter = document.getElementById('dateFilter').value;
+        const searchTerm = document.getElementById('searchInput').value;
+
+        // Build filter description
+        let filterDescription = 'All offenses';
+        const activeFilters = [];
+        if (statusFilter !== 'all') activeFilters.push(`Status: ${capitalizeFirst(statusFilter)}`);
+        if (severityFilter !== 'all') activeFilters.push(`Severity: ${capitalizeFirst(severityFilter)}`);
+        if (userTypeFilter !== 'all') activeFilters.push(`User Type: ${capitalizeFirst(userTypeFilter)}`);
+        if (dateFilter !== 'all') activeFilters.push(`Date: ${capitalizeFirst(dateFilter)}`);
+        if (searchTerm) activeFilters.push(`Search: "${searchTerm}"`);
+        if (activeFilters.length > 0) {
+            filterDescription = activeFilters.join(', ');
+        }
+
+        // Create print HTML
+        let printHTML = `
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Petopia - Offenses Report</title>
+    <style>
+        @media print {
+            @page {
+                margin: 1cm;
+            }
+        }
+        body {
+            font-family: Arial, sans-serif;
+            font-size: 11pt;
+            line-height: 1.5;
+            color: #000;
+            margin: 0;
+            padding: 20px;
+        }
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+            border-bottom: 3px solid #000;
+            padding-bottom: 15px;
+        }
+        .header h1 {
+            margin: 0;
+            font-size: 24pt;
+            color: #000;
+        }
+        .header .subtitle {
+            margin-top: 5px;
+            font-size: 12pt;
+            color: #333;
+        }
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 15px;
+            margin-bottom: 30px;
+            page-break-inside: avoid;
+        }
+        .stat-box {
+            border: 1px solid #000;
+            padding: 10px;
+            text-align: center;
+        }
+        .stat-box .label {
+            font-size: 9pt;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+        .stat-box .value {
+            font-size: 20pt;
+            font-weight: bold;
+        }
+        .filter-info {
+            margin-bottom: 20px;
+            padding: 10px;
+            background: #f5f5f5;
+            border: 1px solid #ddd;
+        }
+        .filter-info strong {
+            font-weight: bold;
+        }
+        .offense-item {
+            margin-bottom: 20px;
+            padding: 15px;
+            border: 1px solid #ddd;
+            page-break-inside: avoid;
+        }
+        .offense-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+            padding-bottom: 8px;
+            border-bottom: 1px solid #ddd;
+        }
+        .offense-id {
+            font-weight: bold;
+            font-size: 12pt;
+        }
+        .badge {
+            display: inline-block;
+            padding: 4px 8px;
+            border: 1px solid #000;
+            border-radius: 4px;
+            font-size: 9pt;
+            font-weight: bold;
+            margin-left: 5px;
+        }
+        .badge.status-pending { background: #fff; }
+        .badge.status-reviewed { background: #fffbf0; }
+        .badge.status-resolved { background: #f0fff4; }
+        .badge.status-dismissed { background: #f5f5f5; }
+        .badge.severity-low { background: #f0fff4; }
+        .badge.severity-medium { background: #fffbf0; }
+        .badge.severity-high { background: #fff0f0; }
+        .badge.severity-critical { background: #ffe0e0; }
+        .offense-body {
+            margin-top: 10px;
+        }
+        .offense-row {
+            margin-bottom: 8px;
+        }
+        .offense-row strong {
+            font-weight: bold;
+            margin-right: 5px;
+        }
+        .footer {
+            margin-top: 40px;
+            padding-top: 15px;
+            border-top: 2px solid #000;
+            text-align: center;
+            font-size: 9pt;
+        }
+        .no-offenses {
+            text-align: center;
+            padding: 40px;
+            font-style: italic;
+            color: #666;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>PETOPIA</h1>
+        <div class="subtitle">Offenses & Violations Report</div>
+        <div class="subtitle" style="font-size: 10pt; margin-top: 5px;">Generated: ${printDate}</div>
+    </div>
+
+    <div class="stats">
+        <div class="stat-box">
+            <div class="label">Total Offenses</div>
+            <div class="value">${total}</div>
+        </div>
+        <div class="stat-box">
+            <div class="label">Pending</div>
+            <div class="value">${pending}</div>
+        </div>
+        <div class="stat-box">
+            <div class="label">Active</div>
+            <div class="value">${active}</div>
+        </div>
+        <div class="stat-box">
+            <div class="label">Resolved</div>
+            <div class="value">${resolved}</div>
+        </div>
+    </div>
+
+    <div class="stats">
+        <div class="stat-box">
+            <div class="label">Low Severity</div>
+            <div class="value">${low}</div>
+        </div>
+        <div class="stat-box">
+            <div class="label">Medium Severity</div>
+            <div class="value">${medium}</div>
+        </div>
+        <div class="stat-box">
+            <div class="label">High Severity</div>
+            <div class="value">${high}</div>
+        </div>
+        <div class="stat-box">
+            <div class="label">Critical Severity</div>
+            <div class="value">${critical}</div>
+        </div>
+    </div>
+
+    <div class="filter-info">
+        <strong>Applied Filters:</strong> ${filterDescription}
+    </div>
+
+    <h2 style="margin-top: 30px; margin-bottom: 15px; font-size: 16pt; border-bottom: 2px solid #000; padding-bottom: 5px;">Offense Details</h2>
+
+    ${offenses.length === 0 ? '<div class="no-offenses">No offenses found matching the current filters.</div>' : ''}
+
+`;
+
+        // Add each offense to the print HTML
+        offenses.forEach((offense, index) => {
+            const date = offense.createdAt ? new Date(offense.createdAt).toLocaleDateString('en-PH', { 
+                year: 'numeric', 
+                month: 'short', 
+                day: 'numeric',
+                hour: '2-digit', 
+                minute: '2-digit'
+            }) : 'N/A';
+            
+            const resolvedDate = offense.resolvedAt ? new Date(offense.resolvedAt).toLocaleDateString('en-PH', { 
+                year: 'numeric', 
+                month: 'short', 
+                day: 'numeric',
+                hour: '2-digit', 
+                minute: '2-digit'
+            }) : null;
+
+            // Build reporter information
+            let reporterInfo = '';
+            if (offense.reporter_name && offense.reported_against_name) {
+                reporterInfo = `
+                <div class="offense-row"><strong>Reported by:</strong> ${offense.reporter_name} (${capitalizeFirst(offense.reporter_type || 'User')}) - ${offense.reporter_email || 'N/A'}</div>
+                <div class="offense-row"><strong>Against:</strong> ${offense.reported_against_name} (${capitalizeFirst(offense.reported_against_type || 'User')}) - ${offense.reported_against_email || 'N/A'}</div>
+                `;
+            } else if (offense.reporter_name) {
+                reporterInfo = `
+                <div class="offense-row"><strong>Reported by:</strong> ${offense.reporter_name} (${capitalizeFirst(offense.reporter_type || 'User')}) - ${offense.reporter_email || 'N/A'}</div>
+                `;
+            } else if (offense.buyer_name && offense.seller_name) {
+                reporterInfo = `
+                <div class="offense-row"><strong>Reported by:</strong> ${offense.buyer_name} (Buyer) - ${offense.buyer_email || 'N/A'}</div>
+                <div class="offense-row"><strong>Against:</strong> ${offense.seller_name} (Seller) - ${offense.seller_email || 'N/A'}</div>
+                `;
+            } else if (offense.buyer_name) {
+                reporterInfo = `
+                <div class="offense-row"><strong>Reported by:</strong> ${offense.buyer_name} (Buyer) - ${offense.buyer_email || 'N/A'}</div>
+                `;
+            }
+
+            printHTML += `
+    <div class="offense-item">
+        <div class="offense-header">
+            <div class="offense-id">#${offense.id}</div>
+            <div>
+                <span class="badge status-${offense.status}">${capitalizeFirst(offense.status.replace('-', ' '))}</span>
+                <span class="badge severity-${offense.severity}">${capitalizeFirst(offense.severity)}</span>
+            </div>
+        </div>
+        <div class="offense-body">
+            <div class="offense-row"><strong>User:</strong> ${offense.userName || 'Unknown User'} (${capitalizeFirst(offense.userType || 'user')})</div>
+            <div class="offense-row"><strong>Type:</strong> ${offense.offenseTypeLabel || 'Unknown Offense'}</div>
+            <div class="offense-row"><strong>Description:</strong> ${offense.description || 'No description'}</div>
+            ${offense.order_id ? `<div class="offense-row"><strong>Order ID:</strong> #${offense.order_id}</div>` : ''}
+            ${reporterInfo}
+            <div class="offense-row"><strong>Created:</strong> ${date}</div>
+            ${resolvedDate ? `<div class="offense-row"><strong>Resolved:</strong> ${resolvedDate}</div>` : ''}
+            ${offense.admin_notes ? `<div class="offense-row" style="margin-top: 8px; padding: 8px; background: #f9f9f9; border-left: 3px solid #666;"><strong>Admin Notes:</strong> ${offense.admin_notes}</div>` : ''}
+            ${offense.evidence && offense.evidence.length > 0 ? `<div class="offense-row"><strong>Evidence:</strong> ${offense.evidence.length} image(s) attached</div>` : ''}
+        </div>
+    </div>
+`;
+        });
+
+        printHTML += `
+    <div class="footer">
+        <div>© ${new Date().getFullYear()} Petopia - Offenses & Violations Report</div>
+        <div style="margin-top: 5px;">Page 1 of 1 - Generated on ${printDate}</div>
+    </div>
+</body>
+</html>
+`;
+
+        // Open print window
+        const printWindow = window.open('', '_blank');
+        printWindow.document.write(printHTML);
+        printWindow.document.close();
+        
+        // Wait for content to load, then trigger print
+        printWindow.onload = function() {
+            setTimeout(function() {
+                printWindow.print();
+                // Optional: close window after printing
+                // printWindow.close();
+            }, 250);
+        };
+    }
+
+    // Utility functions
+    function capitalizeFirst(str) { 
+        return str.charAt(0).toUpperCase() + str.slice(1).toLowerCase(); 
+    }
+    
+    function debounce(func, wait) {
+        let timeout;
+        return function executedFunction(...args) {
+            const later = () => {
+                clearTimeout(timeout);
+                func(...args);
+            };
+            clearTimeout(timeout);
+            timeout = setTimeout(later, wait);
+        };
+    }
+
+    // Close modal on outside click
+    document.getElementById('offenseModal').addEventListener('click', function(e){
+        if (e.target === this) closeOffenseModal();
+    });
+    
+    document.getElementById('statusModal').addEventListener('click', function(e){
+        if (e.target === this) closeStatusModal();
+    });
+  </script>
+  <script>
+    function confirmLogout(){
+      showCustomConfirm('Are you sure you want to logout?', function() {
+        window.location.href = "{{ url_for('logout') }}";
+      });
+    }
+  </script>
+</body>
+</html>

@@ -1,0 +1,287 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Petopia • OTP Verification</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/remixicon@4.3.0/fonts/remixicon.css" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #f6f8ff;
+      --panel: rgba(255,255,255,.6);
+      --panel-strong: rgba(255,255,255,.9);
+      --text: #0b0f1a;
+      --muted: #5b6378;
+      --accent: #7cf4d1;
+      --accent-2: #8bb6ff;
+      --ring: rgba(124, 244, 209, 0.7);
+      --error: #ff6b6b;
+      --shadow: 0 20px 60px rgba(16,24,40,.15);
+    }
+
+    * { box-sizing: border-box; }
+    html, body { height: 100%; }
+    body {
+      margin: 0; font-family: Inter, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial;
+      color: var(--text); background: var(--bg); overflow: hidden;
+    }
+
+    .aurora { position: fixed; inset: 0; filter: blur(60px); pointer-events: none; overflow: hidden; }
+    .blob { position: absolute; width: 60vmax; height: 60vmax; border-radius: 50%; mix-blend-mode: screen; opacity: .55; animation: float 18s ease-in-out infinite; }
+    .blob.a { background: radial-gradient(circle at 30% 30%, var(--accent), transparent 60%); left: -20vmax; top: -10vmax; animation-delay: 0s; }
+    .blob.b { background: radial-gradient(circle at 70% 30%, var(--accent-2), transparent 60%); right: -15vmax; top: -5vmax; animation-delay: 4s; }
+    .blob.c { background: radial-gradient(circle at 50% 70%, #f39cff, transparent 60%); left: 10vmax; bottom: -20vmax; animation-delay: 8s; }
+    @keyframes float { 0%,100% { transform: translate3d(0,0,0) scale(1); } 50% { transform: translate3d(0,-4%,0) scale(1.05);} }
+
+    .wrap { position: relative; display: grid; grid-template-columns: 1.1fr .9fr; height: 100%; }
+    @media (max-width: 980px) { .wrap { grid-template-columns: 1fr; } .hero { display: none; } }
+
+    .hero { position: relative; display: grid; place-items: center; padding: 6vmin; }
+    .hero-inner { position: relative; z-index: 2; max-width: 640px; text-align: left; }
+    .brand { display: inline-flex; align-items: center; gap: .6rem; padding: .5rem .9rem; border-radius: 999px; background: var(--panel); backdrop-filter: blur(10px); border: 1px solid var(--panel-strong); box-shadow: var(--shadow); }
+    .logo { width: 28px; height: 28px; display: grid; place-items: center; border-radius: 8px; background: linear-gradient(135deg, var(--accent), var(--accent-2)); color: #051014; font-weight: 800; }
+    h1 { margin: 16px 0 10px; font-size: clamp(36px, 5.2vw, 56px); line-height: 1.02; letter-spacing: -0.02em; }
+    p.lede { margin: 0; color: var(--muted); font-size: clamp(14px, 1.6vw, 16px); }
+
+    .panel-wrap { display: grid; place-items: center; padding: 6vmin; }
+    .panel { position: relative; width: min(460px, 92vw); padding: 28px; border-radius: 22px; background: var(--panel); border: 1px solid var(--panel-strong); box-shadow: var(--shadow); backdrop-filter: blur(18px); }
+    .panel header { margin-bottom: 8px; }
+    .panel header h2 { margin: 0; font-size: 26px; letter-spacing: -0.02em; text-align: center; }
+
+    form { margin-top: 18px; display: grid; gap: 20px; }
+
+    .otp-inputs {
+      display: flex;
+      justify-content: center;
+      gap: 12px;
+    }
+    .otp-inputs input {
+      border: 2px solid var(--accent);
+      background: rgba(255,255,255,.04);
+      color: var(--text);
+      border-radius: 14px;
+      width: 54px;
+      height: 54px;
+      text-align: center;
+      font-size: 20px;
+      outline: none;
+      transition: box-shadow .2s, border-color .2s;
+    }
+    .otp-inputs input:focus {
+      border-color: var(--ring);
+      box-shadow: 0 0 0 6px rgba(124,244,209,.15);
+    }
+
+    .btn {
+      width: 100%; padding: 14px 16px;
+      border: 0; border-radius: 16px;
+      font-weight: 700; letter-spacing: .01em;
+      cursor: pointer;
+      background: linear-gradient(135deg, var(--accent), var(--accent-2));
+      color: #051014;
+      box-shadow: 0 12px 30px rgba(139,182,255,.25);
+      transition: transform .05s ease, box-shadow .2s ease;
+    }
+    .btn:active { transform: translateY(1px) scale(.998); box-shadow: 0 6px 18px rgba(139,182,255,.25); }
+
+    .meta { margin-top: 16px; text-align: center; font-size: 14px; color: var(--muted); }
+    .link { color: var(--text); text-underline-offset: 4px; cursor: pointer; }
+
+    footer { position: fixed; bottom: 10px; left: 0; right: 0; text-align: center; color: var(--muted); font-size: 12px; }
+  </style>
+</head>
+<body>
+  <a href="{{ url_for('login') }}" style="position:fixed;top:16px;left:16px;z-index:99;background:var(--panel);padding:5px 12px;border-radius:999px;text-decoration:none;color:var(--text);font-weight:600;box-shadow:var(--shadow);border:1px solid var(--panel-strong);display:inline-flex;align-items:center;gap:6px;font-size:13px;">
+    <i class="ri-arrow-left-line" style="font-size:15px;"></i> Back to Login
+  </a>
+
+  <div class="aurora" aria-hidden="true">
+    <div class="blob a"></div>
+    <div class="blob b"></div>
+    <div class="blob c"></div>
+  </div>
+
+  <main class="wrap" role="main">
+    <section class="hero" aria-label="Brand intro">
+      <div class="hero-inner">
+        <div class="brand">
+          <span class="logo">🐾</span>
+          <strong>Petopia</strong>
+          <span style="color:var(--muted)">Pet Shop Essentials</span>
+        </div>
+        <h1>Verify your identity<span style="opacity:.6">.</span><br>Secure login with your <em>OTP</em></h1>
+        <p class="lede">We’ve sent a 6-digit code to your registered email or phone. Enter it below to continue.</p>
+      </div>
+    </section>
+
+    <section class="panel-wrap" aria-label="OTP form">
+      <div class="panel">
+        <header>
+          <h2>OTP Verification</h2>
+        </header>
+
+        <form id="otpForm" novalidate>
+          <div class="otp-inputs">
+            <input type="text" name="otp1" maxlength="1" inputmode="numeric" required>
+            <input type="text" name="otp2" maxlength="1" inputmode="numeric" required>
+            <input type="text" name="otp3" maxlength="1" inputmode="numeric" required>
+            <input type="text" name="otp4" maxlength="1" inputmode="numeric" required>
+            <input type="text" name="otp5" maxlength="1" inputmode="numeric" required>
+            <input type="text" name="otp6" maxlength="1" inputmode="numeric" required>
+          </div>
+
+          <button class="btn" type="submit">Verify</button>
+
+          <div class="meta">
+            Didn't get a code? <a class="link" id="resendOtpLink" href="#">Resend OTP</a>
+          </div>
+        </form>
+      </div>
+    </section>
+  </main>
+
+  <footer>© <span id="year"></span> Petopia — For happy pets & happy owners 🐶🐱🐦</footer>
+
+  <script>
+    // Custom alert function to replace browser alert dialogs
+    function showCustomAlert(type, title, message, onOkCallback) {
+      const div = document.createElement('div');
+      div.id = 'customAlertModal';
+      div.style = 'position:fixed;top:0;left:0;width:100vw;height:100vh;z-index:9999;background:rgba(0,0,0,.25);backdrop-filter:blur(2px);display:flex;align-items:center;justify-content:center;';
+      
+      // Determine icon and colors based on type
+      let icon = 'ri-information-line';
+      let iconBg = 'rgba(139,182,255,.15)';
+      let iconColor = 'var(--accent-2)';
+      let titleColor = '#23272f';
+      
+      if (type === 'error') {
+        icon = 'ri-error-warning-line';
+        iconBg = 'rgba(255,107,107,.15)';
+        iconColor = 'var(--error)';
+      } else if (type === 'success') {
+        icon = 'ri-checkbox-circle-line';
+        iconBg = 'rgba(74,222,128,.15)';
+        iconColor = '#4ade80';
+      } else if (type === 'warning') {
+        icon = 'ri-alert-line';
+        iconBg = 'rgba(255,184,107,.15)';
+        iconColor = '#ffb86b';
+      }
+      
+      div.innerHTML = `
+        <div style="background:var(--panel-strong);border-radius:18px;max-width:500px;width:90vw;box-shadow:var(--shadow);position:relative;overflow:hidden;">
+          <div style="padding:32px;text-align:center;">
+            <div style="width:64px;height:64px;border-radius:50%;background:${iconBg};display:flex;align-items:center;justify-content:center;margin:0 auto 20px;border:2px solid ${iconColor};">
+              <i class="${icon}" style="font-size:2rem;color:${iconColor};"></i>
+            </div>
+            <h3 style="font-size:1.5rem;font-weight:800;color:${titleColor};margin-bottom:12px;">${title}</h3>
+            <p style="color:var(--muted);font-weight:600;font-size:1rem;line-height:1.6;margin-bottom:24px;">${message}</p>
+            <button id="alertOk" style="padding:12px 32px;border-radius:10px;background:linear-gradient(135deg, var(--accent), var(--accent-2));color:#051014;font-weight:700;border:none;cursor:pointer;font-size:1rem;box-shadow:0 8px 26px rgba(139,182,255,.08);transition:all .2s ease;">OK</button>
+          </div>
+        </div>
+      `;
+      document.body.appendChild(div);
+      
+      const closeHandler = function() {
+        div.remove();
+        if (onOkCallback) {
+          onOkCallback();
+        }
+      };
+      
+      document.getElementById('alertOk').addEventListener('click', closeHandler);
+      
+      div.addEventListener('click', function(e) {
+        if (e.target === div) closeHandler();
+      });
+      
+      const escapeHandler = function(e) {
+        if (e.key === 'Escape') {
+          closeHandler();
+          document.removeEventListener('keydown', escapeHandler);
+        }
+      };
+      document.addEventListener('keydown', escapeHandler);
+    }
+
+    const inputs = document.querySelectorAll('.otp-inputs input');
+
+    // Allow typing continuously
+    inputs.forEach((input, idx) => {
+      input.addEventListener('input', e => {
+        const value = input.value;
+        if (!/^\d$/.test(value)) { input.value = ''; return; } // only digits
+        if (idx < inputs.length - 1) inputs[idx + 1].focus();
+      });
+
+      input.addEventListener('keydown', e => {
+        if (e.key === 'Backspace' && !input.value && idx > 0) {
+          inputs[idx - 1].focus();
+        }
+      });
+    });
+
+    // Submit on Enter
+    document.getElementById('otpForm').addEventListener('keydown', e => {
+      if (e.key === 'Enter') {
+        e.preventDefault();
+        submitOTP();
+      }
+    });
+
+    // Submit button
+    document.getElementById('otpForm').addEventListener('submit', e => {
+      e.preventDefault();
+      submitOTP();
+    });
+
+    async function submitOTP() {
+    const enteredOTP = Array.from(inputs).map(i => i.value).join('');
+
+    if (enteredOTP.length !== 6) {
+      showCustomAlert('warning', 'Incomplete OTP', 'Please enter all 6 digits.');
+      return;
+    }
+
+    try {
+      const res = await fetch("/verify_otp", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ otp: enteredOTP })
+      });
+
+      const data = await res.json();
+
+      if (data.success) {
+        showCustomAlert('success', 'Verification Successful', data.message, function() {
+          setTimeout(() => {
+            window.location.href = "{{ url_for('login') }}";
+          }, 100);
+        });
+      } else {
+        showCustomAlert('error', 'Verification Failed', data.message);
+        inputs.forEach(i => i.value = '');
+        inputs[0].focus();
+      }
+
+    } catch (err) {
+      console.error(err);
+      showCustomAlert('error', 'Server Error', 'Server error. Please try again later.');
+    }
+  }
+
+    // Handle resend OTP link
+    document.getElementById('resendOtpLink').addEventListener('click', function(e) {
+      e.preventDefault();
+      showCustomAlert('info', 'Resend OTP', 'This feature will be available soon. Please contact support if you need assistance.');
+    });
+
+    document.getElementById('year').textContent = new Date().getFullYear();
+  </script>
+
+</body>
+</html>

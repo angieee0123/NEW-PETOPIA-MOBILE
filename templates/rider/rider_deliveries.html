@@ -1,0 +1,1292 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Petopia • My Deliveries</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+  <style>
+    :root{--bg:#f6f8ff;--panel:rgba(255,255,255,.60);--panel-strong:rgba(255,255,255,.95);--text:#0b0f1a;--muted:#5b6378;--accent:#7cf4d1;--accent-2:#8bb6ff;--glass-shadow:0 10px 30px rgba(16,24,40,.08);--card-radius:12px;--gap:18px;--sidebar-w:260px;--warning:#ffb86b;--success:#4ade80;--error:#ff6b6b;}
+    *{box-sizing:border-box}
+    body{margin:0;font-family:"Inter",system-ui,-apple-system,"Segoe UI",Roboto,"Helvetica Neue",Arial;background:var(--bg);color:var(--text);-webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale;min-height:100vh;display:flex;}
+    .sidebar{width:var(--sidebar-w);position:fixed;top:0;left:0;bottom:0;padding:22px 18px;background:var(--panel-strong);backdrop-filter:blur(10px);box-shadow:var(--glass-shadow);display:flex;flex-direction:column;gap:14px;z-index:50;}
+    .brand{display:flex;align-items:center;gap:10px;margin-bottom:6px;}
+    .brand .logo{width:44px;height:44px;border-radius:10px;background:linear-gradient(135deg,var(--accent),var(--accent-2));display:flex;align-items:center;justify-content:center;color:#051014;font-weight:800;font-size:1.05rem;box-shadow:0 6px 18px rgba(139,182,255,.09);}
+    .brand .logo-img{width:44px;height:44px;border-radius:10px;object-fit:contain;box-shadow:0 6px 18px rgba(139,182,255,.09);}
+    .brand .title{font-weight:800;letter-spacing:0.3px;color:#23272f;font-size:1.05rem;}
+    nav.side-nav{display:flex;flex-direction:column;gap:6px;margin-top:8px;padding-top:6px;}
+    nav.side-nav a{display:flex;gap:12px;align-items:center;padding:10px 12px;border-radius:10px;color:var(--text);text-decoration:none;font-weight:600;transition:all .16s ease;}
+    nav.side-nav a i{width:20px;text-align:center;color:#5b6378;}
+    nav.side-nav a span{font-size:0.95rem;color:var(--text);}
+    nav.side-nav a:hover,nav.side-nav a.active{background:linear-gradient(135deg,var(--accent),var(--accent-2));color:#051014;box-shadow:0 8px 26px rgba(139,182,255,.08);}
+    .sidebar .spacer{flex:1}
+    .sidebar .small{font-size:0.85rem;color:var(--muted);text-align:center;padding:6px 8px;}
+    .main{margin-left:calc(var(--sidebar-w) + 20px);padding:26px;flex:1;display:flex;flex-direction:column;gap:var(--gap);}
+    header.topbar{display:flex;justify-content:space-between;align-items:center;gap:12px;background:var(--panel);padding:12px 16px;border-radius:12px;box-shadow:var(--glass-shadow);flex-wrap:wrap;}
+    .search{display:flex;align-items:center;gap:8px;flex:1;max-width:500px;}
+    .search input{flex:1;padding:10px 12px;border-radius:10px;border:1px solid rgba(11,15,26,.06);background:#fff;}
+    .icon-btn{border:none;background:transparent;font-size:1.05rem;padding:8px;border-radius:8px;cursor:pointer;color:var(--text);position:relative;}
+    .icon-btn:hover{color:var(--accent-2);}
+    .badge{position:absolute;top:2px;right:2px;background:var(--accent-2);color:#051014;border-radius:999px;padding:2px 6px;font-weight:800;font-size:0.72rem;}
+    .panel{background:var(--panel-strong);border-radius:12px;padding:20px;box-shadow:var(--glass-shadow);}
+    .panel h3{margin:0 0 16px 0;font-size:1.15rem;color:#23272f;font-weight:800;}
+    .tabs{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:16px;}
+    .tab{padding:8px 14px;border-radius:999px;border:1px solid rgba(11,15,26,.08);background:#fff;font-weight:700;color:#23272f;cursor:pointer;transition:all .2s ease;}
+    .tab:hover{background:rgba(139,182,255,.08);}
+    .tab.active{background:rgba(139,182,255,.12);border-color:rgba(139,182,255,.35);color:var(--accent-2);}
+    .tab[data-filter="available"].active{background:rgba(255,184,107,.2);border-color:rgba(255,184,107,.45);color:var(--warning);}
+    .tab[data-filter="accepted"].active{background:rgba(139,182,255,.2);border-color:rgba(139,182,255,.45);color:var(--accent-2);}
+    .tab[data-filter="picked_up"].active{background:rgba(124,244,209,.2);border-color:rgba(124,244,209,.45);color:var(--accent);}
+    .tab[data-filter="in_transit"].active{background:rgba(74,222,128,.2);border-color:rgba(74,222,128,.45);color:var(--success);}
+    .tab[data-filter="delivered"].active{background:rgba(74,222,128,.2);border-color:rgba(74,222,128,.45);color:var(--success);}
+    .deliveries{display:grid;gap:12px;}
+    .delivery-card{border:1px solid #e5e8f0;border-radius:12px;background:#fff;overflow:hidden;}
+    .delivery-header{display:flex;justify-content:space-between;align-items:center;padding:12px 16px;background:#f9fbff;border-bottom:1px solid #e5e8f0;}
+    .delivery-id{font-weight:800;color:#23272f;font-size:.95rem;}
+    .delivery-status{padding:4px 12px;border-radius:20px;font-size:.8rem;font-weight:800;}
+    .delivery-status.available{background:rgba(255,184,107,.2);color:var(--warning);}
+    .delivery-status.accepted{background:rgba(139,182,255,.2);color:var(--accent-2);}
+    .delivery-status.picked_up{background:rgba(124,244,209,.2);color:var(--accent);}
+    .delivery-status.in_transit{background:rgba(74,222,128,.2);color:var(--success);}
+    .delivery-status.delivered{background:rgba(74,222,128,.2);color:var(--success);}
+    .delivery-body{padding:16px;}
+    .route-section{margin-bottom:16px;}
+    .location{display:flex;align-items:start;gap:12px;padding:10px;background:rgba(139,182,255,.04);border-radius:8px;margin-bottom:8px;}
+    .location i{color:var(--accent-2);font-size:1.1rem;margin-top:2px;}
+    .location-details{flex:1;}
+    .location-label{font-weight:700;color:#23272f;font-size:.9rem;margin-bottom:2px;}
+    .location-address{color:var(--muted);font-size:.85rem;font-weight:600;}
+    .location-contact{color:var(--muted);font-size:.8rem;margin-top:4px;}
+    .delivery-info{display:flex;flex-wrap:wrap;gap:12px;padding:12px;background:rgba(139,182,255,.04);border-radius:8px;margin-bottom:14px;}
+    .info-item{display:flex;align-items:center;gap:6px;font-size:.85rem;font-weight:700;color:#23272f;}
+    .info-item i{color:var(--accent-2);}
+    .delivery-actions{display:flex;gap:8px;flex-wrap:wrap;}
+    .product-list{display:flex;flex-direction:column;gap:8px;margin:12px 0;}
+    .product-item{display:flex;align-items:center;gap:10px;}
+    .product-thumb{width:42px;height:42px;border-radius:8px;object-fit:cover;background:#f2f4f8;border:1px solid #e5e8f0;}
+    .product-meta{display:flex;flex-direction:column;}
+    .product-line{font-weight:700;font-size:.85rem;color:#23272f;}
+    .product-sub{font-size:.82rem;color:var(--muted);font-weight:600;}
+    .product-item.hidden{display:none;}
+    .view-more-btn{width:100%;padding:8px 12px;margin-top:8px;border-radius:8px;border:1px solid rgba(139,182,255,.3);background:rgba(139,182,255,.08);color:var(--accent-2);font-weight:700;cursor:pointer;transition:all .2s ease;font-size:.85rem;text-align:center;}
+    .view-more-btn:hover{background:rgba(139,182,255,.15);border-color:rgba(139,182,255,.5);}
+    .btn{padding:10px 16px;border-radius:8px;border:none;font-weight:700;cursor:pointer;transition:all .2s ease;font-size:.9rem;}
+    .btn-primary{background:linear-gradient(135deg,var(--accent),var(--accent-2));color:#051014;}
+    .btn-secondary{background:#fff;border:1px solid rgba(11,15,26,.1);color:var(--text);}
+    .btn-success{background:var(--success);color:#fff;}
+    .btn-warning{background:var(--warning);color:#051014;}
+    .btn:hover{transform:translateY(-1px);box-shadow:0 4px 12px rgba(0,0,0,.1);}
+    footer{margin-top:16px;padding:18px;text-align:center;color:var(--muted);font-size:0.9rem;}
+  </style>
+</head>
+<body data-rider-id="{{ session.get('user_id') }}">
+  <aside class="sidebar">
+    <div class="brand"><img src="{{ url_for('static', filename='logo/PETOPIA_LOGO.png') }}" alt="Petopia Logo" class="logo-img"><div class="title">Petopia</div></div>
+    <nav class="side-nav">
+      <a href="{{ url_for('rider_dashboard') }}"><i class="fa-solid fa-chart-line"></i><span>Dashboard</span></a>
+      <a href="{{ url_for('rider_deliveries') }}" class="active">
+        <i class="fa-solid fa-truck"></i>
+        <span>My Deliveries</span>
+      </a>
+      
+      <a href="{{ url_for('rider_earnings') }}"><i class="fa-solid fa-peso-sign"></i><span>Earnings</span></a>
+      <a href="{{ url_for('rider_history') }}"><i class="fa-solid fa-history"></i><span>History</span></a>
+      <a href="{{ url_for('logout') }}" id="logoutLink"><i class="fa-solid fa-right-from-bracket"></i><span>Logout</span></a>
+    </nav>
+    <div class="spacer"></div>
+    <div class="small">Signed in as <strong>Rider</strong></div>
+  </aside>
+
+  <main class="main">
+    <header class="topbar">
+      <div>
+        <div style="font-weight:800;font-size:1.05rem">My Deliveries 🛵</div>
+        <div style="font-size:0.88rem;color:var(--muted)">Manage your pickup and delivery tasks</div>
+      </div>
+      <div class="search">
+        <input type="text" id="searchInput" placeholder="Search by order ID or address..." />
+        <button class="icon-btn"><i class="fa-solid fa-magnifying-glass"></i></button>
+      </div>
+      <div style="display:flex;align-items:center;gap:12px;">
+        <button class="icon-btn"><i class="fa-regular fa-bell"></i><span class="badge">3</span></button>
+        <button class="icon-btn"><i class="fa-regular fa-envelope"></i></button>
+      </div>
+    </header>
+
+    <section class="panel">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">
+        <h3>Delivery Tasks</h3>
+        <div style="color:var(--muted);font-weight:600;font-size:.9rem;">
+          Total: <span id="totalDeliveries" style="color:#23272f;font-weight:800;">0</span> deliveries
+        </div>
+      </div>
+
+      <div class="tabs">
+        <button class="tab active" data-filter="all">All</button>
+        <button class="tab" data-filter="available">Available</button>
+        <button class="tab" data-filter="in_transit">Processing</button>
+        <button class="tab" data-filter="delivered">Delivered</button>
+      </div>
+
+      <div id="deliveriesContainer" class="deliveries"></div>
+      <div id="emptyState" style="display:none;text-align:center;padding:40px;color:var(--muted);">
+        <i class="fa-solid fa-truck" style="font-size:3rem;opacity:.3;margin-bottom:12px;"></i>
+        <p style="font-weight:700;">No deliveries found</p>
+      </div>
+    </section>
+
+    <footer>© <span id="yr"></span> Petopia. All rights reserved.</footer>
+  </main>
+
+  <script>
+    document.getElementById('yr').textContent = new Date().getFullYear();
+
+    // Custom alert function to replace browser alert dialogs
+    function showCustomAlert(message, type = 'error', title = null) {
+      const div = document.createElement('div');
+      div.id = 'customAlertModal';
+      div.style = 'position:fixed;top:0;left:0;width:100vw;height:100vh;z-index:9999;background:rgba(0,0,0,.25);backdrop-filter:blur(2px);display:flex;align-items:center;justify-content:center;';
+      
+      // Determine icon and colors based on type
+      let iconBg, iconColor, iconClass, alertTitle, borderColor;
+      const errorColor = '#ff6b6b';
+      const successColor = '#4ade80';
+      const warningColor = '#fbbf24';
+      const infoColor = '#8bb6ff';
+      
+      if (type === 'success') {
+        iconBg = 'rgba(74,222,128,.15)';
+        iconColor = successColor;
+        iconClass = 'fa-circle-check';
+        alertTitle = title || 'Success';
+        borderColor = successColor;
+      } else if (type === 'warning') {
+        iconBg = 'rgba(251,191,36,.15)';
+        iconColor = warningColor;
+        iconClass = 'fa-triangle-exclamation';
+        alertTitle = title || 'Warning';
+        borderColor = warningColor;
+      } else if (type === 'info') {
+        iconBg = 'rgba(139,182,255,.15)';
+        iconColor = infoColor;
+        iconClass = 'fa-circle-info';
+        alertTitle = title || 'Notice';
+        borderColor = infoColor;
+      } else {
+        // error (default)
+        iconBg = 'rgba(255,107,107,.15)';
+        iconColor = errorColor;
+        iconClass = 'fa-circle-exclamation';
+        alertTitle = title || 'Error';
+        borderColor = errorColor;
+      }
+      
+      div.innerHTML = `
+        <div style="background:rgba(255,255,255,.97);border-radius:18px;max-width:500px;width:90vw;box-shadow:0 10px 40px rgba(16,24,40,.22);position:relative;overflow:hidden;">
+          <div style="padding:32px;text-align:center;">
+            <div style="width:64px;height:64px;border-radius:50%;background:${iconBg};display:flex;align-items:center;justify-content:center;margin:0 auto 20px;border:2px solid ${borderColor};">
+              <i class="fa-solid ${iconClass}" style="font-size:2rem;color:${iconColor};"></i>
+            </div>
+            <h3 style="font-size:1.5rem;font-weight:800;color:#23272f;margin-bottom:12px;">${alertTitle}</h3>
+            <p style="color:#5b6378;font-weight:600;font-size:1rem;line-height:1.6;margin-bottom:24px;white-space:pre-line;">${message}</p>
+            <div style="display:flex;gap:12px;justify-content:center;">
+              <button id="alertOk" style="padding:12px 32px;border-radius:10px;background:linear-gradient(135deg, var(--accent), var(--accent-2));color:#051014;font-weight:700;border:none;cursor:pointer;font-size:1rem;box-shadow:0 8px 26px rgba(139,182,255,.08);transition:all .2s ease;">OK</button>
+            </div>
+          </div>
+        </div>
+      `;
+      document.body.appendChild(div);
+      
+      const closeHandler = function() {
+        div.remove();
+      };
+      
+      document.getElementById('alertOk').addEventListener('click', closeHandler);
+      
+      div.addEventListener('click', function(e) {
+        if (e.target === div) closeHandler();
+      });
+      
+      const escapeHandler = function(e) {
+        if (e.key === 'Escape') {
+          closeHandler();
+          document.removeEventListener('keydown', escapeHandler);
+        }
+      };
+      document.addEventListener('keydown', escapeHandler);
+    }
+
+    // Custom confirmation function to replace browser confirm dialogs
+    function showCustomConfirm(message, onConfirm, onCancel = null) {
+      const div = document.createElement('div');
+      div.id = 'customConfirmModal';
+      div.style = 'position:fixed;top:0;left:0;width:100vw;height:100vh;z-index:9999;background:rgba(0,0,0,.25);backdrop-filter:blur(2px);display:flex;align-items:center;justify-content:center;';
+      
+      div.innerHTML = `
+        <div style="background:rgba(255,255,255,.97);border-radius:18px;max-width:500px;width:90vw;box-shadow:0 10px 40px rgba(16,24,40,.22);position:relative;overflow:hidden;">
+          <div style="padding:32px;text-align:center;">
+            <div style="width:64px;height:64px;border-radius:50%;background:rgba(251,191,36,.15);display:flex;align-items:center;justify-content:center;margin:0 auto 20px;border:2px solid #fbbf24;">
+              <i class="fa-solid fa-circle-question" style="font-size:2rem;color:#fbbf24;"></i>
+            </div>
+            <h3 style="font-size:1.5rem;font-weight:800;color:#23272f;margin-bottom:12px;">Confirm Action</h3>
+            <p style="color:#5b6378;font-weight:600;font-size:1rem;line-height:1.6;margin-bottom:24px;">${message}</p>
+            <div style="display:flex;gap:12px;justify-content:center;">
+              <button id="confirmCancel" style="padding:12px 24px;border-radius:10px;background:#e5e8f0;color:#23272f;font-weight:700;border:none;cursor:pointer;font-size:1rem;transition:all .2s ease;">Cancel</button>
+              <button id="confirmOk" style="padding:12px 24px;border-radius:10px;background:linear-gradient(135deg, var(--accent), var(--accent-2));color:#051014;font-weight:700;border:none;cursor:pointer;font-size:1rem;box-shadow:0 8px 26px rgba(139,182,255,.08);transition:all .2s ease;">Confirm</button>
+            </div>
+          </div>
+        </div>
+      `;
+      document.body.appendChild(div);
+      
+      const closeHandler = function() {
+        div.remove();
+      };
+      
+      document.getElementById('confirmOk').addEventListener('click', function() {
+        closeHandler();
+        if (onConfirm) onConfirm();
+      });
+      
+      document.getElementById('confirmCancel').addEventListener('click', function() {
+        closeHandler();
+        if (onCancel) onCancel();
+      });
+      
+      div.addEventListener('click', function(e) {
+        if (e.target === div) {
+          closeHandler();
+          if (onCancel) onCancel();
+        }
+      });
+      
+      const escapeHandler = function(e) {
+        if (e.key === 'Escape') {
+          closeHandler();
+          if (onCancel) onCancel();
+          document.removeEventListener('keydown', escapeHandler);
+        }
+      };
+      document.addEventListener('keydown', escapeHandler);
+    }
+
+    const RIDER_ID = (function(){
+      const v = document.body.dataset.riderId;
+      const n = parseInt(v || '0', 10);
+      return Number.isFinite(n) && n > 0 ? n : null;
+    })();
+    const LS_KEY = `petopia_deliveries_${RIDER_ID}`;
+
+    // Load deliveries: merge server 'available' with local active tasks
+    async function fetchAvailableFromServer(){
+      try{
+        const res = await fetch('/rider/deliveries/available', { credentials: 'same-origin' });
+        if(!res.ok) return [];
+        const data = await res.json();
+        return Array.isArray(data) ? data : [];
+      }catch(e){ return []; }
+    }
+
+    async function fetchAllFromServer(){
+      try{
+        const res = await fetch('/rider/deliveries/all', { credentials: 'same-origin' });
+        if(!res.ok) return [];
+        const data = await res.json();
+        return Array.isArray(data) ? data : [];
+      }catch(e){ return []; }
+    }
+
+    async function loadDeliveries(){
+      const localRaw = JSON.parse(localStorage.getItem(LS_KEY) || '[]');
+      // Remove demo delivery #DEMO-20003 if present
+      const local = localRaw.filter(d => String(d.orderId) !== 'DEMO-20003');
+      if (local.length !== localRaw.length) {
+        localStorage.setItem(LS_KEY, JSON.stringify(local));
+      }
+      const [availableFromServer, allFromServer] = await Promise.all([
+        fetchAvailableFromServer().catch(()=>[]),
+        fetchAllFromServer().catch(()=>[])
+      ]);
+      // keep local tasks that are not 'available' (accepted/picked_up/in_transit/delivered)
+      // Also ensure they have the proper structure for per-seller segments
+      const keptLocal = local.filter(d => d.status !== 'available').map(d => {
+        // Ensure sellerId is preserved for per-seller segments
+        if (d.orderId && d.sellerId) {
+          d.id = `${d.orderId}-${d.sellerId}`;
+        }
+        return d;
+      });
+      // Merge with server ALL so All tab persists across refresh
+      // Always prefer server 'all' entries; then fill with keptLocal and available
+      // Use unique segment ID (orderId-sellerId) for per-seller segments
+      const byId = new Map();
+      (allFromServer||[]).forEach(d => {
+        const key = d.sellerId ? `${d.orderId}-${d.sellerId}` : String(d.orderId);
+        byId.set(key, d);
+      });
+      (keptLocal||[]).forEach(d => { 
+        const key = d.sellerId ? `${d.orderId}-${d.sellerId}` : String(d.orderId);
+        if (!byId.has(key)) byId.set(key, d); 
+      });
+      (availableFromServer||[]).forEach(d => { 
+        const key = d.sellerId ? `${d.orderId}-${d.sellerId}` : String(d.orderId);
+        if (!byId.has(key)) byId.set(key, d); 
+      });
+      return Array.from(byId.values());
+    }
+
+
+    function saveDeliveries(deliveries){
+      if (!RIDER_ID) return; // safety
+      localStorage.setItem(LS_KEY, JSON.stringify(deliveries));
+    }
+
+    // Sync delivery status with buyer/seller orders
+    function syncOrderStatus(orderId, riderStatus){
+      // Map rider status to buyer/seller status
+      const statusMap = {
+        'available': 'to_ship',      // Waiting for rider
+        'accepted': 'to_receive',    // Rider accepted, buyer can track
+        'picked_up': 'to_receive',   // Picked up from seller
+        'in_transit': 'to_receive',  // On the way
+        'delivered': 'completed'     // Delivered
+      };
+      
+      const buyerStatus = statusMap[riderStatus] || 'to_ship';
+      
+      // Update in shared orders (if exists)
+      const orders = JSON.parse(localStorage.getItem('petopia_orders') || '[]');
+      const order = orders.find(o => o.id === orderId);
+      if(order){
+        order.status = buyerStatus;
+        order.riderStatus = riderStatus; // Track detailed rider status
+        order.lastUpdate = new Date().toISOString();
+        localStorage.setItem('petopia_orders', JSON.stringify(orders));
+      }
+    }
+
+    let currentFilter = 'all';
+    function setActiveTab(filter){
+      currentFilter = filter;
+      document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
+      const btn = document.querySelector(`.tab[data-filter="${filter}"]`);
+      if (btn) btn.classList.add('active');
+      renderDeliveries();
+    }
+    async function renderDeliveries() {
+      // Always rely on server data to prevent cross-rider leakage
+      const deliveries = await (
+        currentFilter === 'available' ? fetchAvailableFromServer() : fetchAllFromServer()
+      );
+      const searchQuery = document.getElementById('searchInput').value.trim().toLowerCase();
+
+      // Map DB order_status to rider display status deterministically
+      // DB: to_ship → available; to_receive → in_transit; completed → delivered; others pass-through
+      const normalized = (deliveries || []).map(d => {
+        const db = String(d.order_status || '').toLowerCase();
+        let mapped = d.status;
+        if (db === 'to_ship') mapped = 'available';
+        else if (db === 'to_receive') mapped = 'in_transit';
+        else if (db === 'completed') mapped = 'delivered';
+        else if (db === 'cancelled') mapped = 'cancelled';
+        return { ...d, status: mapped };
+      });
+      let filtered = normalized;
+
+      // 1. Filter by status (unless "all")
+      if (currentFilter !== 'all') {
+        filtered = filtered.filter(d => d.status === currentFilter);
+      }
+
+      // 2. Filter by search (if not empty)
+      if (searchQuery) {
+        filtered = filtered.filter(d =>
+          (d.orderId && d.orderId.toLowerCase().includes(searchQuery)) ||
+          (d.pickupAddress && d.pickupAddress.toLowerCase().includes(searchQuery)) ||
+          (d.deliveryAddress && d.deliveryAddress.toLowerCase().includes(searchQuery)) ||
+          (d.deliveryName && d.deliveryName.toLowerCase().includes(searchQuery))
+        );
+      }
+
+      const container = document.getElementById('deliveriesContainer');
+      const empty = document.getElementById('emptyState');
+      document.getElementById('totalDeliveries').textContent = (currentFilter === 'all')
+        ? normalized.filter(d => d.status !== 'cancelled').length
+        : filtered.length;
+
+      // Always show all deliveries if "All" tab is selected and search is empty
+      if (currentFilter === 'all' && !searchQuery) {
+        const allNonCancelled = normalized.filter(d => d.status !== 'cancelled');
+        if (allNonCancelled.length === 0) {
+          container.innerHTML = '';
+          empty.style.display = 'block';
+          return;
+        }
+        empty.style.display = 'none';
+        container.innerHTML = allNonCancelled.map(d => `
+          <div class="delivery-card">
+            <div class="delivery-header">
+              <span class="delivery-id">#${d.orderId}</span>
+              <span class="delivery-status ${d.status}">${formatStatus(d.status)}</span>
+            </div>
+            <div class="delivery-body">
+              <div class="route-section">
+                <div class="location">
+                  <i class="fa-solid fa-store"></i>
+                  <div class="location-details">
+                    <div class="location-label">Pickup: ${d.pickupName}</div>
+                    <div class="location-address">${d.pickupAddress}</div>
+                    <div class="location-contact"><i class="fa-solid fa-phone"></i> ${d.pickupPhone}</div>
+                  </div>
+                </div>
+                <div class="location">
+                  <i class="fa-solid fa-house"></i>
+                  <div class="location-details">
+                    <div class="location-label">Deliver to: ${d.deliveryName}</div>
+                    <div class="location-address">${d.deliveryAddress}</div>
+                    <div class="location-contact"><i class="fa-solid fa-phone"></i> ${d.deliveryPhone}</div>
+                  </div>
+                </div>
+              </div>
+              <div class="product-list" id="plist-${d.orderId}-${d.sellerId}"></div>
+              <div class="delivery-info">
+                <div class="info-item"><i class="fa-solid fa-box"></i> ${d.items} items</div>
+                <div class="info-item"><i class="fa-solid fa-road"></i> ${d.distance}</div>
+                <div class="info-item"><i class="fa-solid fa-clock"></i> ${d.eta}</div>
+                <div class="info-item"><i class="fa-solid fa-peso-sign"></i> ₱${d.fee} ${d.coveredBySeller ? '<span style="color:#5b6378;font-weight:700;">(from seller)</span>' : ''}</div>
+              </div>
+              <div class="delivery-actions">
+                ${getActionButtons(d)}
+              </div>
+            </div>
+          </div>
+        `).join('');
+        // Populate product lists
+        await Promise.all(allNonCancelled.map(d => renderProductListFor(d)));
+        return;
+      }
+
+      // For other tabs or if searching, show filtered
+      if (filtered.length === 0) {
+        container.innerHTML = '';
+        empty.style.display = 'block';
+        return;
+      }
+
+      empty.style.display = 'none';
+      container.innerHTML = filtered.map(d => `
+        <div class="delivery-card">
+          <div class="delivery-header">
+            <span class="delivery-id">#${d.orderId}${d.sellerId ? ` (Seller ${d.sellerId})` : ''}</span>
+            <span class="delivery-status ${d.status}">${formatStatus(d.status)}</span>
+          </div>
+          <div class="delivery-body">
+            <div class="route-section">
+              <div class="location">
+                <i class="fa-solid fa-store"></i>
+                <div class="location-details">
+                  <div class="location-label">Pickup: ${d.pickupName}</div>
+                  <div class="location-address">${d.pickupAddress}</div>
+                  <div class="location-contact"><i class="fa-solid fa-phone"></i> ${d.pickupPhone}</div>
+                </div>
+              </div>
+              <div class="location">
+                <i class="fa-solid fa-house"></i>
+                <div class="location-details">
+                  <div class="location-label">Deliver to: ${d.deliveryName}</div>
+                  <div class="location-address">${d.deliveryAddress}</div>
+                  <div class="location-contact"><i class="fa-solid fa-phone"></i> ${d.deliveryPhone}</div>
+                </div>
+              </div>
+            </div>
+            <div class="product-list" id="plist-${d.orderId}-${d.sellerId}"></div>
+            <div class="delivery-info">
+              <div class="info-item"><i class="fa-solid fa-box"></i> ${d.items} items</div>
+              <div class="info-item"><i class="fa-solid fa-road"></i> ${d.distance}</div>
+              <div class="info-item"><i class="fa-solid fa-clock"></i> ${d.eta}</div>
+              <div class="info-item"><i class="fa-solid fa-peso-sign"></i> ₱${d.fee} ${d.coveredBySeller ? '<span style="color:#5b6378;font-weight:700;">(from seller)</span>' : ''}</div>
+            </div>
+            <div class="delivery-actions">
+              ${getActionButtons(d)}
+            </div>
+          </div>
+        </div>
+      `).join('');
+      await Promise.all(filtered.map(d => renderProductListFor(d)));
+    }
+
+    function formatStatus(status){
+      return status.split('_').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ');
+    }
+
+    function getActionButtons(delivery){
+      switch(delivery.status){
+        case 'available':
+          return `<button class="btn btn-primary" onclick="acceptDelivery('${delivery.id}')"><i class="fa-solid fa-check"></i> Accept Delivery</button>`;
+        
+        
+        case 'in_transit':
+          return `
+            <button class="btn btn-success" onclick="completeDelivery('${delivery.id}')"><i class="fa-solid fa-check-circle"></i> Complete Delivery</button>
+            <button class="btn btn-secondary" onclick="callPhone('${delivery.deliveryPhone}')"><i class="fa-solid fa-phone"></i> Call Customer</button>
+          `;
+        case 'delivered':
+          return `<button class="btn btn-secondary" disabled><i class="fa-solid fa-check"></i> Completed</button>`;
+        default:
+          return '';
+      }
+    }
+
+    async function renderProductListFor(delivery){
+      try{
+        if (!delivery || !delivery.orderId || !delivery.sellerId) return;
+        const hostId = `plist-${delivery.orderId}-${delivery.sellerId}`;
+        const host = document.getElementById(hostId);
+        if (!host) return;
+        host.innerHTML = `<div class="info-item"><i class="fa-solid fa-box"></i> Loading products...</div>`;
+        const res = await fetch(`/rider/deliveries/${delivery.orderId}/${delivery.sellerId}/items`, { credentials: 'same-origin' });
+        if (!res.ok) { host.innerHTML = ''; return; }
+        const items = await res.json();
+        if (!Array.isArray(items) || items.length === 0){ host.innerHTML = ''; return; }
+        
+        const MAX_VISIBLE = 1;
+        const showViewMore = items.length > MAX_VISIBLE;
+        
+        host.innerHTML = items.map((it, index) => `
+          <div class="product-item ${index >= MAX_VISIBLE ? 'hidden' : ''}" data-index="${index}">
+            <img class="product-thumb" src="${it.imageUrl || ''}" alt="${it.name || 'Product'}" onerror="this.style.visibility='hidden'" />
+            <div class="product-meta">
+              <div class="product-line">${it.name || ''}</div>
+              <div class="product-sub">₱${Number(it.unitPrice||0).toFixed(2)} × ${it.quantity}</div>
+            </div>
+          </div>
+        `).join('') + (showViewMore ? `
+          <button class="view-more-btn" onclick="toggleProductList('${hostId}', ${items.length}, ${MAX_VISIBLE})" id="viewMoreBtn-${hostId}">
+            View More (${items.length - MAX_VISIBLE} more)
+          </button>
+        ` : '');
+      }catch(e){
+        // silent fail on UI
+      }
+    }
+
+    function toggleProductList(hostId, totalItems, maxVisible){
+      const host = document.getElementById(hostId);
+      if (!host) return;
+      const btn = document.getElementById(`viewMoreBtn-${hostId}`);
+      if (!btn) return;
+      
+      const allItems = host.querySelectorAll('.product-item');
+      const hiddenItems = Array.from(allItems).filter(item => item.classList.contains('hidden'));
+      const visibleItems = Array.from(allItems).filter(item => !item.classList.contains('hidden'));
+      
+      if (hiddenItems.length > 0) {
+        // Show all items
+        hiddenItems.forEach(item => item.classList.remove('hidden'));
+        btn.innerHTML = 'View Less';
+        btn.onclick = () => toggleProductList(hostId, totalItems, maxVisible);
+      } else {
+        // Hide items beyond maxVisible
+        allItems.forEach((item, index) => {
+          if (index >= maxVisible) {
+            item.classList.add('hidden');
+          }
+        });
+        btn.innerHTML = `View More (${totalItems - maxVisible} more)`;
+        btn.onclick = () => toggleProductList(hostId, totalItems, maxVisible);
+      }
+    }
+
+    async function acceptDelivery(id){
+      // First try to get the delivery from the current rendered deliveries
+      const currentDeliveries = await loadDeliveries();
+      let delivery = currentDeliveries.find(d => d.id === id || String(d.orderId) === String(id));
+      
+      // If not found, try localStorage as fallback
+      if (!delivery) {
+        const deliveries = JSON.parse(localStorage.getItem('petopia_deliveries') || '[]');
+        delivery = deliveries.find(d => d.id === id || String(d.orderId) === String(id));
+      }
+      
+      try{
+        // If id is a string like "51-86", extract orderId and sellerId from it
+        let targetOrderId, sellerId;
+        if (typeof id === 'string' && id.includes('-')) {
+          const parts = id.split('-');
+          targetOrderId = parts[0];
+          sellerId = parts[1];
+        } else {
+          targetOrderId = delivery && delivery.orderId ? delivery.orderId : id;
+          sellerId = delivery && delivery.sellerId ? delivery.sellerId : null;
+        }
+        
+        if (!sellerId) {
+          console.error('Delivery data:', delivery);
+          console.error('Available deliveries:', currentDeliveries);
+          console.error('ID passed:', id);
+          throw new Error('Seller ID not found for this delivery segment. Please refresh the page and try again.');
+        }
+        
+        const r = await fetch(`/rider/deliveries/${String(targetOrderId)}/${sellerId}/status`, {
+          method: 'POST', headers: { 'Content-Type': 'application/json' }, credentials: 'same-origin',
+          body: JSON.stringify({ riderStatus: 'accepted' })
+        });
+        const data = await r.json();
+        if (!r.ok || !data.success) throw new Error(data.message||'Failed');
+        
+        // Update local storage
+        const deliveries = JSON.parse(localStorage.getItem('petopia_deliveries') || '[]');
+        if (!delivery){
+          // Create a minimal local record if it came from server-only list
+          delivery = { id: id, orderId: String(targetOrderId), sellerId: sellerId, status: 'in_transit' };
+          deliveries.push(delivery);
+        } else {
+          delivery.status = 'in_transit';
+          // Update existing delivery in the array
+          const existingIndex = deliveries.findIndex(d => d.id === id || (d.orderId === String(targetOrderId) && d.sellerId === sellerId));
+          if (existingIndex >= 0) {
+            deliveries[existingIndex] = delivery;
+          } else {
+            deliveries.push(delivery);
+          }
+        }
+        saveDeliveries(deliveries);
+        syncOrderStatus(String(targetOrderId), 'accepted');
+        setActiveTab('in_transit');
+        showCustomAlert('Delivery segment accepted! Proceed to pickup and deliver.', 'success', 'Delivery Accepted');
+      }catch(e){ showCustomAlert('Failed to accept delivery: '+e.message, 'error', 'Accept Error'); }
+    }
+
+    async function startPickup(id){
+      // First try to get the delivery from the current rendered deliveries
+      const currentDeliveries = await loadDeliveries();
+      let delivery = currentDeliveries.find(d => d.id === id || String(d.orderId) === String(id));
+      
+      // If not found, try localStorage as fallback
+      if (!delivery) {
+        const deliveries = JSON.parse(localStorage.getItem('petopia_deliveries') || '[]');
+        delivery = deliveries.find(d => d.id === id || String(d.orderId) === String(id));
+      }
+      
+      try{
+        // If id is a string like "51-86", extract orderId and sellerId from it
+        let targetOrderId, sellerId;
+        if (typeof id === 'string' && id.includes('-')) {
+          const parts = id.split('-');
+          targetOrderId = parts[0];
+          sellerId = parts[1];
+        } else {
+          targetOrderId = delivery && delivery.orderId ? delivery.orderId : id;
+          sellerId = delivery && delivery.sellerId ? delivery.sellerId : null;
+        }
+        
+        if (!sellerId) {
+          throw new Error('Seller ID not found for this delivery segment');
+        }
+        
+        const r = await fetch(`/rider/deliveries/${String(targetOrderId)}/${sellerId}/status`, {
+          method: 'POST', headers: { 'Content-Type': 'application/json' }, credentials: 'same-origin',
+          body: JSON.stringify({ riderStatus: 'picked_up' })
+        });
+        const data = await r.json();
+        if (!r.ok || !data.success) throw new Error(data.message||'Failed');
+        
+        // Update local storage
+        const deliveries = JSON.parse(localStorage.getItem('petopia_deliveries') || '[]');
+        if (!delivery){
+          delivery = { id: id, orderId: String(targetOrderId), sellerId: sellerId, status: 'picked_up' };
+          deliveries.push(delivery);
+        } else {
+          delivery.status = 'picked_up';
+          // Update existing delivery in the array
+          const existingIndex = deliveries.findIndex(d => d.id === id || (d.orderId === String(targetOrderId) && d.sellerId === sellerId));
+          if (existingIndex >= 0) {
+            deliveries[existingIndex] = delivery;
+          } else {
+            deliveries.push(delivery);
+          }
+        }
+        saveDeliveries(deliveries);
+        syncOrderStatus(String(targetOrderId), 'picked_up');
+        setActiveTab('in_transit');
+        showCustomAlert('Package picked up! Start delivery to customer.', 'success', 'Package Picked Up');
+      }catch(e){ showCustomAlert('Failed to update: '+e.message, 'error', 'Update Error'); }
+    }
+
+    async function startDelivery(id){
+      // First try to get the delivery from the current rendered deliveries
+      const currentDeliveries = await loadDeliveries();
+      let delivery = currentDeliveries.find(d => d.id === id || String(d.orderId) === String(id));
+      
+      // If not found, try localStorage as fallback
+      if (!delivery) {
+        const deliveries = JSON.parse(localStorage.getItem('petopia_deliveries') || '[]');
+        delivery = deliveries.find(d => d.id === id || String(d.orderId) === String(id));
+      }
+      
+      try{
+        // If id is a string like "51-86", extract orderId and sellerId from it
+        let targetOrderId, sellerId;
+        if (typeof id === 'string' && id.includes('-')) {
+          const parts = id.split('-');
+          targetOrderId = parts[0];
+          sellerId = parts[1];
+        } else {
+          targetOrderId = delivery && delivery.orderId ? delivery.orderId : id;
+          sellerId = delivery && delivery.sellerId ? delivery.sellerId : null;
+        }
+        
+        if (!sellerId) {
+          throw new Error('Seller ID not found for this delivery segment');
+        }
+        
+        const r = await fetch(`/rider/deliveries/${String(targetOrderId)}/${sellerId}/status`, {
+          method: 'POST', headers: { 'Content-Type': 'application/json' }, credentials: 'same-origin',
+          body: JSON.stringify({ riderStatus: 'in_transit' })
+        });
+        const data = await r.json();
+        if (!r.ok || !data.success) throw new Error(data.message||'Failed');
+        
+        // Update local storage
+        const deliveries = JSON.parse(localStorage.getItem('petopia_deliveries') || '[]');
+        if (!delivery){
+          delivery = { id: id, orderId: String(targetOrderId), sellerId: sellerId, status: 'in_transit' };
+          deliveries.push(delivery);
+        } else {
+          delivery.status = 'in_transit';
+          // Update existing delivery in the array
+          const existingIndex = deliveries.findIndex(d => d.id === id || (d.orderId === String(targetOrderId) && d.sellerId === sellerId));
+          if (existingIndex >= 0) {
+            deliveries[existingIndex] = delivery;
+          } else {
+            deliveries.push(delivery);
+          }
+        }
+        saveDeliveries(deliveries);
+        syncOrderStatus(String(targetOrderId), 'in_transit');
+        await renderDeliveries();
+        showCustomAlert('Delivery in transit! Navigate to customer location.', 'success', 'In Transit');
+      }catch(e){ showCustomAlert('Failed to update: '+e.message, 'error', 'Update Error'); }
+    }
+
+    async function completeDelivery(id){
+      // First try to get the delivery from the current rendered deliveries
+      const currentDeliveries = await loadDeliveries();
+      let delivery = currentDeliveries.find(d => d.id === id || String(d.orderId) === String(id));
+      
+      // If not found, try localStorage as fallback
+      if (!delivery) {
+        const deliveries = JSON.parse(localStorage.getItem('petopia_deliveries') || '[]');
+        delivery = deliveries.find(d => d.id === id || String(d.orderId) === String(id));
+      }
+      
+      try{
+        // If id is a string like "51-86", extract orderId and sellerId from it
+        let targetOrderId, sellerId;
+        if (typeof id === 'string' && id.includes('-')) {
+          const parts = id.split('-');
+          targetOrderId = parts[0];
+          sellerId = parts[1];
+        } else {
+          targetOrderId = delivery && delivery.orderId ? delivery.orderId : id;
+          sellerId = delivery && delivery.sellerId ? delivery.sellerId : null;
+        }
+        
+        if (!sellerId) {
+          throw new Error('Seller ID not found for this delivery segment');
+        }
+        
+        const r = await fetch(`/rider/deliveries/${String(targetOrderId)}/${sellerId}/status`, {
+          method: 'POST', headers: { 'Content-Type': 'application/json' }, credentials: 'same-origin',
+          body: JSON.stringify({ riderStatus: 'delivered' })
+        });
+        const data = await r.json();
+        if (!r.ok || !data.success) throw new Error(data.message||'Failed');
+        
+        // Update local storage
+        const deliveries = JSON.parse(localStorage.getItem('petopia_deliveries') || '[]');
+        if (!delivery){
+          delivery = { id: id, orderId: String(targetOrderId), sellerId: sellerId, status: 'delivered' };
+          deliveries.push(delivery);
+        } else {
+          delivery.status = 'delivered';
+          // Update existing delivery in the array
+          const existingIndex = deliveries.findIndex(d => d.id === id || (d.orderId === String(targetOrderId) && d.sellerId === sellerId));
+          if (existingIndex >= 0) {
+            deliveries[existingIndex] = delivery;
+          } else {
+            deliveries.push(delivery);
+          }
+        }
+        saveDeliveries(deliveries);
+        syncOrderStatus(String(targetOrderId), 'delivered');
+        await renderDeliveries();
+        showCustomAlert(`Delivery segment completed! You earned ₱${delivery.fee}`, 'success', 'Delivery Completed');
+      }catch(e){ showCustomAlert('Failed to complete: '+e.message, 'error', 'Complete Error'); }
+    }
+
+    function callPhone(phone){
+      showCustomAlert(`Calling ${phone}...`, 'info', 'Calling');
+    }
+
+    // Tab click event
+    document.querySelectorAll('.tab').forEach(tab => {
+      tab.addEventListener('click', function () {
+        document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+        this.classList.add('active');
+        currentFilter = this.dataset.filter;
+        renderDeliveries();
+      });
+    });
+
+    // Search input event
+    document.getElementById('searchInput').addEventListener('input', function () {
+      renderDeliveries();
+    });
+
+    // Initial render
+    renderDeliveries();
+
+    document.getElementById('logoutLink').addEventListener('click', function(e){
+      e.preventDefault();
+      showCustomConfirm('Are you sure you want to logout?', function() {
+        window.location.href = "{{ url_for('logout') }}";
+      });
+    });
+
+
+
+ </script>
+  <!-- Rider Notifications (same behavior as rider_dashboard) -->
+  <script>
+    // --- NOTIFICATIONS LOGIC (rider-specific) ---
+    function loadRiderNotifs(){ 
+      const allowed = new Set(['Available Deliveries']);
+      const items = JSON.parse(localStorage.getItem('petopia_rider_notifications')||'[]');
+      return items.filter(n => allowed.has(n.title));
+    }
+    function saveRiderNotifs(n){ localStorage.setItem('petopia_rider_notifications', JSON.stringify(n)); }
+    function riderUnreadCount(){ return loadRiderNotifs().filter(n=>!n.read).length; }
+    function refreshRiderNotifBadge(){ 
+      const bellBtn = document.querySelector('.topbar .icon-btn .fa-regular.fa-bell')?.closest('button');
+      if (!bellBtn) return;
+      let badge = bellBtn.querySelector('#notifBadge') || bellBtn.querySelector('.badge');
+      if (badge && !badge.id) badge.id = 'notifBadge';
+      if (!badge){ 
+        badge = document.createElement('span'); 
+        badge.id='notifBadge'; 
+        badge.className='badge'; 
+        bellBtn.appendChild(badge); 
+      }
+      // Remove duplicate badges if any
+      bellBtn.querySelectorAll('.badge').forEach(el=>{ if (el!==badge) el.remove(); });
+      const c = riderUnreadCount();
+      badge.textContent = c;
+      badge.style.display = c > 0 ? 'block' : 'none';
+    }
+    // Seed with rider-appropriate sample only if empty
+    (function(){
+      const existing = loadRiderNotifs();
+      if (!existing.length){
+        const now = Date.now();
+        const samples = [
+          { id: now-300000, title: 'Available Deliveries', body: 'New deliveries are available to accept.', createdAt: now-300000, read: false }
+        ];
+        saveRiderNotifs(samples);
+      }
+      refreshRiderNotifBadge();
+    })();
+    // Build notifications panel (rider)
+    (function(){
+      const btn = document.querySelector('.topbar .icon-btn .fa-regular.fa-bell')?.closest('button'); if(!btn) return;
+      const panel=document.createElement('div'); 
+      panel.id='riderNotifPanel'; 
+      panel.style.position='fixed'; 
+      panel.style.width='360px'; 
+      panel.style.maxHeight='60vh'; 
+      panel.style.overflowY='auto'; 
+      panel.style.background='var(--panel-strong)'; 
+      panel.style.border='1px solid rgba(11,15,26,.08)'; 
+      panel.style.borderRadius='12px'; 
+      panel.style.boxShadow='var(--glass-shadow)'; 
+      panel.style.display='none'; 
+      panel.style.zIndex='200'; 
+      panel.innerHTML = '<div id="notifArrowWrap" style="position:absolute;top:-10px;right:20px; width:0;height:0;">\
+        <div style="position:absolute;top:-1px;right:-1px; width:0;height:0;border-left:9px solid transparent;border-right:9px solid transparent;border-bottom:9px solid rgba(11,15,26,.08);"></div>\
+        <div style="position:relative; width:0;height:0;border-left:8px solid transparent;border-right:8px solid transparent;border-bottom:8px solid var(--panel-strong);"></div>\
+      </div>\
+      <div style="padding:12px 12px 8px 12px; display:flex; justify-content:space-between; align-items:center;">\
+        <div style="font-weight:800;color:#23272f">Notifications</div>\
+        <div>\
+          <button id="clearRiderNotifs" class="btn-secondary" style="padding:6px 10px;border-radius:8px;font-weight:700;cursor:pointer">Clear</button> \
+          <button id="markAllRiderRead" class="btn-secondary" style="padding:6px 10px;border-radius:8px;font-weight:700;cursor:pointer">Mark all read</button>\
+        </div>\
+      </div>\
+      <div id="riderNotifList" style="padding:8px 12px 12px 12px; display:grid; gap:8px;"></div>';
+      document.body.appendChild(panel);
+      function renderRiderNotifs(){ 
+        const list=document.getElementById('riderNotifList'); 
+        const items=loadRiderNotifs().slice().sort((a,b)=>b.createdAt-a.createdAt); 
+        if(!items.length){ 
+          list.innerHTML='<div style="color:var(--muted);font-weight:700;text-align:center;padding:20px;">No notifications</div>'; 
+          return; 
+        } 
+        list.innerHTML=items.map(n=>{ 
+          const unread=!n.read; 
+          const itemStyle = unread? 'background:rgba(139,182,255,.12);border:1px solid rgba(139,182,255,.35);' : 'background:#fff;border:1px solid #e5e8f0;opacity:.75;'; 
+          const bodyColor = unread? '#23272f' : 'var(--muted)'; 
+          return `<div style="${itemStyle};border-radius:10px;padding:10px;">
+            <div style="font-weight:800;color:#23272f;">${n.title}</div>
+            <div style="color:${bodyColor};font-weight:700;font-size:.9rem;">${n.body||''}</div>
+            <div style="color:var(--muted);font-size:.8rem;margin-top:4px;">${new Date(n.createdAt).toLocaleString()}</div>
+          </div>`; 
+        }).join(''); 
+      }
+      function place(){ 
+        const rect=btn.getBoundingClientRect(); 
+        const width=Math.min(360, Math.max(260, Math.floor(window.innerWidth*0.9))); 
+        panel.style.width=width+'px'; 
+        const margin=12; 
+        const top=rect.bottom+8; 
+        let left=rect.right-width; 
+        left=Math.max(margin, Math.min(left, window.innerWidth - margin - width)); 
+        panel.style.top=top+'px'; 
+        panel.style.left=left+'px'; 
+        const arrow=panel.querySelector('#notifArrowWrap'); 
+        const rightOffset = Math.max(12, Math.min(width - 24, width - (rect.right - left) - 12)); 
+        arrow.style.right = rightOffset + 'px'; 
+      }
+      btn.addEventListener('click', function(){ 
+        const willShow=panel.style.display==='none'; 
+        panel.style.display=willShow?'block':'none'; 
+        if(willShow) place(); 
+        if(panel.style.display==='block'){ renderRiderNotifs(); } 
+      });
+      window.addEventListener('resize', ()=>{ if(panel.style.display==='block') place(); });
+      window.addEventListener('scroll', ()=>{ if(panel.style.display==='block') place(); }, { passive:true });
+      document.addEventListener('click', function(e){ if(!panel.contains(e.target) && e.target!==btn && !btn.contains(e.target)) panel.style.display='none'; });
+      panel.querySelector('#markAllRiderRead').addEventListener('click', function(){ 
+        const n=loadRiderNotifs().map(x=>({...x, read:true})); 
+        saveRiderNotifs(n); 
+        refreshRiderNotifBadge(); 
+        renderRiderNotifs(); 
+      });
+      panel.querySelector('#clearRiderNotifs').addEventListener('click', function(){ 
+        saveRiderNotifs([]); 
+        refreshRiderNotifBadge(); 
+        renderRiderNotifs(); 
+      });
+    })();
+  </script>
+  <!-- Rider Messages (API-based, same as rider_dashboard) -->
+  <script>
+    // --- MESSAGES LOGIC (API-based) ---
+    let riderConversationsCache = [];
+    let riderMessagesCache = {};
+
+    async function fetchRiderConvos(){
+      try{
+        const res = await fetch('/messages/conversations', { credentials: 'same-origin' });
+        if (!res.ok) throw new Error('Failed to fetch conversations');
+        const data = await res.json();
+        riderConversationsCache = Array.isArray(data) ? data : [];
+        return riderConversationsCache;
+      }catch(e){
+        console.error('Error fetching rider conversations:', e);
+        return [];
+      }
+    }
+
+    async function fetchRiderConvMsgs(convId){
+      try{
+        const res = await fetch(`/messages/conversations/${convId}`, { credentials: 'same-origin' });
+        if (!res.ok) throw new Error('Failed to fetch messages');
+        const data = await res.json();
+        riderMessagesCache[convId] = Array.isArray(data) ? data : [];
+        return riderMessagesCache[convId];
+      }catch(e){
+        console.error('Error fetching rider messages:', e);
+        return [];
+      }
+    }
+
+    async function sendRiderMessageToAPI(convId, text){
+      const res = await fetch('/messages/send', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'same-origin',
+        body: JSON.stringify({ conversationId: convId, message: text })
+      });
+      if (!res.ok) throw new Error('Failed to send message');
+      return await res.json();
+    }
+
+    async function markRiderMessagesRead(convId){
+      try{
+        await fetch('/messages/mark-read', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          credentials: 'same-origin',
+          body: JSON.stringify({ conversationId: convId })
+        });
+      }catch(e){
+        console.error('Error marking rider messages as read:', e);
+      }
+    }
+
+    function riderTotalUnread(){ return riderConversationsCache.reduce((s,c)=> s + (c.unreadCount||0), 0); }
+    function refreshMsgBadge(){ 
+      let msgBtn = document.querySelector('.topbar .icon-btn .fa-regular.fa-envelope')?.closest('button');
+      if (!msgBtn) return;
+      let badge = msgBtn.querySelector('.badge');
+      if (!badge) {
+        badge = document.createElement('span');
+        badge.className = 'badge';
+        badge.id = 'msgBadge';
+        msgBtn.appendChild(badge);
+      }
+      const c = riderTotalUnread();
+      badge.textContent = c;
+      badge.style.display = c > 0 ? 'block' : 'none';
+    }
+
+    // Build rider messages panel
+    (function(){
+      const btn = document.querySelector('.topbar .icon-btn .fa-regular.fa-envelope')?.closest('button'); if(!btn) return;
+      const panel = document.createElement('div');
+      panel.id='riderMsgPanel'; panel.style.position='fixed'; panel.style.width='420px'; panel.style.maxHeight='70vh'; panel.style.display='none'; panel.style.zIndex='200'; panel.style.background='var(--panel-strong)'; panel.style.border='1px solid rgba(11,15,26,.08)'; panel.style.borderRadius='12px'; panel.style.boxShadow='var(--glass-shadow)'; panel.style.overflow='hidden';
+      panel.innerHTML = '\
+      <div id="msgArrowWrap" style="position:absolute;top:-10px;right:20px;width:0;height:0;">\
+        <div style="position:absolute;top:-1px;right:-1px;width:0;height:0;border-left:9px solid transparent;border-right:9px solid transparent;border-bottom:9px solid rgba(11,15,26,.08);"></div>\
+        <div style="position:relative;width:0;height:0;border-left:8px solid transparent;border-right:8px solid transparent;border-bottom:8px solid var(--panel-strong);"></div>\
+      </div>\
+      <div id="msgHeader" style="padding:12px 12px 10px 12px;display:flex;align-items:center;gap:8px;justify-content:space-between;border-bottom:1px solid rgba(11,15,26,.08);">\
+        <div style="display:flex;align-items:center;gap:8px;">\
+          <button id="msgBackBtn" class="btn-secondary" style="display:none;padding:6px 10px;border-radius:8px;font-weight:800;cursor:pointer">←</button>\
+          <div id="msgTitle" style="font-weight:800;color:#23272f;">Messages</div>\
+        </div>\
+        <div id="msgHeaderActions" style="display:flex;align-items:center;gap:8px;">\
+          <button id="markAllMsgRead" class="btn-secondary" style="padding:6px 10px;border-radius:8px;font-weight:700;cursor:pointer">Mark all read</button>\
+          <!-- Customer Service Icon Button -->\
+          <button id="customerServiceBtn" class="icon-btn" title="Customer Service" aria-label="Customer Service" style="font-size:1.2rem;">\
+            <i class="fa-solid fa-headset"></i>\
+          </button>\
+        </div>\
+      </div>\
+      <div id="inboxView" style="display:grid;gap:0;max-height:calc(70vh - 56px);overflow-y:auto;background:#fff;"></div>\
+      <div id="chatView" style="display:none;max-height:58vh;grid-template-rows:auto 1fr auto;">\
+        <div id="chatList" style="padding:12px;display:grid;gap:8px;overflow-y:auto;background:#fff;max-height:48vh;"></div>\
+        <div style="padding:10px;border-top:1px solid #e5e8f0;background:var(--panel-strong);display:flex;gap:8px;align-items:center;">\
+          <input id="chatInput" class="input" placeholder="Type a message..." style="flex:1;border-radius:999px;">\
+          <button id="sendChatBtn" class="btn-primary" style="min-width:auto;padding:8px 14px;border-radius:999px;">Send</button>\
+        </div>\
+      </div>';
+      document.body.appendChild(panel);
+
+      // Customer Service button wiring
+      (function wireCustomerServiceConvo(){
+        const csBtn = panel.querySelector && panel.querySelector('#customerServiceBtn');
+        if (!csBtn) return;
+        let inFlight = false;
+        csBtn.addEventListener('click', async function(e){
+          e.preventDefault(); e.stopPropagation();
+          if (inFlight) return;
+          inFlight = true;
+          const icon = this.querySelector('i');
+          if (icon) icon.classList.add('fa-spin');
+          try {
+            const res = await fetch('/messages/customer-service', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              credentials: 'same-origin'
+            });
+            let data = {};
+            try { data = await res.json(); } catch(_) {}
+            if (!res.ok || !data.success) {
+              throw new Error(data && data.error ? data.error : 'Failed to contact customer service');
+            }
+
+            await fetchRiderConvos();
+            refreshMsgBadge();
+
+            const convId = Number(data.conversationId);
+            if (convId) {
+              placePanel();
+              openConv(convId);
+            } else {
+              await renderInbox();
+            }
+          } catch(err) {
+            console.error('Failed to open customer service conversation:', err);
+            showCustomAlert('Unable to contact Customer Service right now. Please try again later.', 'error', 'Service Unavailable');
+          } finally {
+            if (icon) icon.classList.remove('fa-spin');
+            inFlight = false;
+          }
+        });
+      })();
+
+      let currentConvId = null;
+
+      function placePanel(){
+        const rect = btn.getBoundingClientRect();
+        const width = Math.min(420, Math.max(280, Math.floor(window.innerWidth * 0.95)));
+        panel.style.width = width + 'px';
+        const margin=12; const top=rect.bottom+8; let left = rect.right - width;
+        left = Math.max(margin, Math.min(left, window.innerWidth - margin - width));
+        panel.style.top = top+'px'; panel.style.left = left+'px';
+        const arrow = panel.querySelector('#msgArrowWrap');
+        const rightOffset = Math.max(12, Math.min(width - 24, width - (rect.right - left) - 12));
+        arrow.style.right = rightOffset + 'px';
+      }
+
+      function snippet(text){ const t=String(text||''); return t.length>40? t.slice(0,40)+'…' : t; }
+      function timeStr(ts){ return new Date(ts).toLocaleTimeString(); }
+
+      async function renderInbox(){
+        currentConvId = null;
+        document.getElementById('msgTitle').textContent = 'Messages';
+        document.getElementById('msgBackBtn').style.display = 'none';
+        document.getElementById('msgHeaderActions').style.display = 'flex';
+        document.getElementById('chatView').style.display = 'none';
+        const wrap = document.getElementById('inboxView');
+        wrap.style.display = 'block';
+        wrap.innerHTML = '<div style="color:var(--muted);font-weight:700;text-align:center;padding:20px;">Loading...</div>';
+        
+        const convos = await fetchRiderConvos();
+        riderConversationsCache = convos;
+        refreshMsgBadge();
+        
+        if (!convos.length){ 
+          wrap.innerHTML = '<div style="color:var(--muted);font-weight:700;text-align:center;padding:20px;">No conversations</div>'; 
+          return; 
+        }
+        
+        const sorted = convos.slice().sort((a,b)=> (b.updatedAt||0)-(a.updatedAt||0));
+        wrap.innerHTML = sorted.map(c=>{
+          const badge = c.unreadCount>0 ? `<span style="background:#ef4444;color:#fff;border-radius:999px;padding:2px 8px;font-weight:800;font-size:.75rem;">${c.unreadCount}</span>` : '';
+          return `<button class="conv-item" data-id="${c.id}" style="text-align:left;display:flex;gap:10px;align-items:center;width:100%;padding:10px 12px;border:none;background:#fff;cursor:pointer;border-bottom:1px solid #e5e8f0;">\
+            <img src="${c.avatar}" alt="${c.name}" style="width:36px;height:36px;border-radius:50%;object-fit:cover;box-shadow:0 2px 8px #eef;">\
+            <div style="flex:1;min-width:0;">\
+              <div style="display:flex;justify-content:space-between;align-items:center;gap:8px;">\
+                <div style="font-weight:800;color:#23272f;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${c.name}</div>\
+                <div style="color:var(--muted);font-size:.8rem;">${timeStr(c.updatedAt||Date.now())}</div>\
+              </div>\
+              <div style="display:flex;justify-content:space-between;align-items:center;gap:8px;">\
+                <div style="color:${c.unreadCount>0?'#23272f':'var(--muted)'};font-weight:700;font-size:.9rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${snippet(c.lastMessage||'')}</div>\
+                ${badge}\
+              </div>\
+            </div>\
+          </button>`; 
+        }).join('');
+      }
+
+      async function renderChat(){
+        if (!currentConvId) return;
+        const conv = riderConversationsCache.find(c=>c.id===currentConvId); 
+        if (!conv) { renderInbox(); return; }
+        document.getElementById('msgTitle').textContent = conv.name;
+        document.getElementById('msgBackBtn').style.display = 'inline-flex';
+        document.getElementById('msgHeaderActions').style.display = 'none';
+        document.getElementById('inboxView').style.display = 'none';
+        const chat = document.getElementById('chatView'); chat.style.display = 'grid';
+        const list = document.getElementById('chatList');
+        list.innerHTML = '<div style="color:var(--muted);font-weight:700;text-align:center;padding:20px;">Loading...</div>';
+        
+        const items = await fetchRiderConvMsgs(currentConvId);
+        riderMessagesCache[currentConvId] = items;
+        
+        // Mark messages as read
+        await markRiderMessagesRead(currentConvId);
+        
+        // Update conversation unreadCount in cache
+        const idx = riderConversationsCache.findIndex(c=>c.id===currentConvId);
+        if (idx>-1){ riderConversationsCache[idx].unreadCount = 0; }
+        refreshMsgBadge();
+        
+        if (!items.length){ 
+          list.innerHTML = '<div style="color:var(--muted);font-weight:700;text-align:center;padding:20px;">No messages yet</div>'; 
+        } else {
+          list.innerHTML = items.map(m=>{
+            const isIn = m.direction==='in';
+            const bubbleBg = isIn ? 'rgba(139,182,255,.12)' : 'rgba(124,244,209,.15)';
+            const border = isIn ? '1px solid rgba(139,182,255,.35)' : '1px solid rgba(124,244,209,.45)';
+            const justify = isIn ? 'flex-start' : 'flex-end';
+            return `<div style="display:flex;justify-content:${justify};">\
+              <div style="max-width:78%;background:${bubbleBg};border:${border};border-radius:12px;padding:8px 10px;">\
+                <div style="font-weight:700;font-size:.95rem;color:#23272f;">${String(m.body).replace(/</g,'&lt;')}</div>\
+                <div style="color:var(--muted);font-size:.75rem;margin-top:4px;">${new Date(m.createdAt||Date.now()).toLocaleTimeString()}</div>\
+              </div>\
+            </div>`;
+          }).join('');
+        }
+        list.scrollTop = list.scrollHeight;
+      }
+
+      function openConv(id){ currentConvId = Number(id); renderChat(); }
+
+      async function sendChat(text){
+        const t = text.trim(); if (!t || !currentConvId) return;
+        try {
+          await sendRiderMessageToAPI(currentConvId, t);
+          await fetchRiderConvMsgs(currentConvId);
+          await fetchRiderConvos();
+          refreshMsgBadge();
+          await renderChat();
+        } catch(e) {
+          showCustomAlert('Failed to send message. Please try again.', 'error', 'Message Error');
+          console.error(e);
+        }
+      }
+
+      // wire UI
+      btn.addEventListener('click', function(){
+        const willShow = panel.style.display === 'none';
+        panel.style.display = willShow ? 'block' : 'none';
+        if (willShow) { placePanel(); }
+        if (panel.style.display==='block'){
+          if (currentConvId) renderChat(); else renderInbox();
+        }
+      });
+      document.addEventListener('click', function(e){ if (!panel.contains(e.target) && e.target !== btn && !btn.contains(e.target)) panel.style.display = 'none'; });
+      panel.addEventListener('click', function(e){
+        const item = e.target.closest('.conv-item'); if (item){ openConv(Number(item.dataset.id)); return; }
+      });
+      document.getElementById('msgBackBtn').addEventListener('click', function(){ currentConvId=null; renderInbox(); });
+      document.getElementById('markAllMsgRead').addEventListener('click', async function(){
+        for (const conv of riderConversationsCache) {
+          await markRiderMessagesRead(conv.id);
+        }
+        await fetchRiderConvos();
+        refreshMsgBadge();
+        renderInbox();
+      });
+      document.getElementById('sendChatBtn').addEventListener('click', function(){ const inp=document.getElementById('chatInput'); const v=inp.value; inp.value=''; sendChat(v); });
+      document.getElementById('chatInput').addEventListener('keydown', function(e){ if (e.key==='Enter'){ e.preventDefault(); const v=this.value; this.value=''; sendChat(v); }});
+
+      // Poll for new messages every 10 seconds
+      let pollInterval = null;
+      function startPolling(){
+        if (pollInterval) return;
+        pollInterval = setInterval(async ()=>{
+          await fetchRiderConvos();
+          refreshMsgBadge();
+          if (panel.style.display==='block'){
+            if (currentConvId) {
+              await fetchRiderConvMsgs(currentConvId);
+              await renderChat();
+            } else {
+              await renderInbox();
+            }
+          }
+        }, 10000);
+      }
+      startPolling();
+
+      // Initial badge refresh
+      fetchRiderConvos().then(() => refreshMsgBadge());
+    })();
+  </script>
+</body>
+</html>

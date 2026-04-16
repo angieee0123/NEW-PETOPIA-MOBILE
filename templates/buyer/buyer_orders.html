@@ -1,0 +1,2509 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Petopia • My Orders</title>
+  <meta name="description" content="Petopia Orders — View and track your orders.">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+  <style>
+    :root { --bg:#f6f8ff; --panel:rgba(255,255,255,.60); --panel-strong:rgba(255,255,255,.95); --text:#0b0f1a; --muted:#5b6378; --accent:#7cf4d1; --accent-2:#8bb6ff; --glass-shadow:0 10px 30px rgba(16,24,40,.08); --card-radius:12px; --gap:18px; --ring:rgba(124,244,209,.7); --error:#ff6b6b; --success:#4ade80; --warning:#ffb86b; }
+    *{box-sizing:border-box;margin:0;padding:0}
+    body { font-family:"Inter",system-ui,-apple-system,"Segoe UI",Roboto,"Helvetica Neue",Arial; color:var(--text); background:var(--bg); line-height:1.6; overflow-x:hidden; -webkit-font-smoothing:antialiased; -moz-osx-font-smoothing:grayscale; }
+    .container{max-width:1200px;margin:0 auto;padding-left:20px;padding-right:20px}
+    header{background:var(--panel-strong);backdrop-filter:blur(10px);box-shadow:var(--glass-shadow);padding:12px 0;position:sticky;top:0;z-index:99;width:100%}
+    .topbar{display:flex;justify-content:space-between;align-items:center;gap:16px;max-width:1200px;margin:0 auto;padding:0 20px}
+    .logo a{display:flex;align-items:center;gap:10px;text-decoration:none}
+    .logo-icon{width:44px;height:44px;border-radius:10px;background:linear-gradient(135deg,var(--accent),var(--accent-2));display:flex;align-items:center;justify-content:center;color:#051014;font-weight:800;font-size:1.05rem;box-shadow:0 6px 18px rgba(139,182,255,.09)}
+    .logo-img{width:44px;height:44px;border-radius:10px;object-fit:contain;box-shadow:0 6px 18px rgba(139,182,255,.09)}
+    .logo-text{font-weight:800;letter-spacing:.3px;color:#23272f;font-size:1.05rem}
+    .search{flex:1;display:flex;gap:8px;max-width:600px;align-items:center}
+    .search input{flex:1;padding:10px 12px;border-radius:10px;border:1px solid rgba(11,15,26,.06);background:#fff;color:var(--text);font-size:.95rem}
+    .search button{padding:10px 16px;border:none;border-radius:10px;background:linear-gradient(135deg,var(--accent),var(--accent-2));color:#051014;font-weight:600;cursor:pointer;box-shadow:0 8px 26px rgba(139,182,255,.08)}
+    .quick-icons{display:flex;gap:8px;align-items:center}
+    .quick-icons .icon-btn{position:relative;border:none;background:transparent;font-size:1.05rem;padding:8px;border-radius:8px;cursor:pointer;color:var(--text);transition:color .16s ease}
+    .quick-icons .icon-btn:hover{color:var(--accent-2)}
+    .badge{position:absolute;top:2px;right:2px;background:var(--accent-2);color:#051014;border-radius:999px;padding:1px 4px;font-weight:800;font-size:.65rem;min-width:16px;height:19px;display:flex;align-items:center;justify-content:center;z-index:2}
+    /* Match homepage smaller bell badge */
+    #notifBadge{font-size:.55rem;height:16px;min-width:14px;padding:0 4px}
+    /* Match homepage smaller cart badge */
+    #cartBadge{font-size:.55rem;height:16px;min-width:14px;padding:0 4px}
+    .user-profile{display:flex;align-items:center;gap:12px}
+    .user-avatar{width:40px;height:40px;border-radius:50%;background:linear-gradient(135deg,var(--accent),var(--accent-2));display:flex;align-items:center;justify-content:center;color:#051014;font-weight:700;font-size:1rem}
+    .user-info{display:flex;flex-direction:column}
+    .user-name{font-weight:700;color:var(--text);font-size:.95rem}
+    .user-status{font-size:.8rem;color:var(--muted)}
+
+    .dashboard-main{margin:24px auto;display:grid;grid-template-columns:280px 1fr;gap:var(--gap);max-width:1200px}
+    .sidebar{background:var(--panel-strong);backdrop-filter:blur(10px);border-radius:var(--card-radius);padding:20px;box-shadow:var(--glass-shadow);height:fit-content;position:sticky;top:100px}
+    .sidebar h3{font-weight:800;color:#23272f;font-size:1.1rem;margin-bottom:16px}
+    .nav-menu{list-style:none;display:flex;flex-direction:column;gap:8px}
+    .nav-item{padding:12px 16px;border-radius:8px;cursor:pointer;transition:all .16s ease;display:flex;align-items:center;gap:12px;font-weight:600;color:var(--text)}
+    .nav-item:hover,.nav-item.active{background:rgba(139,182,255,.1);color:var(--accent-2)}
+    .nav-item i{width:20px;text-align:center}
+
+    .content-area{width:100%;max-width:none;margin:0 auto}
+    .section-card{background:var(--panel-strong);border-radius:var(--card-radius);box-shadow:var(--glass-shadow);border:1px solid rgba(11,15,26,.06);padding:32px}
+    .section-title{margin-bottom:18px;font-weight:800;color:#23272f}
+
+    .tabs{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px}
+    .tab{padding:8px 12px;border-radius:999px;border:1px solid rgba(11,15,26,.08);background:#fff;font-weight:700;color:#23272f;cursor:pointer}
+    .tab.active{background:rgba(139,182,255,.12);border-color:rgba(139,182,255,.35);color:var(--accent-2)}
+    /* Status-colored active tabs */
+    .tab[data-filter="to_pay"].active{ background: rgba(255,184,107,.2); border-color: rgba(255,184,107,.45); color: var(--warning); }
+    .tab[data-filter="to_ship"].active{ background: rgba(139,182,255,.2); border-color: rgba(139,182,255,.45); color: var(--accent-2); }
+    .tab[data-filter="to_receive"].active{ background: rgba(124,244,209,.2); border-color: rgba(124,244,209,.45); color: var(--accent); }
+    .tab[data-filter="completed"].active{ background: rgba(74,222,128,.2); border-color: rgba(74,222,128,.45); color: var(--success); }
+    .tab[data-filter="cancelled"].active{ background: rgba(239,68,68,.15); border-color: rgba(239,68,68,.35); color: #ef4444; }
+
+    .orders{border:1px solid #e5e8f0;border-radius:10px;background:#fff;padding:12px}
+    .order{border:1px solid #e5e8f0;border-radius:10px;margin-bottom:12px;overflow:hidden}
+    .order-header{display:flex;justify-content:space-between;align-items:center;background:#f9fbff;padding:12px 14px}
+    .order-id{font-weight:800;color:#23272f}
+    .order-status{padding:4px 12px;border-radius:20px;font-size:.8rem;font-weight:800}
+    /* Guided by homepage chips: processing (warning), shipping (accent-2), delivered (success) */
+    .order-status.to_pay{background: rgba(255,184,107,.2); color: var(--warning);}        /* To Pay ~ Processing */
+    .order-status.to_ship{background: rgba(139,182,255,.2); color: var(--accent-2);}      /* To Ship ~ Shipping */
+    .order-status.to_receive{background: rgba(124,244,209,.2); color: var(--accent);}     /* To Receive ~ Accent */
+    .order-status.completed{background: rgba(74,222,128,.2); color: var(--success);}       /* Completed ~ Delivered */
+    .order-status.cancelled{background: rgba(239,68,68,.15); color: #ef4444;}              /* Cancelled */
+    .order-body{padding:12px 14px}
+    .item-row{display:flex;align-items:center;gap:14px;margin-bottom:12px;padding-bottom:12px;border-bottom:1px solid #e5e8f0}
+    .item-row:last-child{margin-bottom:0;padding-bottom:0;border-bottom:none}
+    .item-row.hidden-item{display:none}
+    .items-container{position:relative}
+    .view-more-btn{padding:8px 16px;border-radius:8px;border:1px solid rgba(139,182,255,.35);background:rgba(139,182,255,.08);color:var(--accent-2);font-weight:700;cursor:pointer;font-size:.85rem;margin-top:8px;width:100%;text-align:center;transition:all .16s ease}
+    .view-more-btn:hover{background:rgba(139,182,255,.15);border-color:rgba(139,182,255,.5)}
+    .summary{display:grid;grid-template-columns:1fr auto;gap:6px;margin-top:10px}
+    .summary div{font-weight:700}
+    .summary .label{color:var(--muted)}
+    .summary .total{color:#23272f}
+
+    /* Review modal */
+    .modal-backdrop{position:fixed;inset:0;background:rgba(0,0,0,.35);display:none;align-items:center;justify-content:center;z-index:200}
+    .modal{background:var(--panel-strong);border-radius:12px;box-shadow:var(--glass-shadow);border:1px solid rgba(11,15,26,.08);width:min(720px,92vw);max-height:85vh;display:flex;flex-direction:column;padding:20px}
+    .modal-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px}
+    .modal-title{font-weight:800;color:#23272f}
+    .close-btn{border:none;background:none;font-size:1.2rem;cursor:pointer}
+    .review-row{display:flex;align-items:center;justify-content:space-between;gap:10px}
+    .stars{display:flex;gap:4px}
+    .star{font-size:1.1rem;color:#d1d5db;cursor:pointer}
+    .star.active{color:#f59e0b}
+    .anon-toggle{display:flex;align-items:center;gap:6px;color:var(--muted);font-weight:700;font-size:.8rem;white-space:nowrap}
+    .anon-toggle input{width:16px;height:16px;accent-color: var(--accent-2);}
+    .review-item{display:grid;grid-template-columns:auto 1fr auto;gap:12px;align-items:start;padding:10px 0;border-bottom:1px solid #e5e8f0}
+    .review-item:last-child{border-bottom:none}
+    .review-actions{display:flex;justify-content:flex-end;margin-top:12px}
+    .cta{min-width:140px;background:linear-gradient(135deg,var(--accent),var(--accent-2));color:#051014;padding:10px 18px;border:none;border-radius:10px;font-weight:800;box-shadow:0 2px 8px rgba(139,182,255,.12);cursor:pointer}
+    .chips{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px}
+    .chip{padding:6px 10px;border-radius:999px;border:1px solid rgba(11,15,26,.1);background:#fff;font-weight:700;color:#23272f;cursor:pointer;font-size:.85rem}
+    .chip:hover{background:rgba(139,182,255,.08);border-color:rgba(139,182,255,.35);color:var(--accent-2)}
+    #reviewItems{overflow-y:auto;min-height:0}
+
+    @media (max-width: 1000px){
+      .dashboard-main{grid-template-columns:1fr}
+    }
+  </style>
+</head>
+<body data-user-name="{{ user_data.fullname if user_data else '' }}" data-user-id="{{ user_data.id if user_data else '' }}">
+  <header role="banner" aria-label="Main header">
+    <div class="topbar">
+      <div class="logo" aria-label="Petopia logo">
+        <a href="{{ url_for('buyer_homepage') }}">
+          <img src="{{ url_for('static', filename='logo/PETOPIA_LOGO.png') }}" alt="Petopia Logo" class="logo-img">
+          <div class="logo-text">Petopia</div>
+        </a>
+      </div>
+      <div class="search" role="search" aria-label="Search products">
+        <input id="searchInput" type="search" placeholder="Search your orders, products..." aria-label="Search" />
+        <button aria-label="Search button">Search</button>
+        <div class="quick-icons">
+          <button class="icon-btn" aria-label="Cart" id="cartBtn" style="position:relative;">
+            <i class="fa-solid fa-cart-shopping"></i><span id="cartBadge" class="badge" aria-live="polite">0</span>
+          </button>
+          <button id="notifBtn" class="icon-btn" aria-label="Notifications"><i class="fa-regular fa-bell"></i><span id="notifBadge" class="badge" style="display:none">0</span></button>
+          <button id="msgBtn" class="icon-btn" aria-label="Messages"><i class="fa-regular fa-envelope"></i><span id="msgBadge" class="badge" style="display:none">0</span></button>
+        </div>
+      </div>
+      <div class="user-profile" id="userProfileBtn" style="cursor:pointer;">
+        <div class="user-avatar" id="userAvatar">
+          {% if user_data and user_data.profile_photo %}
+            {% set _photo = user_data.profile_photo %}
+            {% if 'static/' in _photo or 'http' in _photo %}
+              <img src="{{ _photo }}" alt="Profile" style="width:100%;height:100%;object-fit:cover;border-radius:50%;">
+            {% else %}
+              <img src="{{ url_for('static', filename='uploads/' ~ _photo) }}" alt="Profile" style="width:100%;height:100%;object-fit:cover;border-radius:50%;">
+            {% endif %}
+          {% else %}
+            {% if user_data and user_data.fullname %}
+              {% set initials = user_data.fullname.split(' ')[:2] | map('first') | join('') | upper %}
+              {{ initials }}
+            {% else %}
+              U
+            {% endif %}
+          {% endif %}
+        </div>
+        <div class="user-info">
+          <div class="user-name" id="userName">{{ user_data.fullname if user_data else 'User' }}</div>
+          <div class="user-status">Active Member</div>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <main class="dashboard-main" role="main">
+    <aside class="sidebar">
+      <h3>Dashboard</h3>
+      <ul class="nav-menu">
+        <li class="nav-item" data-section="overview" data-url="{{ url_for('buyer_homepage') }}">
+          <i class="fa-solid fa-chart-line"></i>
+          Overview
+        </li>
+        <li class="nav-item active" data-section="orders" data-url="{{ url_for('buyer_orders') }}">
+          <i class="fa-solid fa-box"></i>
+          My Orders
+        </li>
+        <li class="nav-item" data-section="wishlist" data-url="{{ url_for('buyer_cart') }}">
+          <i class="fa-solid fa-cart-shopping"></i>
+          Cart
+        </li>
+        <li class="nav-item" data-section="addresses" data-url="{{ url_for('buyer_address') }}">
+          <i class="fa-solid fa-location-dot"></i>
+          Addresses
+        </li>
+        <li class="nav-item" data-section="settings" data-logout="{{ url_for('logout') }}">
+          <i class="fa-solid fa-right-from-bracket"></i>
+          Logout
+        </li>
+      </ul>
+    </aside>
+
+    <div class="content-area">
+      <div class="section-card">
+        <div style="display:flex;justify-content:space-between;align-items:center;">
+          <h3 class="section-title">My Orders</h3>
+          <a href="{{ url_for('buyer_homepage') }}" style="text-decoration:none;font-weight:700;color:var(--accent-2);">Continue Shopping</a>
+        </div>
+
+        <div class="tabs">
+          <button class="tab active" data-filter="all">All</button>
+          <button class="tab" data-filter="to_pay">To Pay</button>
+          <button class="tab" data-filter="to_ship">To Ship</button>
+          <button class="tab" data-filter="to_receive">To Receive</button>
+          <button class="tab" data-filter="completed">Completed</button>
+          <button class="tab" data-filter="cancelled">Cancelled</button>
+        </div>
+
+        <div id="emptyState" style="display:none;text-align:center;color:var(--muted);padding:32px;">
+          No orders yet. Start shopping and place your first order!
+        </div>
+
+        <div id="ordersWrap" class="orders"></div>
+      </div>
+    </div>
+  </main>
+
+  <footer role="contentinfo" style="margin-top: 40px; padding: 18px 12px; background: var(--panel-strong); backdrop-filter: blur(10px); box-shadow: var(--glass-shadow);">
+    <div class="container">
+      <div class="footer-grid" style="display:grid; grid-template-columns: repeat(auto-fit,minmax(200px,1fr)); gap: var(--gap);">
+        <div>
+          <h4 style="margin-bottom: 10px; font-size: .95rem; color: var(--accent-2); font-weight:700;">Customer Service</h4>
+          <ul style="list-style:none; padding:0; display:grid; gap:6px;">
+            <li><a href="#" id="helpCenterLink" style="text-decoration:none; color:var(--text); font-weight:600;">Help Center</a></li>
+            <li><a href="#" id="trackOrderLink" style="text-decoration:none; color:var(--text); font-weight:600;">Track Order</a></li>
+            <li><a href="#" id="returnsRefundsLink" style="text-decoration:none; color:var(--text); font-weight:600;">Returns & Refunds</a></li>
+          </ul>
+        </div>
+        <div>
+          <h4 style="margin-bottom: 10px; font-size: .95rem; color: var(--accent-2); font-weight:700;">About</h4>
+          <ul style="list-style:none; padding:0; display:grid; gap:6px;">
+            <li><a href="#" id="aboutPetopiaLink" style="text-decoration:none; color:var(--text); font-weight:600;">About Petopia</a></li>
+            <li><a href="#" id="careersLink" style="text-decoration:none; color:var(--text); font-weight:600;">Careers</a></li>
+            <li><a href="#" id="blogLink" style="text-decoration:none; color:var(--text); font-weight:600;">Blog</a></li>
+          </ul>
+        </div>
+        <div>
+          <h4 style="margin-bottom: 10px; font-size: .95rem; color: var(--accent-2); font-weight:700;">Download App</h4>
+          <p>
+            <a href="#"><img alt="App Store" src="https://upload.wikimedia.org/wikipedia/commons/6/67/App_Store_%28iOS%29.svg" style="height:32px;vertical-align:middle;margin-right:8px;" loading="lazy"></a>
+            <a href="#"><img alt="Google Play" src="https://upload.wikimedia.org/wikipedia/commons/7/78/Google_Play_Store_badge_EN.svg" style="height:32px;vertical-align:middle;" loading="lazy"></a>
+          </p>
+        </div>
+        <div>
+          <h4 style="margin-bottom: 10px; font-size: .95rem; color: var(--accent-2); font-weight:700;">Follow Us</h4>
+          <p>
+            <a href="https://www.facebook.com/profile.php?id=61582925271846" target="_blank" rel="noopener noreferrer" aria-label="Facebook"><img alt="Facebook" src="https://cdn-icons-png.flaticon.com/512/733/733547.png" style="height:28px;vertical-align:middle;margin-right:6px;"></a>
+            <a href="https://www.instagram.com/petopia_official_page?igsh=MXJpdmgxYXo0dnU1bA==" target="_blank" rel="noopener noreferrer" aria-label="Instagram"><img alt="Instagram" src="https://cdn-icons-png.flaticon.com/512/2111/2111463.png" style="height:28px;vertical-align:middle;margin-right:6px;"></a>
+            <a href="https://x.com/Petopia_page?s=09" target="_blank" rel="noopener noreferrer" aria-label="X (Twitter)"><img alt="X (Twitter)" src="https://cdn-icons-png.flaticon.com/512/5968/5968958.png" style="height:28px;vertical-align:middle;"></a>
+          </p>
+        </div>
+      </div>
+      <p style="margin-top:12px;color:var(--muted);font-size:.9rem">© <span id="yr"></span> Petopia. All rights reserved.</p>
+    </div>
+  </footer>
+
+  <script>
+    // Handle navigation clicks (match homepage behavior)
+    document.querySelectorAll('.nav-item[data-url]').forEach(item => {
+      item.addEventListener('click', function() {
+        const url = this.dataset.url; if (url) window.location.href = url;
+      });
+    });
+    // Custom confirmation function to replace browser confirm dialogs
+    function showCustomConfirm(message, onConfirm, onCancel = null) {
+      const div = document.createElement('div');
+      div.id = 'customConfirmModal';
+      div.style = 'position:fixed;top:0;left:0;width:100vw;height:100vh;z-index:9999;background:rgba(0,0,0,.25);backdrop-filter:blur(2px);display:flex;align-items:center;justify-content:center;';
+      
+      div.innerHTML = `
+        <div style="background:rgba(255,255,255,.97);border-radius:18px;max-width:500px;width:90vw;box-shadow:0 10px 40px rgba(16,24,40,.22);position:relative;overflow:hidden;">
+          <div style="padding:32px;text-align:center;">
+            <div style="width:64px;height:64px;border-radius:50%;background:rgba(255,184,107,.15);display:flex;align-items:center;justify-content:center;margin:0 auto 20px;border:2px solid var(--warning);">
+              <i class="fa-solid fa-circle-question" style="font-size:2rem;color:var(--warning);"></i>
+            </div>
+            <h3 style="font-size:1.5rem;font-weight:800;color:#23272f;margin-bottom:12px;">Confirm Action</h3>
+            <p style="color:#5b6378;font-weight:600;font-size:1rem;line-height:1.6;margin-bottom:24px;">${message}</p>
+            <div style="display:flex;gap:12px;justify-content:center;">
+              <button id="confirmCancel" style="padding:12px 32px;border-radius:10px;background:#fff;color:#23272f;font-weight:700;border:2px solid rgba(11,15,26,.1);cursor:pointer;font-size:1rem;transition:all .2s ease;">Cancel</button>
+              <button id="confirmOk" style="padding:12px 32px;border-radius:10px;background:linear-gradient(135deg, var(--accent), var(--accent-2));color:#051014;font-weight:700;border:none;cursor:pointer;font-size:1rem;box-shadow:0 8px 26px rgba(139,182,255,.08);transition:all .2s ease;">Confirm</button>
+            </div>
+          </div>
+        </div>
+      `;
+      document.body.appendChild(div);
+      
+      const closeHandler = function(confirmed) {
+        div.remove();
+        if (confirmed && onConfirm) {
+          onConfirm();
+        } else if (!confirmed && onCancel) {
+          onCancel();
+        }
+      };
+      
+      document.getElementById('confirmOk').addEventListener('click', () => closeHandler(true));
+      document.getElementById('confirmCancel').addEventListener('click', () => closeHandler(false));
+      
+      div.addEventListener('click', function(e) {
+        if (e.target === div) closeHandler(false);
+      });
+      
+      const escapeHandler = function(e) {
+        if (e.key === 'Escape') {
+          closeHandler(false);
+          document.removeEventListener('keydown', escapeHandler);
+        }
+      };
+      document.addEventListener('keydown', escapeHandler);
+    }
+
+    // Custom alert function to replace browser alert dialogs
+    function showCustomAlert(message, type = 'error') {
+      const div = document.createElement('div');
+      div.id = 'customAlertModal';
+      div.style = 'position:fixed;top:0;left:0;width:100vw;height:100vh;z-index:9999;background:rgba(0,0,0,.25);backdrop-filter:blur(2px);display:flex;align-items:center;justify-content:center;';
+      
+      const isSuccess = type === 'success';
+      const iconBg = isSuccess ? 'rgba(74,222,128,.15)' : 'rgba(255,107,107,.15)';
+      const iconColor = isSuccess ? 'var(--success)' : 'var(--error)';
+      const iconClass = isSuccess ? 'fa-circle-check' : 'fa-circle-exclamation';
+      const title = isSuccess ? 'Success' : 'Notice';
+      
+      div.innerHTML = `
+        <div style="background:rgba(255,255,255,.97);border-radius:18px;max-width:500px;width:90vw;box-shadow:0 10px 40px rgba(16,24,40,.22);position:relative;overflow:hidden;">
+          <div style="padding:32px;text-align:center;">
+            <div style="width:64px;height:64px;border-radius:50%;background:${iconBg};display:flex;align-items:center;justify-content:center;margin:0 auto 20px;border:2px solid ${iconColor};">
+              <i class="fa-solid ${iconClass}" style="font-size:2rem;color:${iconColor};"></i>
+            </div>
+            <h3 style="font-size:1.5rem;font-weight:800;color:#23272f;margin-bottom:12px;">${title}</h3>
+            <p style="color:#5b6378;font-weight:600;font-size:1rem;line-height:1.6;margin-bottom:24px;">${message}</p>
+            <div style="display:flex;gap:12px;justify-content:center;">
+              <button id="alertOk" style="padding:12px 32px;border-radius:10px;background:linear-gradient(135deg, var(--accent), var(--accent-2));color:#051014;font-weight:700;border:none;cursor:pointer;font-size:1rem;box-shadow:0 8px 26px rgba(139,182,255,.08);transition:all .2s ease;">OK</button>
+            </div>
+          </div>
+        </div>
+      `;
+      document.body.appendChild(div);
+      
+      const closeHandler = function() {
+        div.remove();
+      };
+      
+      document.getElementById('alertOk').addEventListener('click', closeHandler);
+      
+      div.addEventListener('click', function(e) {
+        if (e.target === div) closeHandler();
+      });
+      
+      const escapeHandler = function(e) {
+        if (e.key === 'Escape') {
+          closeHandler();
+          document.removeEventListener('keydown', escapeHandler);
+        }
+      };
+      document.addEventListener('keydown', escapeHandler);
+    }
+
+    // Handle logout click
+    (function(){ const li=document.querySelector('.nav-item[data-logout]'); if(li){ li.addEventListener('click', function(){ showCustomConfirm('Are you sure you want to log out?', function() { localStorage.removeItem('petopia_session'); window.location.href = li.dataset.logout; }); }); } })();
+    // Cart button route
+    (function(){ const cartBtn=document.getElementById('cartBtn'); if(cartBtn){ cartBtn.addEventListener('click', function(){ window.location.href = "{{ url_for('buyer_cart') }}"; }); } })();
+
+    document.getElementById('yr').textContent = new Date().getFullYear();
+    let cart = JSON.parse(localStorage.getItem('petopia_cart') || '{}');
+    function updateCartBadge(){
+      // Fetch cart count from database
+      fetch('/cart/items')
+        .then(response => response.json())
+        .then(data => {
+          if (!data.error) {
+            const count = data.length;
+            const b = document.getElementById('cartBadge');
+            if (b) {
+              b.textContent = count;
+              b.style.display = count > 0 ? 'block' : 'none';
+            }
+          }
+        })
+        .catch(error => {
+          console.error('Error fetching cart count:', error);
+        });
+    }
+    updateCartBadge();
+
+    // Profile dropdown logic (DB-backed, edit username only) — copied from homepage
+    (function(){
+      const btn = document.getElementById('userProfileBtn'); if(!btn) return;
+
+      const initialUserData = {
+        fullname: '{{ user_data.fullname if user_data else "" }}',
+        email: '{{ user_data.email if user_data else "" }}',
+        profile_photo: (function(){
+          var p = '{{ user_data.profile_photo if user_data else "" }}';
+          if (!p) return '';
+          if (p.startsWith('http') || p.startsWith('/static/')) return p;
+          return '/static/uploads/' + p;
+        })(),
+        username: '{{ user_data.username if user_data and user_data.username else "" }}'
+      };
+
+      const panel = document.createElement('div');
+      panel.id = 'profilePanel'; panel.style.position='fixed'; panel.style.width='360px'; panel.style.maxHeight='70vh'; panel.style.display='none'; panel.style.zIndex='200'; panel.style.background='var(--panel-strong)'; panel.style.border='1px solid rgba(11,15,26,.08)'; panel.style.borderRadius='12px'; panel.style.boxShadow='var(--glass-shadow)'; panel.style.overflow='hidden';
+      panel.innerHTML = '<div id="profileArrowWrap" style="position:absolute;top:-10px;right:20px;width:0;height:0;">\
+        <div style="position:absolute;top:-1px;right:-1px;width:0;height:0;border-left:9px solid transparent;border-right:9px solid transparent;border-bottom:9px solid rgba(11,15,26,.08);"></div>\
+        <div style="position:relative;width:0;height:0;border-left:8px solid transparent;border-right:8px solid transparent;border-bottom:8px solid var(--panel-strong);"></div>\
+      </div>\
+      <div style="padding:12px 12px 10px 12px;display:flex;align-items:center;gap:8px;justify-content:space-between;border-bottom:1px solid rgba(11,15,26,.08);">\
+        <div style="font-weight:800;color:#23272f;">Profile Settings</div>\
+        <button id="saveProfileBtn" class="btn" style="padding:6px 12px;border-radius:8px;border:1px solid rgba(11,15,26,.1);background:linear-gradient(135deg, var(--accent), var(--accent-2));font-weight:700;color:#051014;cursor:pointer;box-shadow:0 4px 12px rgba(139,182,255,.15);">Save</button>\
+      </div>\
+      <div style="max-height:calc(70vh - 56px);overflow-y:auto;background:#fff;">\
+        <div style="padding:16px 12px;display:flex;flex-direction:column;align-items:center;gap:10px;background:rgba(139,182,255,.04);border-bottom:1px solid #e5e8f0;">\
+          <div id="profileAvatarPreview" style="width:80px;height:80px;border-radius:50%;background:linear-gradient(135deg,var(--accent),var(--accent-2));display:flex;align-items:center;justify-content:center;color:#051014;font-weight:800;font-size:1.2rem;box-shadow:0 6px 18px rgba(139,182,255,.15);overflow:hidden;"></div>\
+          <label for="profileAvatarInput" class="btn" style="padding:6px 12px;border-radius:8px;border:1px solid rgba(11,15,26,.1);background:#fff;font-weight:700;color:#23272f;cursor:pointer;font-size:.85rem;">\
+            <i class=\"fa-solid fa-camera\" style=\"margin-right:4px;\"></i>Change Photo\
+          </label>\
+          <input id="profileAvatarInput" type="file" accept="image/*" style="display:none">\
+        </div>\
+        <div style="padding:12px;display:grid;gap:12px;">\
+          <div>\
+            <div style="font-weight:700;color:#23272f;font-size:.85rem;margin-bottom:6px;">Username</div>\
+            <input id="profileUsername" class="input" placeholder="Enter username" style="width:100%;border-radius:10px;border:1px solid rgba(11,15,26,.1);padding:10px 12px;font-size:.95rem;font-weight:600;background:#fff;">\
+          </div>\
+          <div style="border-top:1px solid #e5e8f0;padding-top:12px;">\
+            <div style="font-weight:700;color:#23272f;font-size:.85rem;margin-bottom:6px;">Full Name</div>\
+            <div id="profileFullName" style="font-weight:800;color:#23272f;font-size:.95rem;padding:10px 12px;background:rgba(139,182,255,.06);border-radius:10px;border:1px solid rgba(139,182,255,.15);">-</div>\
+          </div>\
+          <div>\
+            <div style="font-weight:700;color:#23272f;font-size:.85rem;margin-bottom:6px;">Email Address</div>\
+            <div id="profileEmail" style="font-weight:800;color:#23272f;font-size:.95rem;padding:10px 12px;background:rgba(139,182,255,.06);border-radius:10px;border:1px solid rgba(139,182,255,.15);">-</div>\
+          </div>\
+        </div>\
+      </div>';
+      document.body.appendChild(panel);
+
+      function placePanel(){
+        const rect = btn.getBoundingClientRect();
+        const width = Math.min(420, Math.max(280, Math.floor(window.innerWidth*0.95)));
+        panel.style.width = width+'px';
+        const margin=12; const top=rect.bottom+8; let left = rect.right - width;
+        left = Math.max(margin, Math.min(left, window.innerWidth - margin - width));
+        panel.style.top = top+'px'; panel.style.left = left+'px';
+        const arrow = panel.querySelector('#profileArrowWrap');
+        const rightOffset = Math.max(12, Math.min(width - 24, width - (rect.right - left) - 12));
+        arrow.style.right = rightOffset + 'px';
+      }
+
+      function refreshHeaderFromProfile(p){
+        const nameEl = document.getElementById('userName');
+        const avatarEl = document.getElementById('userAvatar');
+        if (nameEl) nameEl.textContent = p.fullname || 'User';
+        if (p.profile_photo){
+            avatarEl.style.background = 'transparent';
+          avatarEl.innerHTML = `<img src="${p.profile_photo}" alt="avatar" style="width:100%;height:100%;object-fit:cover;border-radius:50%;">`;
+          } else {
+            avatarEl.style.backgroundImage = 'none';
+          avatarEl.textContent = (p.fullname ? p.fullname.split(' ').map(w=>w[0]).slice(0,2).join('').toUpperCase() : 'U');
+            avatarEl.style.background = 'linear-gradient(135deg, var(--accent), var(--accent-2))';
+        }
+      }
+
+      function applyAvatarToPreview(url, initials){
+        const avatarBox = document.getElementById('profileAvatarPreview');
+        if (url){
+          avatarBox.style.background = 'transparent';
+          avatarBox.innerHTML = `<img src="${url}" alt="avatar" style="width:100%;height:100%;object-fit:cover;">`;
+        } else {
+          avatarBox.style.background = 'linear-gradient(135deg,var(--accent),var(--accent-2))';
+          avatarBox.textContent = (initials||'U');
+        }
+      }
+
+      function openPanel(){
+        document.getElementById('profileUsername').value = initialUserData.username || '';
+        document.getElementById('profileFullName').textContent = initialUserData.fullname || '-';
+        document.getElementById('profileEmail').textContent = initialUserData.email || '-';
+        applyAvatarToPreview(initialUserData.profile_photo || '', (initialUserData.fullname||'').split(' ').map(w=>w[0]).slice(0,2).join('').toUpperCase()||'U');
+        panel.style.display='block';
+        placePanel();
+      }
+      function closePanel(){ panel.style.display='none'; }
+
+      btn.addEventListener('click', function(){ const willShow = panel.style.display==='none'; panel.style.display = willShow?'block':'none'; if (willShow) openPanel(); });
+      document.addEventListener('click', function(e){ if (!panel.contains(e.target) && e.target!==btn && !btn.contains(e.target)) closePanel(); });
+      window.addEventListener('resize', ()=>{ if(panel.style.display==='block') placePanel(); });
+      window.addEventListener('scroll', ()=>{ if(panel.style.display==='block') placePanel(); }, { passive:true });
+
+      // Upload avatar: preview immediately, then upload to server and refresh header on success
+      document.getElementById('profileAvatarInput').addEventListener('change', function(){
+        const file=this.files&&this.files[0]; if(!file) return;
+        const reader=new FileReader();
+        reader.onload=function(ev){
+          const url=String(ev.target?.result||'');
+          applyAvatarToPreview(url, (initialUserData.fullname||'').split(' ').map(w=>w[0]).slice(0,2).join('').toUpperCase());
+        };
+        reader.readAsDataURL(file);
+
+        const form = new FormData();
+        form.append('photo', file);
+        fetch('/update_profile_photo', { method:'POST', body: form })
+          .then(r=>r.json())
+          .then(data=>{
+            if (data.success && data.photo_url){
+              initialUserData.profile_photo = data.photo_url;
+              refreshHeaderFromProfile(initialUserData);
+            } else {
+              alert('Photo upload failed: ' + (data.error||'Unknown error'));
+            }
+          })
+          .catch(err=>{ console.error(err); alert('Network error while uploading photo'); });
+      });
+
+      document.getElementById('saveProfileBtn').addEventListener('click', function(){
+        const username = (document.getElementById('profileUsername').value||'').trim();
+        if (!username){ alert('Username is required'); return; }
+        fetch('/update_username', { method:'POST', headers:{ 'Content-Type':'application/json' }, body: JSON.stringify({ username }) })
+          .then(r=>r.json())
+          .then(data=>{
+            if (data.success){
+              initialUserData.username = username;
+              alert('Changes saved');
+              closePanel();
+            } else {
+              alert('Error: ' + (data.error||'Unknown error'));
+            }
+          })
+          .catch(err=>{ console.error(err); alert('Network error'); });
+      });
+
+      // initialize header on load
+      refreshHeaderFromProfile(initialUserData);
+    })();
+
+    // Notifications API
+    // Notifications API (scoped per user) + polling
+    function currentUserId(){ try{ return document.body && document.body.dataset && document.body.dataset.userId ? String(document.body.dataset.userId) : ''; }catch(e){ return ''; } }
+    function notifKey(){ const uid=currentUserId(); return uid ? ('petopia_notifications_'+uid) : 'petopia_notifications'; }
+    function loadNotifs(){ return JSON.parse(localStorage.getItem(notifKey())||'[]'); }
+    function saveNotifs(n){ localStorage.setItem(notifKey(), JSON.stringify(n)); }
+    function unreadCount(){ return loadNotifs().filter(n=>!n.read).length; }
+    function refreshNotifBadge(){ const b=document.getElementById('notifBadge'); if(!b) return; const c=unreadCount(); b.textContent=c; b.style.display=c>0?'block':'none'; }
+    refreshNotifBadge();
+    function userScopedKey(key){ const uid=currentUserId(); return uid ? (key+'_'+uid) : key; }
+    function getCache(key, fallback){ try{ return JSON.parse(localStorage.getItem(userScopedKey(key))||''); }catch(e){ return fallback; } }
+    function setCache(key, val){ try{ localStorage.setItem(userScopedKey(key), JSON.stringify(val)); }catch(e){} }
+    function addNotificationOnce(nid, title, body){ try{ const list=loadNotifs(); if(list.some(n=> String(n.id)===String(nid))) return; const now=Date.now(); list.push({ id:String(nid), title, body, createdAt: now, read:false }); saveNotifs(list); refreshNotifBadge(); }catch(e){} }
+    (function(){
+      const K_FLASH='petopia_flash_ids';
+      const K_VOUCH='petopia_voucher_ids';
+      const K_PRODS='petopia_product_ids';
+      const K_ORDMAP='petopia_order_status_map';
+      async function pollFlashSales(){ try{ const r=await fetch('/flash_sales/public'); const items=await r.json(); const prev=new Set(getCache(K_FLASH,[])||[]); const nowIds=[]; (Array.isArray(items)?items:[]).forEach(x=>{ nowIds.push(x.id); if(!prev.has(x.id)){ addNotificationOnce('fs-'+x.id,'Flash Sale',`${x.title||'A product'} is now on sale`); } }); setCache(K_FLASH, nowIds);}catch(e){} }
+      async function pollVouchers(){ try{ const r=await fetch('/vouchers/public'); const items=await r.json(); const prev=new Set(getCache(K_VOUCH,[])||[]); const nowIds=[]; (Array.isArray(items)?items:[]).forEach(v=>{ nowIds.push(v.id); if(!prev.has(v.id)){ addNotificationOnce('v-'+v.id,'New voucher',`New voucher from ${v.storeName||'a seller'}: ${v.code||''}`); } }); setCache(K_VOUCH, nowIds);}catch(e){} }
+      function pollNewProducts(){ try{ const products = Array.isArray(window.allProductsData)? window.allProductsData : []; if(!products.length){ setCache(K_PRODS, getCache(K_PRODS,[])||[]); return; } const prev=new Set(getCache(K_PRODS,[])||[]); const nowIds=[]; products.forEach(p=>{ nowIds.push(p.id); if(!prev.has(p.id)){ const name=(p.title||p.name||'New product'); const store=p.store_name?` from ${p.store_name}`:''; addNotificationOnce('np-'+p.id,'New product',`${name}${store}`); } }); setCache(K_PRODS, nowIds);}catch(e){} }
+      async function pollOrders(){ try{ const r=await fetch('/orders/mine'); const orders=await r.json(); const map=getCache(K_ORDMAP,{})||{}; const nextMap={}; const entries=[]; (Array.isArray(orders)?orders:[]).forEach(o=>{ const segs=Array.isArray(o.segments)?o.segments:[]; if(segs.length){ segs.forEach(seg=> entries.push({ key:`${o.id}-${seg.sellerId}`, orderId:o.id, status:String(seg.status||'') })); } else { entries.push({ key:String(o.id), orderId:o.id, status:String(o.status||'') }); } }); entries.forEach(e=>{ const prevStatus=map[e.key]; nextMap[e.key]=e.status; if(prevStatus && prevStatus!==e.status){ addNotificationOnce('ord-'+e.key+'-'+e.status,'Order update',`Order #${e.orderId} status changed to ${e.status.replace('_',' ')}`); } if(e.status==='completed' && prevStatus!=='completed'){ addNotificationOnce('rev-'+e.key,'Review reminder',`Please review your Order #${e.orderId}.`); } }); setCache(K_ORDMAP, nextMap);}catch(e){} }
+      document.addEventListener('DOMContentLoaded', function(){ setTimeout(()=>{ try{ pollNewProducts(); }catch(e){} }, 500); pollFlashSales(); pollVouchers(); pollOrders(); setInterval(pollFlashSales,30000); setInterval(pollVouchers,30000); setInterval(pollNewProducts,30000); setInterval(pollOrders,30000); });
+    })();
+
+    (function(){
+      const btn = document.getElementById('notifBtn'); if(!btn) return;
+      const panel = document.createElement('div');
+      panel.id = 'notifPanel'; panel.style.position='absolute'; panel.style.top='56px'; panel.style.right='20px'; panel.style.width='360px'; panel.style.maxHeight='60vh'; panel.style.overflowY='auto'; panel.style.background='var(--panel-strong)'; panel.style.border='1px solid rgba(11,15,26,.08)'; panel.style.borderRadius='12px'; panel.style.boxShadow='var(--glass-shadow)'; panel.style.display='none'; panel.style.zIndex='200';
+      panel.style.position='fixed'; panel.style.width='360px';
+      panel.innerHTML = '<div id="notifArrowWrap" style="position:absolute;top:-10px;right:20px; width:0;height:0;">\
+        <div style="position:absolute;top:-1px;right:-1px; width:0;height:0;border-left:9px solid transparent;border-right:9px solid transparent;border-bottom:9px solid rgba(11,15,26,.08);"></div>\
+        <div style="position:relative; width:0;height:0;border-left:8px solid transparent;border-right:8px solid transparent;border-bottom:8px solid var(--panel-strong);"></div>\
+      </div>\
+      <div style="padding:12px 12px 8px 12px; display:flex; justify-content:space-between; align-items:center;"><div style="font-weight:800;color:#23272f">Notifications</div><div><button id="clearNotifs" class="btn" style="padding:6px 10px;border-radius:8px;border:1px solid rgba(11,15,26,.1);background:#fff;font-weight:700;color:#23272f;cursor:pointer">Clear</button> <button id="markAllRead" class="btn" style="padding:6px 10px;border-radius:8px;border:1px solid rgba(11,15,26,.1);background:#fff;font-weight:700;color:#23272f;cursor:pointer">Mark all read</button></div></div><div id="notifList" style="padding:8px 12px 12px 12px; display:grid; gap:8px;"></div>';
+      document.body.appendChild(panel);
+      function renderNotifs(){
+        const list = document.getElementById('notifList');
+        const items = loadNotifs().slice().sort((a,b)=>b.createdAt-a.createdAt);
+        if (!items.length){
+          list.innerHTML = '<div style="color:var(--muted);font-weight:700;text-align:center;padding:20px;">No notifications</div>';
+          return;
+        }
+        list.innerHTML = items.map(n=>{
+          const unread = !n.read;
+          const itemStyle = unread
+            ? 'background:rgba(139,182,255,.12);border:1px solid rgba(139,182,255,.35);'
+            : 'background:#fff;border:1px solid #e5e8f0;opacity:.65;';
+          const bodyColor = unread ? '#23272f' : 'var(--muted)';
+          return `<div style="${itemStyle};border-radius:10px;padding:10px;">
+            <div style="font-weight:800;color:#23272f;">${n.title}</div>
+            <div style="color:${bodyColor};font-weight:700;font-size:.9rem;">${n.body}</div>
+            <div style="color:var(--muted);font-size:.8rem;margin-top:4px;">${new Date(n.createdAt).toLocaleString()}</div>
+          </div>`;
+        }).join('');
+      }
+      function placePanelBelowBell(){ const rect = btn.getBoundingClientRect(); const width = Math.min(360, Math.max(260, Math.floor(window.innerWidth * 0.9))); panel.style.width = width + 'px'; const margin = 12; const top = rect.bottom + 8; let left = rect.right - width; left = Math.max(margin, Math.min(left, window.innerWidth - margin - width)); panel.style.top = top + 'px'; panel.style.left = left + 'px'; const arrowWrap = panel.querySelector('#notifArrowWrap'); const rightOffset = Math.max(12, Math.min(width - 24, width - (rect.right - left) - 12)); arrowWrap.style.right = rightOffset + 'px'; }
+      btn.addEventListener('click', function(){
+        const willShow = panel.style.display==='none';
+        panel.style.display = willShow ? 'block' : 'none';
+        if (willShow) { placePanelBelowBell(); }
+        if (panel.style.display==='block'){
+          // Only render; do not auto-mark as read
+          refreshNotifBadge();
+          renderNotifs();
+        }
+      });
+      document.addEventListener('click', function(e){ if (!panel.contains(e.target) && e.target !== btn && !btn.contains(e.target)) panel.style.display = 'none'; });
+      panel.querySelector('#markAllRead').addEventListener('click', function(){ const n = loadNotifs().map(x=>({...x, read:true})); saveNotifs(n); refreshNotifBadge(); renderNotifs(); });
+      panel.querySelector('#clearNotifs').addEventListener('click', function(){ saveNotifs([]); refreshNotifBadge(); renderNotifs(); });
+      window.addEventListener('resize', ()=>{ if (panel.style.display==='block') placePanelBelowBell(); });
+      window.addEventListener('scroll', ()=>{ if (panel.style.display==='block') placePanelBelowBell(); }, { passive:true });
+    })();
+
+    // Messages: e-commerce style inbox (conversation list + chat view) - API-based
+    let conversationsCache = [];
+    let messagesCache = {};
+    
+    async function fetchConvos(){
+      try{
+        const res = await fetch('/messages/conversations', { credentials: 'same-origin' });
+        if (!res.ok) throw new Error('Failed to fetch conversations');
+        const data = await res.json();
+        conversationsCache = Array.isArray(data) ? data : [];
+        return conversationsCache;
+      }catch(e){
+        console.error('Error fetching conversations:', e);
+        return [];
+      }
+    }
+    
+    async function fetchConvMsgs(convId){
+      try{
+        const res = await fetch(`/messages/conversations/${convId}`, { credentials: 'same-origin' });
+        if (!res.ok) throw new Error('Failed to fetch messages');
+        const data = await res.json();
+        messagesCache[convId] = Array.isArray(data) ? data : [];
+        return messagesCache[convId];
+      }catch(e){
+        console.error('Error fetching messages:', e);
+        return [];
+      }
+    }
+    
+    async function sendMessageToAPI(convId, text){
+      try{
+        const res = await fetch('/messages/send', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          credentials: 'same-origin',
+          body: JSON.stringify({ conversationId: convId, message: text })
+        });
+        if (!res.ok) throw new Error('Failed to send message');
+        return await res.json();
+      }catch(e){
+        console.error('Error sending message:', e);
+        throw e;
+      }
+    }
+    
+    async function markMessagesRead(convId){
+      try{
+        await fetch('/messages/mark-read', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          credentials: 'same-origin',
+          body: JSON.stringify({ conversationId: convId })
+        });
+      }catch(e){
+        console.error('Error marking messages as read:', e);
+      }
+    }
+    
+    function totalUnread(){ return conversationsCache.reduce((s,c)=> s + (c.unreadCount||0), 0); }
+    function refreshMsgBadge(){ const b=document.getElementById('msgBadge'); if(!b) return; const c=totalUnread(); b.textContent=c; b.style.display=c>0?'block':'none'; }
+    
+    // Initial badge refresh
+    fetchConvos().then(() => refreshMsgBadge());
+    
+    (function(){
+      const btn = document.getElementById('msgBtn'); if(!btn) return;
+      const panel = document.createElement('div');
+      panel.id='msgPanel'; panel.style.position='fixed'; panel.style.width='420px'; panel.style.maxHeight='70vh'; panel.style.display='none'; panel.style.zIndex='200'; panel.style.background='var(--panel-strong)'; panel.style.border='1px solid rgba(11,15,26,.08)'; panel.style.borderRadius='12px'; panel.style.boxShadow='var(--glass-shadow)'; panel.style.overflow='hidden';
+      panel.innerHTML = '<div id="msgArrowWrap" style="position:absolute;top:-10px;right:20px;width:0;height:0;">\
+        <div style="position:absolute;top:-1px;right:-1px;width:0;height:0;border-left:9px solid transparent;border-right:9px solid transparent;border-bottom:9px solid rgba(11,15,26,.08);"></div>\
+        <div style="position:relative;width:0;height:0;border-left:8px solid transparent;border-right:8px solid transparent;border-bottom:8px solid var(--panel-strong);"></div>\
+      </div>\
+      <div id="msgHeader" style="padding:12px 12px 10px 12px;display:flex;align-items:center;gap:8px;justify-content:space-between;border-bottom:1px solid rgba(11,15,26,.08);">\
+        <div style="display:flex;align-items:center;gap:8px;">\
+          <button id="msgBackBtn" class="btn" style="display:none;padding:6px 10px;border-radius:8px;border:1px solid rgba(11,15,26,.1);background:#fff;font-weight:800;color:#23272f;cursor:pointer">←</button>\
+          <div id="msgTitle" style="font-weight:800;color:#23272f;">Messages</div>\
+        </div>\
+        <div id="msgHeaderActions">\
+          <button id="clearMsgs" class="btn" style="padding:6px 10px;border-radius:8px;border:1px solid rgba(11,15,26,.1);background:#fff;font-weight:700;color:#23272f;cursor:pointer">Clear</button>\
+          <button id="markAllMsgRead" class="btn" style="padding:6px 10px;border-radius:8px;border:1px solid rgba(11,15,26,.1);background:#fff;font-weight:700;color:#23272f;cursor:pointer">Mark all read</button>\
+          <button id="customerServiceBtn" class="icon-btn" title="Customer Service" aria-label="Customer Service" style="font-size:1.2rem;padding:6px;border:none;background:transparent;cursor:pointer;color:var(--text);">\
+            <i class="fa-solid fa-headset"></i>\
+          </button>\
+        </div>\
+      </div>\
+      <div id="inboxView" style="display:grid;gap:0;max-height:calc(70vh - 56px);overflow-y:auto;background:#fff;">\
+        <!-- conversation items injected here -->\
+      </div>\
+      <div id="chatView" style="display:none;max-height:58vh;grid-template-rows:auto 1fr auto;">\
+        <div id="chatList" style="padding:12px;display:grid;gap:8px;overflow-y:auto;background:#fff;max-height:48vh;"></div>\
+        <div style="padding:10px;border-top:1px solid #e5e8f0;background:var(--panel-strong);display:flex;gap:8px;align-items:center;">\
+          <input id="chatInput" class="input" placeholder="Type a message..." style="flex:1;border-radius:999px;">\
+          <button id="sendChatBtn" class="cta" style="min-width:auto;padding:8px 14px;border-radius:999px;">Send</button>\
+        </div>\
+      </div>';
+      document.body.appendChild(panel);
+
+      let currentConvId = null;
+      let bc = null; try { bc = new BroadcastChannel('petopia_msgs'); bc.onmessage = (ev)=>{ if (ev?.data?.type==='msgs_update'){ refreshMsgBadge(); if (panel.style.display==='block'){ if (currentConvId) renderChat(); else renderInbox(); } } }; } catch(e) {}
+
+      function placePanel(){
+        const rect = btn.getBoundingClientRect();
+        const width = Math.min(420, Math.max(280, Math.floor(window.innerWidth * 0.95)));
+        panel.style.width = width + 'px';
+        const margin = 12; const top = rect.bottom + 8; let left = rect.right - width;
+        left = Math.max(margin, Math.min(left, window.innerWidth - margin - width));
+        panel.style.top = top + 'px'; panel.style.left = left + 'px';
+        const arrowWrap = panel.querySelector('#msgArrowWrap');
+        const rightOffset = Math.max(12, Math.min(width - 24, width - (rect.right - left) - 12));
+        arrowWrap.style.right = rightOffset + 'px';
+      }
+
+      function snippet(text){ const t=String(text||''); return t.length>40? t.slice(0,40)+'…' : t; }
+      function timeStr(ts){ return new Date(ts).toLocaleTimeString(); }
+
+      async function renderInbox(){
+        currentConvId = null;
+        document.getElementById('msgTitle').textContent = 'Messages';
+        document.getElementById('msgBackBtn').style.display = 'none';
+        document.getElementById('msgHeaderActions').style.display = 'block';
+        document.getElementById('chatView').style.display = 'none';
+        const wrap = document.getElementById('inboxView');
+        wrap.style.display = 'block';
+        wrap.innerHTML = '<div style="color:var(--muted);font-weight:700;text-align:center;padding:20px;">Loading...</div>';
+        
+        const convos = await fetchConvos();
+        conversationsCache = convos;
+        refreshMsgBadge();
+        
+        if (!convos.length){ 
+          wrap.innerHTML = '<div style="color:var(--muted);font-weight:700;text-align:center;padding:20px;">No conversations</div>'; 
+          return; 
+        }
+        
+        const sorted = convos.slice().sort((a,b)=> (b.updatedAt||0)-(a.updatedAt||0));
+        wrap.innerHTML = sorted.map(c=>{
+          // Replace "Petopia Admin" with "Customer Service"
+          const displayName = (c.name === 'Petopia Admin' || c.name === 'petopia admin') ? 'Customer Service' : c.name;
+          const badge = c.unreadCount>0 ? `<span style="background:#ef4444;color:#fff;border-radius:999px;padding:2px 8px;font-weight:800;font-size:.75rem;">${c.unreadCount}</span>` : '';
+          return `<button class="conv-item" data-id="${c.id}" style="text-align:left;display:flex;gap:10px;align-items:center;width:100%;padding:10px 12px;border:none;background:#fff;cursor:pointer;border-bottom:1px solid #e5e8f0;">\
+            <img src="${c.avatar}" alt="${displayName}" style="width:36px;height:36px;border-radius:50%;object-fit:cover;box-shadow:0 2px 8px #eef;">\
+            <div style="flex:1;min-width:0;">\
+              <div style="display:flex;justify-content:space-between;align-items:center;gap:8px;">\
+                <div style="font-weight:800;color:#23272f;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${displayName}</div>\
+                <div style="color:var(--muted);font-size:.8rem;">${timeStr(c.updatedAt||Date.now())}</div>\
+              </div>\
+              <div style="display:flex;justify-content:space-between;align-items:center;gap:8px;">\
+                <div style="color:${c.unreadCount>0?'#23272f':'var(--muted)'};font-weight:700;font-size:.9rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${snippet(c.lastMessage||'')}</div>\
+              ${badge}\
+          </div>\
+            </div>\
+          </button>`; 
+        }).join('');
+      }
+
+      async function renderChat(){
+        if (!currentConvId) return;
+        const conv = conversationsCache.find(c=>c.id===currentConvId); 
+        if (!conv) { renderInbox(); return; }
+        // Replace "Petopia Admin" with "Customer Service"
+        const displayName = (conv.name === 'Petopia Admin' || conv.name === 'petopia admin') ? 'Customer Service' : conv.name;
+        document.getElementById('msgTitle').textContent = displayName;
+        document.getElementById('msgBackBtn').style.display = 'inline-flex';
+        document.getElementById('msgHeaderActions').style.display = 'none';
+        document.getElementById('inboxView').style.display = 'none';
+        const chat = document.getElementById('chatView'); chat.style.display = 'grid';
+        const list = document.getElementById('chatList');
+        list.innerHTML = '<div style="color:var(--muted);font-weight:700;text-align:center;padding:20px;">Loading...</div>';
+        
+        const items = await fetchConvMsgs(currentConvId);
+        messagesCache[currentConvId] = items;
+        
+        // Mark messages as read
+        await markMessagesRead(currentConvId);
+        
+        // Update conversation unreadCount in cache
+        const idx = conversationsCache.findIndex(c=>c.id===currentConvId);
+        if (idx>-1){ conversationsCache[idx].unreadCount = 0; }
+        refreshMsgBadge();
+        
+        if (!items.length){ 
+          list.innerHTML = '<div style="color:var(--muted);font-weight:700;text-align:center;padding:20px;">No messages yet</div>'; 
+        } else {
+          list.innerHTML = items.map(m=>{
+            const isIn = m.direction==='in';
+            const bubbleBg = isIn ? 'rgba(139,182,255,.12)' : 'rgba(124,244,209,.15)';
+            const border = isIn ? '1px solid rgba(139,182,255,.35)' : '1px solid rgba(124,244,209,.45)';
+            const justify = isIn ? 'flex-start' : 'flex-end';
+            return `<div style="display:flex;justify-content:${justify};">\
+              <div style="max-width:78%;background:${bubbleBg};border:${border};border-radius:12px;padding:8px 10px;overflow:hidden;word-wrap:break-word;overflow-wrap:break-word;word-break:break-word;">\
+                <div style="font-weight:700;font-size:.95rem;color:#23272f;white-space:pre-wrap;word-wrap:break-word;overflow-wrap:break-word;word-break:break-word;">${String(m.body).replace(/</g,'&lt;')}</div>\
+                <div style="color:var(--muted);font-size:.75rem;margin-top:4px;">${timeStr(m.createdAt)}</div>\
+              </div>\
+            </div>`;
+          }).join('');
+        }
+        list.scrollTop = list.scrollHeight;
+      }
+
+      function openConv(id){ currentConvId = id; renderChat(); }
+
+      async function sendChat(text){
+        const t = text.trim(); if (!t || !currentConvId) return;
+        
+        try {
+          // Send message to API
+          await sendMessageToAPI(currentConvId, t);
+          
+          // Refresh messages and conversations
+          await fetchConvMsgs(currentConvId);
+          await fetchConvos();
+          refreshMsgBadge();
+          
+          // Re-render chat
+          await renderChat();
+        } catch(e) {
+          alert('Failed to send message. Please try again.');
+          console.error(e);
+        }
+      }
+
+      // wire events
+      btn.addEventListener('click', function(){
+        const willShow = panel.style.display==='none';
+        panel.style.display = willShow ? 'block' : 'none';
+        if (willShow) { placePanel(); }
+        if (panel.style.display==='block'){
+          if (currentConvId) renderChat(); else renderInbox();
+        }
+      });
+      document.addEventListener('click', function(e){ if (!panel.contains(e.target) && e.target !== btn && !btn.contains(e.target)) panel.style.display = 'none'; });
+      window.addEventListener('resize', ()=>{ if (panel.style.display==='block') placePanel(); });
+      window.addEventListener('scroll', ()=>{ if (panel.style.display==='block') placePanel(); }, { passive:true });
+
+      panel.addEventListener('click', function(e){
+        const item = e.target.closest('.conv-item'); if (item){ openConv(Number(item.dataset.id)); return; }
+      });
+      document.getElementById('msgBackBtn').addEventListener('click', function(){ currentConvId=null; renderInbox(); });
+      document.getElementById('markAllMsgRead').addEventListener('click', async function(){
+        // Mark all conversations as read
+        for (const conv of conversationsCache) {
+          await markMessagesRead(conv.id);
+        }
+        await fetchConvos();
+        refreshMsgBadge();
+        renderInbox();
+      });
+      document.getElementById('clearMsgs').addEventListener('click', function(){
+        // Clear is not supported via API (conversations persist in DB)
+        alert('Conversations are stored in the database. To clear, please contact support.');
+      });
+      
+      // Customer Service button wiring
+      (function wireCustomerServiceConvo(){
+        const csBtn = panel.querySelector && panel.querySelector('#customerServiceBtn');
+        if (!csBtn) return;
+        let inFlight = false;
+        csBtn.addEventListener('click', async function(e){
+          e.preventDefault(); e.stopPropagation();
+          if (inFlight) return;
+          inFlight = true;
+          const icon = this.querySelector('i');
+          if (icon) icon.classList.add('fa-spin');
+          try {
+            const res = await fetch('/messages/customer-service', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              credentials: 'same-origin'
+            });
+            let data = {};
+            try { data = await res.json(); } catch(_) {}
+            if (!res.ok || !data.success) {
+              throw new Error(data && data.error ? data.error : 'Failed to contact customer service');
+            }
+
+            await fetchConvos();
+            refreshMsgBadge();
+
+            const convId = Number(data.conversationId);
+            if (convId) {
+              placePanel();
+              openConv(convId);
+            } else {
+              await renderInbox();
+            }
+          } catch(err) {
+            console.error('Failed to open customer service conversation:', err);
+            alert('Unable to contact Customer Service right now. Please try again later.');
+          } finally {
+            if (icon) icon.classList.remove('fa-spin');
+            inFlight = false;
+          }
+        });
+      })();
+      
+      document.getElementById('sendChatBtn').addEventListener('click', function(){ const inp=document.getElementById('chatInput'); const v=inp.value; inp.value=''; sendChat(v); });
+      document.getElementById('chatInput').addEventListener('keydown', function(e){ if (e.key==='Enter'){ e.preventDefault(); const v=this.value; this.value=''; sendChat(v); }});
+
+      // Poll for new messages every 10 seconds (always, to update badge)
+      let pollInterval = null;
+      function startPolling(){
+        if (pollInterval) return;
+        pollInterval = setInterval(async ()=>{
+          await fetchConvos();
+          refreshMsgBadge();
+          if (panel.style.display==='block'){
+            if (currentConvId) {
+              await fetchConvMsgs(currentConvId);
+              await renderChat();
+            } else {
+              await renderInbox();
+            }
+          }
+        }, 10000);
+      }
+      function stopPolling(){
+        if (pollInterval) {
+          clearInterval(pollInterval);
+          pollInterval = null;
+        }
+      }
+      // Start polling immediately to keep badge updated
+      startPolling();
+      btn.addEventListener('click', function(){
+        if (panel.style.display==='block') {
+          // Ensure polling is active when panel opens
+          if (!pollInterval) startPolling();
+        }
+      });
+    })();
+
+    function peso(n){ return '₱' + Number(n||0).toLocaleString(); }
+    
+    async function fetchOrders(){
+      try{
+        const r = await fetch('/orders/mine');
+        const data = await r.json();
+        if (Array.isArray(data)) {
+          return data;
+        }
+        return [];
+      }catch(e){ 
+        console.error('Error fetching orders:', e);
+        return []; 
+      }
+    }
+
+
+    function normalizeStatus(status){
+      // Backward compatibility mapping
+      if (!status) return 'to_pay';
+      if (status === 'processing') return 'to_pay';
+      if (status === 'shipped') return 'to_ship';
+      if (status === 'delivered') return 'completed';
+      return status;
+    }
+
+    function statusLabel(status){
+      const s = normalizeStatus(status);
+      const map = { to_pay:'To Pay', to_ship:'To Ship', to_receive:'To Receive', completed:'Completed', cancelled:'Cancelled' };
+      return map[s] || s;
+    }
+
+    function getRiderStatusLabel(riderStatus){
+      if(!riderStatus) return '';
+      const map = {
+        'available': '📦 Waiting for rider',
+        'accepted': '🛵 Rider on the way to pickup',
+        'picked_up': '📦 Picked up by rider',
+        'in_transit': '🚚 On the way to you',
+        'delivered': '✅ Delivered'
+      };
+      return map[riderStatus] || '';
+    }
+
+    // Track reviewed items per product within orders: key = `${orderId}:${productId}`
+    window.reviewedItems = window.reviewedItems || new Set();
+
+    async function renderOrders(filter){
+      const wrap = document.getElementById('ordersWrap');
+      const empty = document.getElementById('emptyState');
+      let orders = await fetchOrders();
+      
+      // Helper to aggregate status from segments (per-seller)
+      function aggregateStatusFromSegments(segments, fallback){
+        if (!Array.isArray(segments) || !segments.length) return fallback;
+        const statuses = new Set(segments.map(s=>s.status));
+        if (statuses.size === 1) return segments[0].status;
+        // Priority: to_pay > to_ship > to_receive > completed > cancelled
+        const order = ['to_pay','to_ship','to_receive','completed','cancelled'];
+        for (const s of order){ if (statuses.has(s)) return s; }
+        return fallback;
+      }
+
+      // Filter orders by segment presence for the active tab
+      if (filter && filter !== 'all') {
+        orders = orders.filter(o => {
+          const hasSegments = Array.isArray(o.segments) && o.segments.length > 0;
+          if (hasSegments) return o.segments.some(seg => seg.status === filter);
+          return o.status === filter;
+        });
+      }
+      
+      if (!orders.length){ 
+        empty.style.display='block'; 
+        wrap.innerHTML=''; 
+        return; 
+      }
+      
+      empty.style.display='none';
+      let html='';
+      
+      // Sort by creation date (newest first)
+      orders.sort((a,b)=> new Date(b.createdAt) - new Date(a.createdAt));
+
+      orders.forEach(o=>{
+        const hasSegments = Array.isArray(o.segments) && o.segments.length > 0;
+        // For filtered views, only include segments that match the active filter
+        const activeFilter = (document.querySelector('.tab.active')?.dataset.filter || 'all');
+        const visibleSegments = hasSegments && activeFilter !== 'all'
+          ? (o.segments || []).filter(seg => seg.status === activeFilter)
+          : (o.segments || []);
+        // If filtering and no segments match, skip rendering this order entirely
+        if (hasSegments && activeFilter !== 'all' && visibleSegments.length === 0) {
+          return; // continue
+        }
+
+        const topStatus = hasSegments
+          ? aggregateStatusFromSegments(visibleSegments.length ? visibleSegments : o.segments, o.status)
+          : o.status;
+
+        // Buyer status info box
+        let statusInfo = '';
+        if (topStatus === 'to_pay') {
+          statusInfo = `
+            <div style="margin-bottom:12px;padding:10px 12px;background:rgba(255,184,107,.08);border-radius:8px;border:1px solid rgba(255,184,107,.2);">
+              <div style="font-weight:800;color:var(--warning);font-size:.92rem;">
+                <i class="fa-solid fa-clock"></i> Waiting for your payment.
+              </div>
+            </div>
+          `;
+        } else if (topStatus === 'to_ship') {
+          statusInfo = `
+            <div style="margin-bottom:12px;padding:10px 12px;background:rgba(139,182,255,.08);border-radius:8px;border:1px solid rgba(139,182,255,.2);">
+              <div style="font-weight:800;color:var(--accent-2);font-size:.92rem;">
+                <i class="fa-solid fa-box"></i> Waiting for rider to pick up your order.
+              </div>
+            </div>
+          `;
+        
+        
+        } else if (topStatus === 'cancelled') {
+          statusInfo = `
+            <div style="margin-bottom:12px;padding:10px 12px;background:rgba(239,68,68,.08);border-radius:8px;border:1px solid rgba(239,68,68,.2);">
+              <div style="font-weight:800;color:#ef4444;font-size:.92rem;">
+                <i class="fa-solid fa-ban"></i> Order cancelled.
+              </div>
+            </div>
+          `;
+        }
+
+        const bodyHtml = hasSegments
+          ? (visibleSegments.length ? visibleSegments : o.segments).map(seg => `
+            <div class="order" style="margin:10px 0;border:1px solid #e5e8f0;border-radius:10px;">
+              <div class="order-header" style="display:flex;justify-content:space-between;align-items:center;background:#f9fbff;padding:10px 12px;">
+                <div style="font-weight:800;">${seg.shopName || 'Shop'}</div>
+                <div style="display:flex;align-items:center;gap:8px;">
+                  <div class="order-status ${seg.status}">${statusLabel(seg.status)}</div>
+                  ${seg.status==='to_pay' ? `
+                    <button class=\"btn-cancel-segment\" data-order-id=\"${o.id}\" data-seller-id=\"${seg.sellerId}\" style=\"padding:6px 12px; min-width:auto; border-radius:6px; background:#ff6b6b; color:white; border:none; font-weight:700; cursor:pointer; font-size:.8rem;\">Cancel Order</button>
+                  ` : ''}
+                  ${seg.status==='completed' ? `
+                    <div style=\"display:flex;gap:6px;\">
+                      ${(() => {
+                        const items = seg.items || [];
+                        const allReviewed = items.every(it => {
+                          const key = `${o.id}:${it.product.id}`;
+                          try { return (it.reviewStatus === 'reviewed') || (window.reviewedItems && window.reviewedItems.has && window.reviewedItems.has(key)); } catch(e) { return (it.reviewStatus === 'reviewed'); }
+                        });
+                        if (items.length > 1) {
+                          return allReviewed
+                            ? `<button class=\"cta btn-edit-review-segment\" data-order-id=\"${o.id}\" data-seller-id=\"${seg.sellerId}\" style=\"padding:6px 10px; min-width:auto; border-radius:6px; background:#eef2ff; font-size:.8rem;\">Edit Reviews</button>`
+                            : `<button class=\"cta btn-review-segment\" data-order-id=\"${o.id}\" data-seller-id=\"${seg.sellerId}\" style=\"padding:6px 10px; min-width:auto; border-radius:6px; font-size:.8rem;\">Order Received</button>`;
+                        }
+                        // Single item fallback keeps per-item behavior
+                        return items.map(it => {
+                          const key = `${o.id}:${it.product.id}`;
+                          const already = (it.reviewStatus === 'reviewed') || (window.reviewedItems && window.reviewedItems.has && window.reviewedItems.has(key));
+                          return already
+                            ? `<button class=\"cta btn-edit-review-item\" data-order-id=\"${o.id}\" data-product-id=\"${it.product.id}\" style=\"padding:6px 10px; min-width:auto; border-radius:6px; background:#eef2ff; font-size:.8rem;\">Edit Review</button>`
+                            : `<button class=\"cta btn-review-item\" data-order-id=\"${o.id}\" data-product-id=\"${it.product.id}\" style=\"padding:6px 10px; min-width:auto; border-radius:6px; font-size:.8rem;\">Order Received</button>`;
+                        }).join('');
+                      })()}
+                    </div>
+                  ` : ''}
+                </div>
+              </div>
+              <div class="order-body" style="padding:10px 12px;">
+                <div class="items-container" data-segment-id="${o.id}-${seg.sellerId}">
+                  ${seg.items.map((it, idx) => `
+                  <div class="item-row ${idx > 0 ? 'hidden-item' : ''}" data-item-index="${idx}">
+                    <img src="${it.product.img || 'https://via.placeholder.com/52x52?text=No+Image'}" alt="${it.product.title}" style="width:52px;height:52px;object-fit:cover;border-radius:10px;box-shadow:0 2px 8px #e5e8f0;">
+                    <div style="flex:1;">
+                      <div style="font-weight:800;color:#23272f;">${it.product.title}</div>
+                        ${(()=>{ const a = it.selected_attributes||{}; const l = Object.keys(a).map(k=>`${k.charAt(0).toUpperCase()+k.slice(1)}: ${a[k]}`).join(', '); return l?`<div style="color:var(--muted);font-size:0.85rem;font-weight:600;margin-top:2px;">${l}</div>`:''; })()}
+                      <div style="color:var(--muted);font-weight:700;font-size:.9rem;">Qty: ${it.qty}</div>
+                    </div>
+                    <div style="text-align:right;">
+                      <div style="color:rgba(11,15,26,.55);font-weight:700;">${peso(it.unitPrice)}</div>
+                      <div style="color:rgba(11,15,26,.80);font-weight:700;font-size:.9rem;">${peso(it.unitPrice*it.qty)}</div>
+                    </div>
+                  </div>
+                  `).join('')}
+                  ${seg.items.length > 1 ? `
+                  <button class="view-more-btn" data-segment-id="${o.id}-${seg.sellerId}" data-expanded="false">
+                    View More (${seg.items.length - 1} more item${seg.items.length - 1 > 1 ? 's' : ''})
+                  </button>
+                  ` : ''}
+                </div>
+                <div class="summary">
+                  <div class="label">Subtotal</div><div>${peso(seg.subtotal)}</div>
+                  ${ (typeof seg.discount === 'number' && seg.discount > 0) ? `
+                  <div class="label">Discount</div><div style="color:#16a34a;font-weight:800;">- ${peso(seg.discount)}</div>
+                  ` : '' }
+                  <div class="label">Shipping</div><div>${peso(seg.shippingFee)}</div>
+                  <div class="total">Total</div><div class="total">${peso(seg.total)}</div>
+                </div>
+                
+                ${(seg.status === 'to_receive' || seg.status === 'completed') && seg.rider ? `
+                <div style="margin-top:12px;padding:10px 12px;background:rgba(139,182,255,.06);border-radius:8px;">
+                  <div style="font-weight:700;color:#23272f;margin-bottom:6px;">Delivery Details</div>
+                  <div style="color:var(--muted);font-size:.9rem;">
+                    Rider: ${seg.rider.name || 'Not assigned yet'}<br>
+                    Rider Contact: ${seg.rider.phone || '-'}<br>
+                    Pickup: ${seg.pickupName || 'Seller Pickup'}, ${seg.pickupAddress || '-'}<br>
+                    Deliver to: ${seg.deliveryName || '-'}, ${seg.deliveryAddress || '-'}
+                  </div>
+                </div>
+                ` : ''}
+                
+                ${(() => {
+                  let segStatusInfo = '';
+                  if (seg.status === 'to_pay') {
+                    segStatusInfo = `
+                      <div style="margin-bottom:12px;padding:10px 12px;background:rgba(255,184,107,.08);border-radius:8px;border:1px solid rgba(255,184,107,.2);">
+                        <div style="font-weight:800;color:var(--warning);font-size:.92rem;">
+                          <i class="fa-solid fa-clock"></i> Waiting for your payment.
+                        </div>
+                      </div>
+                    `;
+                  } else if (seg.status === 'to_ship') {
+                    segStatusInfo = `
+                      <div style="margin-bottom:12px;padding:10px 12px;background:rgba(139,182,255,.08);border-radius:8px;border:1px solid rgba(139,182,255,.2);">
+                        <div style="font-weight:800;color:var(--accent-2);font-size:.92rem;">
+                          <i class="fa-solid fa-box"></i> Waiting for rider to pick up your order.
+                        </div>
+                      </div>
+                    `;
+                  } else if (seg.status === 'to_receive') {
+                    segStatusInfo = `
+                      <div style="margin-bottom:12px;padding:10px 12px;background:rgba(124,244,209,.08);border-radius:8px;border:1px solid rgba(124,244,209,.2);">
+                        <div style="font-weight:800;color:var(--accent);font-size:.92rem;">
+                          <i class="fa-solid fa-truck"></i> On the way to you (Rider in transit).
+                        </div>
+                      </div>
+                    `;
+                  } else if (seg.status === 'completed') {
+                    segStatusInfo = `
+                      <div style="margin-bottom:12px;padding:10px 12px;background:rgba(74,222,128,.08);border-radius:8px;border:1px solid rgba(74,222,128,.2);">
+                        <div style="font-weight:800;color:var(--success);font-size:.92rem;">
+                          <i class="fa-solid fa-circle-check"></i> Delivered to you.
+                        </div>
+                      </div>
+                    `;
+                  } else if (seg.status === 'cancelled') {
+                    segStatusInfo = `
+                      <div style="margin-bottom:12px;padding:10px 12px;background:rgba(239,68,68,.08);border-radius:8px;border:1px solid rgba(239,68,68,.2);">
+                        <div style="font-weight:800;color:#ef4444;font-size:.92rem;">
+                          <i class="fa-solid fa-ban"></i> Order cancelled.
+                        </div>
+                      </div>
+                    `;
+                  }
+                  return segStatusInfo;
+                })()}
+                ${seg.status === 'completed' ? `
+                  <div style="margin-top:12px;display:flex;justify-content:flex-end;">
+                    <button class="btn-report-segment" data-order-id="${o.id}" data-seller-id="${seg.sellerId}" style="padding:8px 16px;border-radius:8px;background:#fff;border:1px solid rgba(239,68,68,.35);color:#ef4444;font-weight:700;cursor:pointer;font-size:.85rem;">
+                      <i class="fa-solid fa-flag" style="margin-right:6px;"></i>Report
+                    </button>
+                  </div>
+                ` : ''}
+              </div>
+            </div>
+          `).join('')
+          : `
+            <div class="items-container" data-order-id="${o.id}">
+              ${o.items.map((it, idx) => {
+                let attributesText = '';
+                if (it.selected_attributes && Object.keys(it.selected_attributes).length > 0) {
+                  const attributes = Object.entries(it.selected_attributes)
+                    .map(([key, value]) => `${key.charAt(0).toUpperCase() + key.slice(1)}: ${value}`)
+                    .join(', ');
+                  attributesText = `<div style=\"color:var(--muted);font-size:0.85rem;font-weight:600;margin-top:2px;\">${attributes}</div>`;
+                }
+                return `
+                <div class=\"item-row ${idx > 0 ? 'hidden-item' : ''}\" data-item-index="${idx}">
+                  <img src=\"${it.product.img || 'https://via.placeholder.com/52x52?text=No+Image'}\" alt=\"${it.product.title}\" style=\"width:52px;height:52px;object-fit:cover;border-radius:10px;box-shadow:0 2px 8px #e5e8f0;\">
+                  <div style=\"flex:1;\">
+                    <div style=\"font-weight:800;color:#23272f;\">${it.product.title}</div>
+                    ${attributesText}
+                    <div style=\"color:var(--muted);font-weight:700;font-size:.9rem;\">Qty: ${it.qty}</div>
+                  </div>
+                  <div style=\"text-align:right;\">
+                    <div style=\"color:rgba(11,15,26,.55);font-weight:700;\">${peso(it.unitPrice)}</div>
+                    <div style=\"color:rgba(11,15,26,.80);font-weight:700;font-size:.9rem;\">${peso(it.unitPrice*it.qty)}</div>
+                  </div>
+                </div>`;
+              }).join('')}
+              ${o.items.length > 1 ? `
+              <button class="view-more-btn" data-order-id="${o.id}" data-expanded="false">
+                View More (${o.items.length - 1} more item${o.items.length - 1 > 1 ? 's' : ''})
+              </button>
+              ` : ''}
+            </div>
+              <div class="summary">
+                <div class="label">Subtotal</div><div>${peso(o.subtotal)}</div>
+                ${ (typeof o.voucherDiscount === 'number' && o.voucherDiscount > 0) ? `
+                <div class="label">Discount</div><div style="color:#16a34a;font-weight:800;">- ${peso(o.voucherDiscount)}</div>
+                ` : '' }
+                <div class="label">Shipping</div><div>${peso(o.shippingFee)}</div>
+                <div class="total">Total</div><div class="total">${peso(o.total)}</div>
+              </div>
+              
+              ${topStatus === 'to_receive' || topStatus === 'completed' ? '' : statusInfo}
+              ${topStatus === 'completed' ? `
+                <div style="margin-top:12px;display:flex;justify-content:flex-end;">
+                  <button class="btn-report-order" data-order-id="${o.id}" style="padding:8px 16px;border-radius:8px;background:#fff;border:1px solid rgba(239,68,68,.35);color:#ef4444;font-weight:700;cursor:pointer;font-size:.85rem;">
+                    <i class="fa-solid fa-flag" style="margin-right:6px;"></i>Report
+                  </button>
+                </div>
+              ` : ''}
+          `;
+
+        html += `
+          <div class="order">
+            <div class="order-header">
+              <div>
+                <div class="order-id">Order #${o.id}</div>
+                <div style="color:var(--muted);font-weight:700;font-size:.9rem;">${new Date(o.createdAt).toLocaleString()}</div>
+                    </div>
+              <div style="display:flex; align-items:center; gap:10px;">
+                <div class="order-status ${topStatus}">${statusLabel(topStatus)}</div>
+                
+              </div>
+                    </div>
+            <div class="order-body">
+              ${bodyHtml}
+              <div style="margin-top:10px;color:var(--muted);font-weight:700;font-size:.9rem;">
+                Ship to: ${o.fullName} • ${o.phone}<br>
+                ${o.address}
+              </div>
+              
+              ${topStatus === 'to_receive' || topStatus === 'completed' ? statusInfo : ''}
+            </div>
+          </div>
+        `;
+      });
+      wrap.innerHTML = html;
+      
+      // Attach event listeners for "View More" buttons
+      document.querySelectorAll('.view-more-btn').forEach(btn => {
+        btn.addEventListener('click', function() {
+          const isExpanded = this.dataset.expanded === 'true';
+          const segmentId = this.dataset.segmentId;
+          const orderId = this.dataset.orderId;
+          
+          // Find the container (either by segment-id or order-id)
+          let container;
+          if (segmentId) {
+            container = document.querySelector(`.items-container[data-segment-id="${segmentId}"]`);
+          } else if (orderId) {
+            container = document.querySelector(`.items-container[data-order-id="${orderId}"]`);
+          }
+          
+          if (!container) return;
+          
+          // Get all items in this container
+          const allItems = container.querySelectorAll('.item-row');
+          const totalItems = allItems.length;
+          
+          if (isExpanded) {
+            // Collapse: hide all items except the first one
+            allItems.forEach((item, index) => {
+              if (index > 0) {
+                item.classList.add('hidden-item');
+              }
+            });
+            this.dataset.expanded = 'false';
+            this.textContent = `View More (${totalItems - 1} more item${totalItems - 1 > 1 ? 's' : ''})`;
+          } else {
+            // Expand: show all items
+            allItems.forEach((item, index) => {
+              if (index > 0) {
+                item.classList.remove('hidden-item');
+              }
+            });
+            this.dataset.expanded = 'true';
+            this.textContent = 'View Less';
+          }
+        });
+      });
+    }
+
+    // Tabs
+    document.querySelectorAll('.tab').forEach(btn=>{
+      btn.addEventListener('click',()=>{
+        document.querySelectorAll('.tab').forEach(b=>b.classList.remove('active'));
+        btn.classList.add('active');
+        renderOrders(btn.dataset.filter);
+      });
+    });
+
+    renderOrders('all');
+
+
+    // Handle cancel order button clicks
+    document.getElementById('ordersWrap').addEventListener('click', function(e){
+      const btnCancel = e.target.closest('.btn-cancel-order');
+      if (btnCancel) {
+        const orderId = btnCancel.dataset.orderId;
+        if (!confirm('Are you sure you want to cancel this order?')) return;
+        
+        // Call API to cancel order
+        fetch(`/orders/${orderId}/cancel`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          }
+        })
+        .then(response => response.json())
+        .then(data => {
+          if (data.success) {
+            alert('Order cancelled successfully!');
+            // Refresh the orders list to show updated status
+            const activeFilter = document.querySelector('.tab.active')?.dataset.filter || 'all';
+            renderOrders(activeFilter);
+          } else {
+            alert('Error: ' + (data.error || 'Failed to cancel order'));
+          }
+        })
+        .catch(error => {
+          console.error('Error cancelling order:', error);
+          alert('Network error. Please try again.');
+        });
+        return;
+      }
+      
+      // Handle cancel segment button clicks
+      const btnCancelSegment = e.target.closest('.btn-cancel-segment');
+      if (btnCancelSegment) {
+        const orderId = btnCancelSegment.dataset.orderId;
+        const sellerId = btnCancelSegment.dataset.sellerId;
+        showCustomConfirm('Are you sure you want to cancel this shop\'s order?', function() {
+          // Call API to cancel order segment
+          fetch(`/orders/${orderId}/segments/${sellerId}/cancel`, {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            }
+          })
+          .then(response => response.json())
+          .then(data => {
+            if (data.success) {
+              showCustomAlert('Shop order cancelled successfully!', 'success');
+              // Refresh the orders list to show updated status
+              const activeFilter = document.querySelector('.tab.active')?.dataset.filter || 'all';
+              renderOrders(activeFilter);
+            } else {
+              showCustomAlert('Error: ' + (data.error || 'Failed to cancel shop order'));
+            }
+          })
+          .catch(error => {
+            console.error('Error cancelling shop order:', error);
+            showCustomAlert('Network error. Please try again.');
+          });
+        });
+        return;
+      }
+      
+      // Handle review buttons
+      const btnReview = e.target.closest('.btn-review');
+      if (btnReview) {
+        const orderId = btnReview.dataset.orderId;
+        // TODO: Add review functionality
+        alert('Add a review now');
+        return;
+      }
+    });
+  </script>
+  <!-- Review Modal -->
+  <div id="reviewModal" class="modal-backdrop" style="position:fixed;inset:0;background:rgba(0,0,0,.35);display:none;align-items:center;justify-content:center;z-index:200">
+    <div class="modal" style="background:var(--panel-strong);border-radius:12px;box-shadow:var(--glass-shadow);border:1px solid rgba(11,15,26,.08);width:min(720px,92vw);max-height:85vh;display:flex;flex-direction:column;padding:20px">
+      <div class="modal-header" style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">
+        <div class="modal-title" style="font-weight:800;color:#23272f">Review Products</div>
+        <button class="close-btn" aria-label="Close" id="closeReviewModal" style="border:none;background:none;font-size:1.2rem;cursor:pointer">×</button>
+      </div>
+      <div id="reviewItems" style="overflow-y:auto;min-height:0"></div>
+      <div class="review-actions" style="display:flex;justify-content:flex-end;margin-top:12px">
+        <button class="cta" id="submitReviews" style="min-width:140px;background:linear-gradient(135deg,var(--accent),var(--accent-2));color:#051014;padding:10px 18px;border:none;border-radius:10px;font-weight:800;box-shadow:0 2px 8px rgba(139,182,255,.12);cursor:pointer">Submit Reviews</button>
+      </div>
+    </div>
+  </div>
+  <!-- Report Modal -->
+  <div id="reportModal" class="modal-backdrop" style="position:fixed;inset:0;background:rgba(0,0,0,.35);display:none;align-items:center;justify-content:center;z-index:200">
+    <div class="modal" style="background:var(--panel-strong);border-radius:12px;box-shadow:var(--glass-shadow);border:1px solid rgba(11,15,26,.08);width:min(600px,92vw);max-height:85vh;display:flex;flex-direction:column;padding:20px">
+      <div class="modal-header" style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">
+        <div class="modal-title" style="font-weight:800;color:#23272f">Report Order</div>
+        <button class="close-btn" aria-label="Close" id="closeReportModal" style="border:none;background:none;font-size:1.2rem;cursor:pointer">×</button>
+      </div>
+      <div id="reportContent" style="overflow-y:auto;min-height:0;padding:12px 0;">
+        <div style="margin-bottom:16px;">
+          <div style="font-weight:700;color:#23272f;font-size:.9rem;margin-bottom:8px;">Order Information</div>
+          <div id="reportOrderInfo" style="padding:10px 12px;background:rgba(139,182,255,.06);border-radius:8px;border:1px solid rgba(139,182,255,.15);color:var(--muted);font-size:.9rem;"></div>
+        </div>
+        <div style="margin-bottom:16px;">
+          <div style="font-weight:700;color:#23272f;font-size:.9rem;margin-bottom:8px;">Reason for Report <span style="color:#ef4444;">*</span></div>
+          <select id="reportReason" class="input" style="width:100%;border-radius:10px;border:1px solid rgba(11,15,26,.1);padding:10px 12px;font-size:.95rem;font-weight:600;background:#fff;cursor:pointer;">
+            <option value="">Select a reason</option>
+            <option value="wrong_item">Wrong item received</option>
+            <option value="damaged_item">Item arrived damaged</option>
+            <option value="missing_item">Missing items</option>
+            <option value="poor_quality">Poor quality product</option>
+            <option value="seller_issue">Issue with seller</option>
+            <option value="delivery_issue">Delivery issue</option>
+            <option value="other">Other</option>
+          </select>
+        </div>
+        <div style="margin-bottom:16px;">
+          <div style="font-weight:700;color:#23272f;font-size:.9rem;margin-bottom:8px;">Description <span style="color:#ef4444;">*</span></div>
+          <textarea id="reportDescription" class="input" placeholder="Please provide details about your report..." style="width:100%;min-height:120px;border-radius:10px;border:1px solid rgba(11,15,26,.1);padding:10px 12px;font-size:.95rem;font-weight:600;background:#fff;resize:vertical;"></textarea>
+        </div>
+        <div style="margin-bottom:16px;">
+          <div style="font-weight:700;color:#23272f;font-size:.9rem;margin-bottom:8px;">Upload Evidence (Optional)</div>
+          <input type="file" id="reportEvidence" accept="image/*" multiple style="width:100%;padding:8px;border-radius:8px;border:1px solid rgba(11,15,26,.1);font-size:.9rem;">
+          <div style="color:var(--muted);font-size:.8rem;margin-top:6px;">You can upload up to 5 images</div>
+        </div>
+      </div>
+      <div class="review-actions" style="display:flex;justify-content:flex-end;gap:10px;margin-top:12px">
+        <button class="btn" id="cancelReportBtn" style="padding:10px 18px;border-radius:10px;border:1px solid rgba(11,15,26,.1);background:#fff;font-weight:700;color:#23272f;cursor:pointer">Cancel</button>
+        <button class="cta" id="submitReportBtn" style="min-width:140px;background:linear-gradient(135deg,var(--accent),var(--accent-2));color:#051014;padding:10px 18px;border:none;border-radius:10px;font-weight:800;box-shadow:0 2px 8px rgba(139,182,255,.12);cursor:pointer">Submit Report</button>
+      </div>
+    </div>
+  </div>
+  <script>
+    function loadReviews(){ try{return JSON.parse(localStorage.getItem('petopia_reviews')||'[]')}catch(e){return []} }
+    function saveReviews(rev){ localStorage.setItem('petopia_reviews', JSON.stringify(rev)); }
+    function getExistingReviewMap(orderId){ const map={}; loadReviews().filter(r=>String(r.orderId)===String(orderId)).forEach(r=>{ map[r.productId]=r; }); return map; }
+    const CURRENT_USER_NAME = (function(){ const v=document.body.dataset.userName||''; return String(v); })();
+
+    // Fetch existing reviews from backend for products in an order
+    async function fetchExistingReviewsForOrder(order, productIds) {
+      const reviewMap = {};
+      if (!order || !order.id) return reviewMap;
+      
+      try {
+        // Fetch reviews for this order from backend
+        const response = await fetch(`/orders/${order.id}/reviews`);
+        if (response.ok) {
+          const data = await response.json();
+          // Check if response is an error object
+          if (data && data.error) {
+            console.warn('Error fetching reviews:', data.error);
+          } else if (data && typeof data === 'object' && !Array.isArray(data)) {
+            // The response is an object with productId as keys
+            Object.keys(data).forEach(productId => {
+              const review = data[productId];
+              if (review && (review.rating > 0 || review.comment)) {
+                reviewMap[productId] = {
+                  rating: review.rating || 0,
+                  comment: review.comment || '',
+                  anonymous: review.anonymous || false
+                };
+              }
+            });
+          }
+        }
+      } catch (e) {
+        console.error('Error fetching existing reviews from backend:', e);
+      }
+      
+      // Also check localStorage as fallback
+      const localMap = getExistingReviewMap(order.id);
+      Object.keys(localMap).forEach(pid => {
+        if (!reviewMap[pid]) {
+          reviewMap[pid] = localMap[pid];
+        }
+      });
+      
+      return reviewMap;
+    }
+
+    async function openReviewModal(order, productId, sellerId){
+      const container = document.getElementById('reviewItems');
+      container.innerHTML = '<div style="text-align:center;padding:40px;color:var(--muted);font-weight:700;">Loading reviews...</div>';
+      document.getElementById('reviewModal').style.display = 'flex';
+      
+      const quickChips = ['Great quality','Fast delivery','Well packaged','Worth the price','Highly recommended','Accurate description','Good value for money','Responsive seller','Item arrived in good condition','Will buy again','My pet loves it','Durable material','Exactly as pictured','Affordable price'];
+
+      // Build list of items eligible for review: only items from segments marked completed.
+      const itemsForReview = (function(){
+        const segs = Array.isArray(order.segments) ? order.segments : [];
+        if (segs.length > 0){
+          let completedSegs = segs.filter(s => String(s.status).toLowerCase() === 'completed');
+          if (sellerId) {
+            completedSegs = completedSegs.filter(s => String(s.sellerId) === String(sellerId));
+          }
+          const items = [];
+          completedSegs.forEach(s => (s.items||[]).forEach(it => items.push(it)));
+          return items;
+        }
+        // Fallback: if entire order is completed, allow all items; else none
+        if (String(order.status||'').toLowerCase() === 'completed'){
+          return order.items || [];
+        }
+        return [];
+      })();
+
+      if (!itemsForReview.length){
+        document.getElementById('reviewModal').style.display = 'none';
+        showCustomAlert('No completed items to review yet for this order.');
+        return;
+      }
+
+      const filtered = productId ? itemsForReview.filter(it => String(it.product.id) === String(productId)) : itemsForReview;
+      if (productId && filtered.length === 0){
+        document.getElementById('reviewModal').style.display = 'none';
+        showCustomAlert('This product is not yet eligible for review.');
+        return;
+      }
+
+      // Fetch existing reviews from backend
+      const productIds = filtered.map(it => it.product.id);
+      const existingByProduct = await fetchExistingReviewsForOrder(order, productIds);
+
+      let html='';
+      filtered.forEach(it=>{
+        const existing = existingByProduct[it.product.id];
+        const rating = existing && existing.rating ? existing.rating : 0;
+        const comment = existing && existing.comment ? existing.comment : '';
+        const anon = !!(existing && existing.anonymous);
+        html += `
+          <div class="review-item" data-product-id="${it.product.id}" data-rating="${rating}" style="display:grid;grid-template-columns:auto 1fr auto;gap:12px;align-items:start;padding:10px 0;border-bottom:1px solid #e5e8f0">
+            <img src="${it.product.img || 'https://via.placeholder.com/52x52?text=No+Image'}" alt="${it.product.title}" style="width:52px;height:52px;object-fit:cover;border-radius:10px;box-shadow:0 2px 8px #e5e8f0;">
+            <div>
+              <div style="font-weight:800;color:#23272f;">${it.product.title}</div>
+              <div class="review-row" style="display:flex;align-items:center;justify-content:space-between;gap:10px">
+                <div class="stars" role="radiogroup" aria-label="Rating" data-current="${rating}">
+                  ${[1,2,3,4,5].map(n=>`<i class=\"fa-solid fa-star star ${n <= rating ? 'active' : ''}\" data-value=\"${n}\" style=\"font-size:1.1rem;color:${n<=rating?'#f59e0b':'#d1d5db'};cursor:pointer\"></i>`).join('')}
+                </div>
+                <label class="anon-toggle" style="display:flex;align-items:center;gap:6px;color:var(--muted);font-weight:700;font-size:.8rem;white-space:nowrap">
+                  <input type="checkbox" class="anon-checkbox" ${anon?'checked':''} style="width:16px;height:16px;accent-color: var(--accent-2);">
+                  Anonymous
+                </label>
+              </div>
+              <textarea class="input" placeholder="Write a review..." style="margin-top:8px; width:100%; min-height:70px;">${String(comment).replace(/</g,'&lt;')}</textarea>
+              <div class="chips" style="display:flex;flex-wrap:wrap;gap:6px;margin-top:8px;">
+                ${quickChips.map(t=>`<button type=\"button\" class=\"chip chip-add\" style=\"padding:6px 10px;border-radius:999px;border:1px solid rgba(11,15,26,.1);background:#fff;font-weight:700;color:#23272f;cursor:pointer;font-size:.85rem\">${t}</button>`).join('')}
+              </div>
+            </div>
+            <div style="text-align:right; color:var(--muted); font-weight:700;">Qty: ${it.qty}</div>
+          </div>`;
+      });
+      container.innerHTML = html;
+    }
+
+    function closeReviewModal(){ document.getElementById('reviewModal').style.display='none'; }
+    document.getElementById('closeReviewModal').addEventListener('click', closeReviewModal);
+    document.getElementById('reviewModal').addEventListener('click', function(e){ if (e.target.id === 'reviewModal') closeReviewModal(); });
+    // star rating interaction
+    document.getElementById('reviewModal').addEventListener('click', function(e){
+      if (e.target.classList.contains('star')){
+        const star = e.target; const value = parseInt(star.dataset.value, 10);
+        const wrap = star.closest('.review-item');
+        wrap.dataset.rating = String(value);
+        wrap.querySelectorAll('.star').forEach((s, i) => {
+          const active = (i+1) <= value; s.style.color = active ? '#f59e0b' : '#d1d5db';
+        });
+      } else if (e.target.classList.contains('chip-add')){
+        const item = e.target.closest('.review-item'); const ta = item.querySelector('textarea'); const text = e.target.textContent.trim(); ta.value = (ta.value ? ta.value + ' ' : '') + text;
+      }
+    });
+
+    document.getElementById('submitReviews').addEventListener('click', async function(){
+      const modal = document.getElementById('reviewModal');
+      const orderId = window.currentReviewOrderId;
+      if (!orderId){ closeReviewModal(); return; }
+      const items = Array.from(modal.querySelectorAll('.review-item'));
+      
+      // Validate each review item and collect errors
+      const validationErrors = [];
+      const payload = [];
+      
+      items.forEach(it => {
+        const productName = it.querySelector('div[style*="font-weight:800"]')?.textContent?.trim() || 'this product';
+        const rating = parseInt(it.dataset.rating || it.querySelector('.stars')?.dataset.current || '0', 10);
+        const comment = it.querySelector('textarea').value.trim();
+        
+        // Check for missing rating
+        const missingRating = rating <= 0;
+        // Check for missing comment
+        const missingComment = comment.length === 0;
+        
+        // Build specific error message for this product
+        if (missingRating && missingComment) {
+          validationErrors.push(`Please select a star rating and enter a comment for "${productName}".`);
+        } else if (missingRating) {
+          validationErrors.push(`Please select a star rating for "${productName}".`);
+        } else if (missingComment) {
+          validationErrors.push(`Please enter a comment for "${productName}".`);
+        }
+        
+        // Only add to payload if it has at least rating or comment
+        if (rating > 0 || comment.length > 0) {
+          payload.push({
+            orderId,
+            productId: it.dataset.productId,
+            rating,
+            comment,
+            createdAt: Date.now(),
+            anonymous: it.querySelector('.anon-checkbox')?.checked || false,
+            user: CURRENT_USER_NAME
+          });
+        }
+      });
+      
+      // Show validation errors if any
+      if (validationErrors.length > 0) {
+        const errorMessage = validationErrors.length === 1 
+          ? validationErrors[0]
+          : validationErrors.join('<br><br>');
+        showCustomAlert(errorMessage);
+        return;
+      }
+      
+      // If no valid reviews at all
+      if (!payload.length){ 
+        showCustomAlert('Please add at least one rating or comment for the products you want to review.'); 
+        return; 
+      }
+      // Persist to backend
+      try{
+        const resp = await fetch('/reviews/batch', {
+          method:'POST', headers:{'Content-Type':'application/json'},
+          body: JSON.stringify({ reviews: payload.map(r=>({ orderId: r.orderId, productId: r.productId, rating: r.rating, comment: r.comment, anonymous: r.anonymous })) })
+        });
+        const data = await resp.json();
+        if (!resp.ok || !data.success) throw new Error(data.message||'Failed to save reviews');
+      }catch(e){ showCustomAlert('Failed to save reviews: '+e.message); return; }
+      
+      // Save to localStorage for offline access and faster loading
+      try {
+        const existing = loadReviews();
+        payload.forEach(r => {
+          // Remove existing review for this order+product if any
+          const idx = existing.findIndex(rev => 
+            String(rev.orderId) === String(r.orderId) && 
+            String(rev.productId) === String(r.productId)
+          );
+          if (idx > -1) {
+            existing[idx] = {
+              orderId: r.orderId,
+              productId: r.productId,
+              rating: r.rating,
+              comment: r.comment,
+              anonymous: r.anonymous,
+              createdAt: r.createdAt,
+              user: r.user
+            };
+          } else {
+            existing.push({
+              orderId: r.orderId,
+              productId: r.productId,
+              rating: r.rating,
+              comment: r.comment,
+              anonymous: r.anonymous,
+              createdAt: r.createdAt,
+              user: r.user
+            });
+          }
+        });
+        saveReviews(existing);
+      } catch(e) {
+        console.error('Error saving reviews to localStorage:', e);
+      }
+      
+      // Mark each reviewed product for this order as reviewed in the client cache
+      try {
+        window.reviewedItems = window.reviewedItems || new Set();
+        payload.forEach(r => window.reviewedItems.add(`${orderId}:${r.productId}`));
+      } catch(e) {}
+      closeReviewModal();
+      // Refresh list to swap Review -> Edit Review
+      const activeFilter = document.querySelector('.tab.active')?.dataset.filter || 'all';
+      renderOrders(activeFilter);
+      showCustomAlert('Thank you for your review!', 'success');
+    });
+
+    // delegate click for review buttons (item-level and segment-level)
+    document.getElementById('ordersWrap').addEventListener('click', function(e){
+      const btnReviewItem = e.target.closest('.btn-review-item');
+      const btnEditItem = e.target.closest('.btn-edit-review-item');
+      const btnReviewSeg = e.target.closest('.btn-review-segment');
+      const btnEditSeg = e.target.closest('.btn-edit-review-segment');
+
+      // Segment-level handling
+      if (btnReviewSeg || btnEditSeg) {
+        const btn = btnReviewSeg || btnEditSeg;
+        const orderId = btn.dataset.orderId;
+        const sellerId = btn.dataset.sellerId;
+        if (!orderId || !sellerId) return;
+        (async function(){
+          const orders = await fetch('/orders/mine').then(r=>r.json()).catch(()=>[]);
+          const order = Array.isArray(orders) ? orders.find(o=>String(o.id)===String(orderId)) : null;
+          if (!order) { showCustomAlert('Order not found'); return; }
+          window.currentReviewOrderId = orderId;
+          // Open modal with all completed items from this seller's segment
+          openReviewModal(order, null, sellerId);
+        })();
+        return;
+      }
+
+      // Item-level handling
+      if (btnReviewItem || btnEditItem) {
+        const btn = btnReviewItem || btnEditItem;
+        const orderId = btn.dataset.orderId; const productId = btn.dataset.productId;
+        if (!orderId || !productId) return;
+        (async function(){
+          const orders = await fetch('/orders/mine').then(r=>r.json()).catch(()=>[]);
+          const order = Array.isArray(orders) ? orders.find(o=>String(o.id)===String(orderId)) : null;
+          if (!order) { showCustomAlert('Order not found'); return; }
+          window.currentReviewOrderId = orderId;
+          openReviewModal(order, productId);
+        })();
+      }
+    });
+
+    // Report Modal Handlers
+    let currentReportOrderId = null;
+    let currentReportSellerId = null;
+
+    function openReportModal(orderId, sellerId = null) {
+      currentReportOrderId = orderId;
+      currentReportSellerId = sellerId;
+      
+      // Fetch order details
+      fetch('/orders/mine')
+        .then(r => r.json())
+        .then(orders => {
+          const order = Array.isArray(orders) ? orders.find(o => String(o.id) === String(orderId)) : null;
+          if (!order) {
+            showCustomAlert('Order not found');
+            return;
+          }
+
+          // Build order info display
+          let orderInfo = `Order #${order.id} • ${new Date(order.createdAt).toLocaleDateString()}`;
+          if (sellerId && Array.isArray(order.segments)) {
+            const seg = order.segments.find(s => String(s.sellerId) === String(sellerId));
+            if (seg) {
+              orderInfo += `<br>Shop: ${seg.shopName || 'Unknown'}`;
+            }
+          }
+
+          document.getElementById('reportOrderInfo').innerHTML = orderInfo;
+          
+          // Reset form
+          document.getElementById('reportReason').value = '';
+          document.getElementById('reportDescription').value = '';
+          document.getElementById('reportEvidence').value = '';
+          
+          // Show modal
+          document.getElementById('reportModal').style.display = 'flex';
+        })
+        .catch(err => {
+          console.error('Error fetching order:', err);
+          showCustomAlert('Failed to load order details');
+        });
+    }
+
+    function closeReportModal() {
+      document.getElementById('reportModal').style.display = 'none';
+      currentReportOrderId = null;
+      currentReportSellerId = null;
+    }
+
+    // Close modal handlers
+    document.getElementById('closeReportModal').addEventListener('click', closeReportModal);
+    document.getElementById('cancelReportBtn').addEventListener('click', closeReportModal);
+    document.getElementById('reportModal').addEventListener('click', function(e) {
+      if (e.target.id === 'reportModal') closeReportModal();
+    });
+
+    // Submit report handler
+    document.getElementById('submitReportBtn').addEventListener('click', async function() {
+      const reason = document.getElementById('reportReason').value.trim();
+      const description = document.getElementById('reportDescription').value.trim();
+      const evidenceFiles = document.getElementById('reportEvidence').files;
+
+      if (!reason) {
+        showCustomAlert('Please select a reason for your report');
+        return;
+      }
+
+      if (!description) {
+        showCustomAlert('Please provide a description');
+        return;
+      }
+
+      if (evidenceFiles.length > 5) {
+        showCustomAlert('You can only upload up to 5 images');
+        return;
+      }
+
+      try {
+        const formData = new FormData();
+        formData.append('orderId', currentReportOrderId);
+        formData.append('reason', reason);
+        formData.append('description', description);
+        if (currentReportSellerId) {
+          formData.append('sellerId', currentReportSellerId);
+        }
+        
+        // Append evidence files
+        for (let i = 0; i < evidenceFiles.length; i++) {
+          formData.append('evidence', evidenceFiles[i]);
+        }
+
+        const response = await fetch('/orders/report', {
+          method: 'POST',
+          body: formData
+        });
+
+        const data = await response.json();
+        
+        if (response.ok && data.success) {
+          showCustomAlert('Report submitted successfully. We will review your report and get back to you.', 'success');
+          closeReportModal();
+        } else {
+          showCustomAlert('Error: ' + (data.error || 'Failed to submit report'));
+        }
+      } catch (error) {
+        console.error('Error submitting report:', error);
+        showCustomAlert('Network error. Please try again.');
+      }
+    });
+
+    // Handle report button clicks
+    document.getElementById('ordersWrap').addEventListener('click', function(e) {
+      const btnReportSegment = e.target.closest('.btn-report-segment');
+      const btnReportOrder = e.target.closest('.btn-report-order');
+
+      if (btnReportSegment) {
+        const orderId = btnReportSegment.dataset.orderId;
+        const sellerId = btnReportSegment.dataset.sellerId;
+        if (orderId) {
+          openReportModal(orderId, sellerId);
+        }
+        return;
+      }
+
+      if (btnReportOrder) {
+        const orderId = btnReportOrder.dataset.orderId;
+        if (orderId) {
+          openReportModal(orderId);
+        }
+        return;
+      }
+    });
+
+// About Petopia modal function
+function showAboutPetopiaModal() {
+  const div = document.createElement('div');
+  div.id = 'aboutPetopiaModal';
+  div.style = 'position:fixed;top:0;left:0;width:100vw;height:100vh;z-index:9999;background:rgba(0,0,0,.25);backdrop-filter:blur(2px);display:flex;align-items:center;justify-content:center;';
+  div.innerHTML = `
+    <div style="background:rgba(255,255,255,.97);border-radius:18px;max-width:700px;width:90vw;max-height:85vh;box-shadow:0 10px 40px rgba(16,24,40,.22);position:relative;overflow:hidden;display:flex;flex-direction:column;">
+      <button id="closeAboutModal" style="position:absolute;top:16px;right:18px;background:none;border:none;font-size:2rem;cursor:pointer;z-index:2;color:#23272f;">&times;</button>
+      <div style="overflow-y:auto;padding:40px 32px;flex:1;">
+      <div style="text-align:center;margin-bottom:32px;">
+        <div style="width:80px;height:80px;border-radius:16px;background:linear-gradient(135deg,var(--accent),var(--accent-2));display:flex;align-items:center;justify-content:center;margin:0 auto 20px;box-shadow:0 8px 26px rgba(139,182,255,.15);">
+          <img src="{{ url_for('static', filename='logo/PETOPIA_LOGO.png') }}" alt="Petopia Logo" style="width:60px;height:60px;object-fit:contain;">
+        </div>
+        <h2 style="font-size:2rem;font-weight:800;color:#23272f;margin-bottom:8px;">About Petopia</h2>
+        <p style="color:var(--muted);font-weight:600;font-size:1.05rem;">Your trusted pet care marketplace</p>
+      </div>
+      <div style="color:#23272f;line-height:1.8;font-size:1rem;">
+        <div style="margin-bottom:24px;">
+          <h3 style="font-size:1.3rem;font-weight:800;color:#23272f;margin-bottom:12px;display:flex;align-items:center;gap:8px;">
+            <i class="fa-solid fa-heart" style="color:var(--accent-2);"></i>
+            Our Mission
+          </h3>
+          <p style="color:#5b6378;font-weight:600;margin-bottom:12px;">
+            At Petopia, we believe that every pet deserves the best care and products. Our mission is to connect pet owners with quality pet supplies, trusted sellers, and exceptional service, making pet care accessible and convenient for everyone.
+          </p>
+        </div>
+        <div style="margin-bottom:24px;">
+          <h3 style="font-size:1.3rem;font-weight:800;color:#23272f;margin-bottom:12px;display:flex;align-items:center;gap:8px;">
+            <i class="fa-solid fa-star" style="color:var(--accent-2);"></i>
+            What We Offer
+          </h3>
+          <ul style="color:#5b6378;font-weight:600;margin-left:20px;line-height:2;">
+            <li>Wide selection of pet food, treats, and supplies</li>
+            <li>Health and wellness products for all pet types</li>
+            <li>Grooming and hygiene essentials</li>
+            <li>Toys, accessories, and entertainment items</li>
+            <li>Trusted sellers and official stores</li>
+            <li>Fast and reliable delivery service</li>
+          </ul>
+        </div>
+        <div style="margin-bottom:24px;">
+          <h3 style="font-size:1.3rem;font-weight:800;color:#23272f;margin-bottom:12px;display:flex;align-items:center;gap:8px;">
+            <i class="fa-solid fa-shield-halved" style="color:var(--accent-2);"></i>
+            Why Choose Petopia
+          </h3>
+          <p style="color:#5b6378;font-weight:600;margin-bottom:12px;">
+            We are committed to providing a safe, secure, and user-friendly platform where pet owners can find everything they need for their furry, feathered, or scaled friends. With verified sellers, quality products, and excellent customer service, Petopia is your one-stop shop for all pet care needs.
+          </p>
+        </div>
+        <div style="background:rgba(139,182,255,.08);border-radius:12px;padding:20px;margin-top:32px;border:1px solid rgba(139,182,255,.2);">
+          <p style="color:#23272f;font-weight:700;font-size:1.05rem;margin-bottom:8px;text-align:center;">
+            <i class="fa-solid fa-paw" style="color:var(--accent-2);margin-right:8px;"></i>
+            Join thousands of happy pet owners who trust Petopia
+          </p>
+          <p style="color:var(--muted);font-weight:600;font-size:0.95rem;text-align:center;">
+            Start shopping today and give your pet the care they deserve!
+          </p>
+        </div>
+      </div>
+      </div>
+    </div>
+  `;
+  document.body.appendChild(div);
+  
+  // Close button handler
+  document.getElementById('closeAboutModal').addEventListener('click', function() {
+    div.remove();
+  });
+  
+  // Close when clicking outside
+  div.addEventListener('click', function(e) {
+    if (e.target === div) {
+      div.remove();
+    }
+  });
+  
+  // Close on Escape key
+  const escapeHandler = function(e) {
+    if (e.key === 'Escape') {
+      div.remove();
+      document.removeEventListener('keydown', escapeHandler);
+    }
+  };
+  document.addEventListener('keydown', escapeHandler);
+}
+
+// Careers modal function
+function showCareersModal() {
+  const div = document.createElement('div');
+  div.id = 'careersModal';
+  div.style = 'position:fixed;top:0;left:0;width:100vw;height:100vh;z-index:9999;background:rgba(0,0,0,.25);backdrop-filter:blur(2px);display:flex;align-items:center;justify-content:center;';
+  div.innerHTML = `
+    <div style="background:rgba(255,255,255,.97);border-radius:18px;max-width:700px;width:90vw;max-height:85vh;box-shadow:0 10px 40px rgba(16,24,40,.22);position:relative;overflow:hidden;display:flex;flex-direction:column;">
+      <button id="closeCareersModal" style="position:absolute;top:16px;right:18px;background:none;border:none;font-size:2rem;cursor:pointer;z-index:2;color:#23272f;">&times;</button>
+      <div style="overflow-y:auto;padding:40px 32px;flex:1;">
+      <div style="text-align:center;margin-bottom:32px;">
+        <div style="width:80px;height:80px;border-radius:16px;background:linear-gradient(135deg,var(--accent),var(--accent-2));display:flex;align-items:center;justify-content:center;margin:0 auto 20px;box-shadow:0 8px 26px rgba(139,182,255,.15);">
+          <i class="fa-solid fa-briefcase" style="font-size:2.5rem;color:#051014;"></i>
+        </div>
+        <h2 style="font-size:2rem;font-weight:800;color:#23272f;margin-bottom:8px;">Careers at Petopia</h2>
+        <p style="color:var(--muted);font-weight:600;font-size:1.05rem;">Join our growing team</p>
+      </div>
+      <div style="color:#23272f;line-height:1.8;font-size:1rem;">
+        <div style="margin-bottom:24px;">
+          <h3 style="font-size:1.3rem;font-weight:800;color:#23272f;margin-bottom:12px;display:flex;align-items:center;gap:8px;">
+            <i class="fa-solid fa-users" style="color:var(--accent-2);"></i>
+            Why Work With Us
+          </h3>
+          <p style="color:#5b6378;font-weight:600;margin-bottom:12px;">
+            At Petopia, we're building a platform that makes pet care accessible to everyone. We're looking for passionate individuals who share our love for pets and want to make a difference in the pet care industry.
+          </p>
+        </div>
+        <div style="margin-bottom:24px;">
+          <h3 style="font-size:1.3rem;font-weight:800;color:#23272f;margin-bottom:12px;display:flex;align-items:center;gap:8px;">
+            <i class="fa-solid fa-list-check" style="color:var(--accent-2);"></i>
+            Open Positions
+          </h3>
+          <ul style="color:#5b6378;font-weight:600;margin-left:20px;line-height:2;">
+            <li>Software Engineer - Full Stack Development</li>
+            <li>Product Designer - UX/UI Design</li>
+            <li>Marketing Specialist - Digital Marketing</li>
+            <li>Customer Support Representative</li>
+            <li>Business Development Manager</li>
+            <li>Data Analyst - E-commerce Analytics</li>
+          </ul>
+        </div>
+        <div style="margin-bottom:24px;">
+          <h3 style="font-size:1.3rem;font-weight:800;color:#23272f;margin-bottom:12px;display:flex;align-items:center;gap:8px;">
+            <i class="fa-solid fa-gift" style="color:var(--accent-2);"></i>
+            Benefits & Perks
+          </h3>
+          <ul style="color:#5b6378;font-weight:600;margin-left:20px;line-height:2;">
+            <li>Competitive salary and performance bonuses</li>
+            <li>Health insurance and wellness programs</li>
+            <li>Flexible work arrangements</li>
+            <li>Professional development opportunities</li>
+            <li>Pet-friendly office environment</li>
+            <li>Team building activities and events</li>
+          </ul>
+        </div>
+        <div style="background:rgba(139,182,255,.08);border-radius:12px;padding:20px;margin-top:32px;border:1px solid rgba(139,182,255,.2);">
+          <p style="color:#23272f;font-weight:700;font-size:1.05rem;margin-bottom:8px;text-align:center;">
+            <i class="fa-solid fa-envelope" style="color:var(--accent-2);margin-right:8px;"></i>
+            Interested in joining our team?
+          </p>
+          <p style="color:var(--muted);font-weight:600;font-size:0.95rem;text-align:center;">
+            Send your resume to <strong>vpetopia@gmail.com</strong>
+          </p>
+        </div>
+      </div>
+      </div>
+    </div>
+  `;
+  document.body.appendChild(div);
+  
+  // Close button handler
+  document.getElementById('closeCareersModal').addEventListener('click', function() {
+    div.remove();
+  });
+  
+  // Close when clicking outside
+  div.addEventListener('click', function(e) {
+    if (e.target === div) {
+      div.remove();
+    }
+  });
+  
+  // Close on Escape key
+  const escapeHandler = function(e) {
+    if (e.key === 'Escape') {
+      div.remove();
+      document.removeEventListener('keydown', escapeHandler);
+    }
+  };
+  document.addEventListener('keydown', escapeHandler);
+}
+
+// Blog modal function
+function showBlogModal() {
+  const div = document.createElement('div');
+  div.id = 'blogModal';
+  div.style = 'position:fixed;top:0;left:0;width:100vw;height:100vh;z-index:9999;background:rgba(0,0,0,.25);backdrop-filter:blur(2px);display:flex;align-items:center;justify-content:center;';
+  div.innerHTML = `
+    <div style="background:rgba(255,255,255,.97);border-radius:18px;max-width:700px;width:90vw;max-height:85vh;box-shadow:0 10px 40px rgba(16,24,40,.22);position:relative;overflow:hidden;display:flex;flex-direction:column;">
+      <button id="closeBlogModal" style="position:absolute;top:16px;right:18px;background:none;border:none;font-size:2rem;cursor:pointer;z-index:2;color:#23272f;">&times;</button>
+      <div style="overflow-y:auto;padding:40px 32px;flex:1;">
+      <div style="text-align:center;margin-bottom:32px;">
+        <div style="width:80px;height:80px;border-radius:16px;background:linear-gradient(135deg,var(--accent),var(--accent-2));display:flex;align-items:center;justify-content:center;margin:0 auto 20px;box-shadow:0 8px 26px rgba(139,182,255,.15);">
+          <i class="fa-solid fa-blog" style="font-size:2.5rem;color:#051014;"></i>
+        </div>
+        <h2 style="font-size:2rem;font-weight:800;color:#23272f;margin-bottom:8px;">Petopia Blog</h2>
+        <p style="color:var(--muted);font-weight:600;font-size:1.05rem;">Pet care tips, news, and insights</p>
+      </div>
+      <div style="color:#23272f;line-height:1.8;font-size:1rem;">
+        <div style="margin-bottom:24px;">
+          <h3 style="font-size:1.3rem;font-weight:800;color:#23272f;margin-bottom:12px;display:flex;align-items:center;gap:8px;">
+            <i class="fa-solid fa-book-open" style="color:var(--accent-2);"></i>
+            Latest Articles
+          </h3>
+          <div style="display:grid;gap:16px;margin-bottom:16px;">
+            <div style="background:rgba(139,182,255,.05);border-radius:10px;padding:16px;border-left:4px solid var(--accent-2);">
+              <h4 style="font-weight:800;color:#23272f;margin-bottom:6px;font-size:1.1rem;">10 Essential Pet Care Tips for New Pet Owners</h4>
+              <p style="color:#5b6378;font-weight:600;font-size:0.95rem;margin-bottom:8px;">Learn the basics of pet care to ensure your furry friend stays healthy and happy.</p>
+              <span style="color:var(--muted);font-size:0.85rem;font-weight:600;">Published: January 15, 2024</span>
+            </div>
+            <div style="background:rgba(139,182,255,.05);border-radius:10px;padding:16px;border-left:4px solid var(--accent-2);">
+              <h4 style="font-weight:800;color:#23272f;margin-bottom:6px;font-size:1.1rem;">Understanding Your Pet's Nutritional Needs</h4>
+              <p style="color:#5b6378;font-weight:600;font-size:0.95rem;margin-bottom:8px;">A comprehensive guide to choosing the right food for your pet's age and breed.</p>
+              <span style="color:var(--muted);font-size:0.85rem;font-weight:600;">Published: January 8, 2024</span>
+            </div>
+            <div style="background:rgba(139,182,255,.05);border-radius:10px;padding:16px;border-left:4px solid var(--accent-2);">
+              <h4 style="font-weight:800;color:#23272f;margin-bottom:6px;font-size:1.1rem;">Pet Grooming: A Complete Guide</h4>
+              <p style="color:#5b6378;font-weight:600;font-size:0.95rem;margin-bottom:8px;">Everything you need to know about keeping your pet clean and well-groomed.</p>
+              <span style="color:var(--muted);font-size:0.85rem;font-weight:600;">Published: January 1, 2024</span>
+            </div>
+          </div>
+        </div>
+        <div style="margin-bottom:24px;">
+          <h3 style="font-size:1.3rem;font-weight:800;color:#23272f;margin-bottom:12px;display:flex;align-items:center;gap:8px;">
+            <i class="fa-solid fa-tags" style="color:var(--accent-2);"></i>
+            Popular Topics
+          </h3>
+          <div style="display:flex;flex-wrap:wrap;gap:8px;">
+            <span style="background:rgba(139,182,255,.1);color:#23272f;padding:6px 14px;border-radius:20px;font-weight:600;font-size:0.9rem;">Pet Health</span>
+            <span style="background:rgba(139,182,255,.1);color:#23272f;padding:6px 14px;border-radius:20px;font-weight:600;font-size:0.9rem;">Training Tips</span>
+            <span style="background:rgba(139,182,255,.1);color:#23272f;padding:6px 14px;border-radius:20px;font-weight:600;font-size:0.9rem;">Nutrition</span>
+            <span style="background:rgba(139,182,255,.1);color:#23272f;padding:6px 14px;border-radius:20px;font-weight:600;font-size:0.9rem;">Grooming</span>
+            <span style="background:rgba(139,182,255,.1);color:#23272f;padding:6px 14px;border-radius:20px;font-weight:600;font-size:0.9rem;">Pet Products</span>
+            <span style="background:rgba(139,182,255,.1);color:#23272f;padding:6px 14px;border-radius:20px;font-weight:600;font-size:0.9rem;">Pet Care</span>
+          </div>
+        </div>
+        <div style="background:rgba(139,182,255,.08);border-radius:12px;padding:20px;margin-top:32px;border:1px solid rgba(139,182,255,.2);">
+          <p style="color:#23272f;font-weight:700;font-size:1.05rem;margin-bottom:8px;text-align:center;">
+            <i class="fa-solid fa-rss" style="color:var(--accent-2);margin-right:8px;"></i>
+            Stay Updated
+          </p>
+          <p style="color:var(--muted);font-weight:600;font-size:0.95rem;text-align:center;">
+            Subscribe to our newsletter for the latest pet care tips and updates!
+          </p>
+        </div>
+      </div>
+      </div>
+    </div>
+  `;
+  document.body.appendChild(div);
+  
+  // Close button handler
+  document.getElementById('closeBlogModal').addEventListener('click', function() {
+    div.remove();
+  });
+  
+  // Close when clicking outside
+  div.addEventListener('click', function(e) {
+    if (e.target === div) {
+      div.remove();
+    }
+  });
+  
+  // Close on Escape key
+  const escapeHandler = function(e) {
+    if (e.key === 'Escape') {
+      div.remove();
+      document.removeEventListener('keydown', escapeHandler);
+    }
+  };
+  document.addEventListener('keydown', escapeHandler);
+}
+
+// Help Center modal function
+function showHelpCenterModal() {
+  const div = document.createElement('div');
+  div.id = 'helpCenterModal';
+  div.style = 'position:fixed;top:0;left:0;width:100vw;height:100vh;z-index:9999;background:rgba(0,0,0,.25);backdrop-filter:blur(2px);display:flex;align-items:center;justify-content:center;';
+  div.innerHTML = `
+    <div style="background:rgba(255,255,255,.97);border-radius:18px;max-width:700px;width:90vw;max-height:85vh;box-shadow:0 10px 40px rgba(16,24,40,.22);position:relative;overflow:hidden;display:flex;flex-direction:column;">
+      <button id="closeHelpCenterModal" style="position:absolute;top:16px;right:18px;background:none;border:none;font-size:2rem;cursor:pointer;z-index:2;color:#23272f;">&times;</button>
+      <div style="overflow-y:auto;padding:40px 32px;flex:1;">
+      <div style="text-align:center;margin-bottom:32px;">
+        <div style="width:80px;height:80px;border-radius:16px;background:linear-gradient(135deg,var(--accent),var(--accent-2));display:flex;align-items:center;justify-content:center;margin:0 auto 20px;box-shadow:0 8px 26px rgba(139,182,255,.15);">
+          <i class="fa-solid fa-circle-question" style="font-size:2.5rem;color:#051014;"></i>
+        </div>
+        <h2 style="font-size:2rem;font-weight:800;color:#23272f;margin-bottom:8px;">Help Center</h2>
+        <p style="color:var(--muted);font-weight:600;font-size:1.05rem;">We're here to help you</p>
+      </div>
+      <div style="color:#23272f;line-height:1.8;font-size:1rem;">
+        <div style="margin-bottom:24px;">
+          <h3 style="font-size:1.3rem;font-weight:800;color:#23272f;margin-bottom:12px;display:flex;align-items:center;gap:8px;">
+            <i class="fa-solid fa-question-circle" style="color:var(--accent-2);"></i>
+            Frequently Asked Questions
+          </h3>
+          <div style="display:grid;gap:12px;">
+            <div style="background:rgba(139,182,255,.05);border-radius:10px;padding:16px;border-left:4px solid var(--accent-2);">
+              <h4 style="font-weight:800;color:#23272f;margin-bottom:6px;font-size:1.05rem;">How do I place an order?</h4>
+              <p style="color:#5b6378;font-weight:600;font-size:0.95rem;">Browse our products, add items to your cart, and proceed to checkout. You'll need to create an account or log in to complete your purchase.</p>
+            </div>
+            <div style="background:rgba(139,182,255,.05);border-radius:10px;padding:16px;border-left:4px solid var(--accent-2);">
+              <h4 style="font-weight:800;color:#23272f;margin-bottom:6px;font-size:1.05rem;">What payment methods do you accept?</h4>
+              <p style="color:#5b6378;font-weight:600;font-size:0.95rem;">We accept major credit cards, debit cards, and digital payment methods. All transactions are secure and encrypted.</p>
+            </div>
+            <div style="background:rgba(139,182,255,.05);border-radius:10px;padding:16px;border-left:4px solid var(--accent-2);">
+              <h4 style="font-weight:800;color:#23272f;margin-bottom:6px;font-size:1.05rem;">How long does shipping take?</h4>
+              <p style="color:#5b6378;font-weight:600;font-size:0.95rem;">Standard shipping typically takes 3-5 business days. Express shipping options are available for faster delivery.</p>
+            </div>
+            <div style="background:rgba(139,182,255,.05);border-radius:10px;padding:16px;border-left:4px solid var(--accent-2);">
+              <h4 style="font-weight:800;color:#23272f;margin-bottom:6px;font-size:1.05rem;">Can I modify or cancel my order?</h4>
+              <p style="color:#5b6378;font-weight:600;font-size:0.95rem;">You can modify or cancel your order within 24 hours of placing it, as long as it hasn't been shipped yet.</p>
+            </div>
+          </div>
+        </div>
+        <div style="margin-bottom:24px;">
+          <h3 style="font-size:1.3rem;font-weight:800;color:#23272f;margin-bottom:12px;display:flex;align-items:center;gap:8px;">
+            <i class="fa-solid fa-headset" style="color:var(--accent-2);"></i>
+            Contact Support
+          </h3>
+          <p style="color:#5b6378;font-weight:600;margin-bottom:12px;">
+            Need more help? Our customer support team is available to assist you with any questions or concerns.
+          </p>
+          <ul style="color:#5b6378;font-weight:600;margin-left:20px;line-height:2;">
+            <li>Email: vpetopia@gmail.com</li>
+            <li>Phone: +63 917 123 4567</li>
+            <li>Live Chat: Available 24/7 on our website</li>
+            <li>Response Time: Within 24 hours</li>
+          </ul>
+        </div>
+        <div style="background:rgba(139,182,255,.08);border-radius:12px;padding:20px;margin-top:32px;border:1px solid rgba(139,182,255,.2);">
+          <p style="color:#23272f;font-weight:700;font-size:1.05rem;margin-bottom:8px;text-align:center;">
+            <i class="fa-solid fa-envelope-circle-check" style="color:var(--accent-2);margin-right:8px;"></i>
+            Still have questions?
+          </p>
+          <p style="color:var(--muted);font-weight:600;font-size:0.95rem;text-align:center;">
+            Reach out to our support team and we'll be happy to help!
+          </p>
+        </div>
+      </div>
+      </div>
+    </div>
+  `;
+  document.body.appendChild(div);
+  
+  // Close button handler
+  document.getElementById('closeHelpCenterModal').addEventListener('click', function() {
+    div.remove();
+  });
+  
+  // Close when clicking outside
+  div.addEventListener('click', function(e) {
+    if (e.target === div) {
+      div.remove();
+    }
+  });
+  
+  // Close on Escape key
+  const escapeHandler = function(e) {
+    if (e.key === 'Escape') {
+      div.remove();
+      document.removeEventListener('keydown', escapeHandler);
+    }
+  };
+  document.addEventListener('keydown', escapeHandler);
+}
+
+// Track Order modal function
+function showTrackOrderModal() {
+  const div = document.createElement('div');
+  div.id = 'trackOrderModal';
+  div.style = 'position:fixed;top:0;left:0;width:100vw;height:100vh;z-index:9999;background:rgba(0,0,0,.25);backdrop-filter:blur(2px);display:flex;align-items:center;justify-content:center;';
+  div.innerHTML = `
+    <div style="background:rgba(255,255,255,.97);border-radius:18px;max-width:700px;width:90vw;max-height:85vh;box-shadow:0 10px 40px rgba(16,24,40,.22);position:relative;overflow:hidden;display:flex;flex-direction:column;">
+      <button id="closeTrackOrderModal" style="position:absolute;top:16px;right:18px;background:none;border:none;font-size:2rem;cursor:pointer;z-index:2;color:#23272f;">&times;</button>
+      <div style="overflow-y:auto;padding:40px 32px;flex:1;">
+      <div style="text-align:center;margin-bottom:32px;">
+        <div style="width:80px;height:80px;border-radius:16px;background:linear-gradient(135deg,var(--accent),var(--accent-2));display:flex;align-items:center;justify-content:center;margin:0 auto 20px;box-shadow:0 8px 26px rgba(139,182,255,.15);">
+          <i class="fa-solid fa-truck-fast" style="font-size:2.5rem;color:#051014;"></i>
+        </div>
+        <h2 style="font-size:2rem;font-weight:800;color:#23272f;margin-bottom:8px;">Track Your Order</h2>
+        <p style="color:var(--muted);font-weight:600;font-size:1.05rem;">Monitor your order status in real-time</p>
+      </div>
+      <div style="color:#23272f;line-height:1.8;font-size:1rem;">
+        <div style="margin-bottom:24px;">
+          <h3 style="font-size:1.3rem;font-weight:800;color:#23272f;margin-bottom:12px;display:flex;align-items:center;gap:8px;">
+            <i class="fa-solid fa-magnifying-glass" style="color:var(--accent-2);"></i>
+            How to Track Your Order
+          </h3>
+          <p style="color:#5b6378;font-weight:600;margin-bottom:12px;">
+            To track your order, you'll need your order number and email address. Once your order is confirmed, you'll receive a tracking number via email.
+          </p>
+          <div style="background:rgba(139,182,255,.08);border-radius:12px;padding:20px;margin-top:16px;border:1px solid rgba(139,182,255,.2);">
+            <div style="margin-bottom:16px;">
+              <label style="display:block;font-weight:700;color:#23272f;margin-bottom:8px;font-size:1rem;">Order Number</label>
+              <input type="text" placeholder="Enter your order number" style="width:100%;padding:12px;border-radius:8px;border:1px solid rgba(11,15,26,.1);font-size:1rem;font-weight:600;">
+            </div>
+            <div style="margin-bottom:16px;">
+              <label style="display:block;font-weight:700;color:#23272f;margin-bottom:8px;font-size:1rem;">Email Address</label>
+              <input type="email" placeholder="Enter your email" style="width:100%;padding:12px;border-radius:8px;border:1px solid rgba(11,15,26,.1);font-size:1rem;font-weight:600;">
+            </div>
+            <button style="width:100%;padding:12px;border-radius:8px;background:linear-gradient(135deg,var(--accent),var(--accent-2));color:#051014;font-weight:700;border:none;cursor:pointer;font-size:1rem;box-shadow:0 8px 26px rgba(139,182,255,.08);">
+              Track Order
+            </button>
+          </div>
+        </div>
+        <div style="margin-bottom:24px;">
+          <h3 style="font-size:1.3rem;font-weight:800;color:#23272f;margin-bottom:12px;display:flex;align-items:center;gap:8px;">
+            <i class="fa-solid fa-list-check" style="color:var(--accent-2);"></i>
+            Order Status
+          </h3>
+          <div style="display:grid;gap:12px;">
+            <div style="display:flex;align-items:center;gap:12px;padding:12px;background:rgba(139,182,255,.05);border-radius:8px;">
+              <i class="fa-solid fa-circle-check" style="color:var(--accent-2);font-size:1.5rem;"></i>
+              <div>
+                <div style="font-weight:800;color:#23272f;">Order Confirmed</div>
+                <div style="color:#5b6378;font-weight:600;font-size:0.9rem;">Your order has been received</div>
+              </div>
+            </div>
+            <div style="display:flex;align-items:center;gap:12px;padding:12px;background:rgba(139,182,255,.05);border-radius:8px;">
+              <i class="fa-solid fa-box" style="color:var(--accent-2);font-size:1.5rem;"></i>
+              <div>
+                <div style="font-weight:800;color:#23272f;">Processing</div>
+                <div style="color:#5b6378;font-weight:600;font-size:0.9rem;">Your order is being prepared</div>
+              </div>
+            </div>
+            <div style="display:flex;align-items:center;gap:12px;padding:12px;background:rgba(139,182,255,.05);border-radius:8px;">
+              <i class="fa-solid fa-truck" style="color:var(--accent-2);font-size:1.5rem;"></i>
+              <div>
+                <div style="font-weight:800;color:#23272f;">Shipped</div>
+                <div style="color:#5b6378;font-weight:600;font-size:0.9rem;">Your order is on the way</div>
+              </div>
+            </div>
+            <div style="display:flex;align-items:center;gap:12px;padding:12px;background:rgba(139,182,255,.05);border-radius:8px;">
+              <i class="fa-solid fa-house" style="color:var(--accent-2);font-size:1.5rem;"></i>
+              <div>
+                <div style="font-weight:800;color:#23272f;">Delivered</div>
+                <div style="color:#5b6378;font-weight:600;font-size:0.9rem;">Your order has been delivered</div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div style="background:rgba(139,182,255,.08);border-radius:12px;padding:20px;margin-top:32px;border:1px solid rgba(139,182,255,.2);">
+          <p style="color:#23272f;font-weight:700;font-size:1.05rem;margin-bottom:8px;text-align:center;">
+            <i class="fa-solid fa-info-circle" style="color:var(--accent-2);margin-right:8px;"></i>
+            Need Help?
+          </p>
+          <p style="color:var(--muted);font-weight:600;font-size:0.95rem;text-align:center;">
+            Contact us at vpetopia@gmail.com if you have any questions about your order.
+          </p>
+        </div>
+      </div>
+      </div>
+    </div>
+  `;
+  document.body.appendChild(div);
+  
+  // Close button handler
+  document.getElementById('closeTrackOrderModal').addEventListener('click', function() {
+    div.remove();
+  });
+  
+  // Close when clicking outside
+  div.addEventListener('click', function(e) {
+    if (e.target === div) {
+      div.remove();
+    }
+  });
+  
+  // Close on Escape key
+  const escapeHandler = function(e) {
+    if (e.key === 'Escape') {
+      div.remove();
+      document.removeEventListener('keydown', escapeHandler);
+    }
+  };
+  document.addEventListener('keydown', escapeHandler);
+}
+
+// Returns & Refunds modal function
+function showReturnsRefundsModal() {
+  const div = document.createElement('div');
+  div.id = 'returnsRefundsModal';
+  div.style = 'position:fixed;top:0;left:0;width:100vw;height:100vh;z-index:9999;background:rgba(0,0,0,.25);backdrop-filter:blur(2px);display:flex;align-items:center;justify-content:center;';
+  div.innerHTML = `
+    <div style="background:rgba(255,255,255,.97);border-radius:18px;max-width:700px;width:90vw;max-height:85vh;box-shadow:0 10px 40px rgba(16,24,40,.22);position:relative;overflow:hidden;display:flex;flex-direction:column;">
+      <button id="closeReturnsRefundsModal" style="position:absolute;top:16px;right:18px;background:none;border:none;font-size:2rem;cursor:pointer;z-index:2;color:#23272f;">&times;</button>
+      <div style="overflow-y:auto;padding:40px 32px;flex:1;">
+      <div style="text-align:center;margin-bottom:32px;">
+        <div style="width:80px;height:80px;border-radius:16px;background:linear-gradient(135deg,var(--accent),var(--accent-2));display:flex;align-items:center;justify-content:center;margin:0 auto 20px;box-shadow:0 8px 26px rgba(139,182,255,.15);">
+          <i class="fa-solid fa-rotate-left" style="font-size:2.5rem;color:#051014;"></i>
+        </div>
+        <h2 style="font-size:2rem;font-weight:800;color:#23272f;margin-bottom:8px;">Returns & Refunds</h2>
+        <p style="color:var(--muted);font-weight:600;font-size:1.05rem;">Our return and refund policy</p>
+      </div>
+      <div style="color:#23272f;line-height:1.8;font-size:1rem;">
+        <div style="margin-bottom:24px;">
+          <h3 style="font-size:1.3rem;font-weight:800;color:#23272f;margin-bottom:12px;display:flex;align-items:center;gap:8px;">
+            <i class="fa-solid fa-clock" style="color:var(--accent-2);"></i>
+            Return Policy
+          </h3>
+          <p style="color:#5b6378;font-weight:600;margin-bottom:12px;">
+            We want you to be completely satisfied with your purchase. If you're not happy with your order, you can return it within 7 days of delivery.
+          </p>
+          <ul style="color:#5b6378;font-weight:600;margin-left:20px;line-height:2;">
+            <li>Items must be unused and in original packaging</li>
+            <li>Return request must be made within 7 days of delivery</li>
+            <li>Original receipt or order confirmation required</li>
+            <li>Some items may be non-returnable (e.g., perishable goods)</li>
+          </ul>
+        </div>
+        <div style="margin-bottom:24px;">
+          <h3 style="font-size:1.3rem;font-weight:800;color:#23272f;margin-bottom:12px;display:flex;align-items:center;gap:8px;">
+            <i class="fa-solid fa-money-bill-wave" style="color:var(--accent-2);"></i>
+            Refund Process
+          </h3>
+          <div style="display:grid;gap:12px;">
+            <div style="background:rgba(139,182,255,.05);border-radius:10px;padding:16px;border-left:4px solid var(--accent-2);">
+              <h4 style="font-weight:800;color:#23272f;margin-bottom:6px;font-size:1.05rem;">Step 1: Request Return</h4>
+              <p style="color:#5b6378;font-weight:600;font-size:0.95rem;">Contact our support team or use the return form in your account to initiate a return request.</p>
+            </div>
+            <div style="background:rgba(139,182,255,.05);border-radius:10px;padding:16px;border-left:4px solid var(--accent-2);">
+              <h4 style="font-weight:800;color:#23272f;margin-bottom:6px;font-size:1.05rem;">Step 2: Ship Item Back</h4>
+              <p style="color:#5b6378;font-weight:600;font-size:0.95rem;">Once approved, you'll receive a return shipping label. Package the item securely and send it back.</p>
+            </div>
+            <div style="background:rgba(139,182,255,.05);border-radius:10px;padding:16px;border-left:4px solid var(--accent-2);">
+              <h4 style="font-weight:800;color:#23272f;margin-bottom:6px;font-size:1.05rem;">Step 3: Receive Refund</h4>
+              <p style="color:#5b6378;font-weight:600;font-size:0.95rem;">After we receive and inspect the item, your refund will be processed within 5-7 business days.</p>
+            </div>
+          </div>
+        </div>
+        <div style="margin-bottom:24px;">
+          <h3 style="font-size:1.3rem;font-weight:800;color:#23272f;margin-bottom:12px;display:flex;align-items:center;gap:8px;">
+            <i class="fa-solid fa-info-circle" style="color:var(--accent-2);"></i>
+            Important Information
+          </h3>
+          <ul style="color:#5b6378;font-weight:600;margin-left:20px;line-height:2;">
+            <li>Refunds will be issued to the original payment method</li>
+            <li>Shipping costs are non-refundable unless the item is defective</li>
+            <li>Damaged or defective items will be replaced or refunded immediately</li>
+            <li>Refund processing time: 5-7 business days after item receipt</li>
+          </ul>
+        </div>
+        <div style="background:rgba(139,182,255,.08);border-radius:12px;padding:20px;margin-top:32px;border:1px solid rgba(139,182,255,.2);">
+          <p style="color:#23272f;font-weight:700;font-size:1.05rem;margin-bottom:8px;text-align:center;">
+            <i class="fa-solid fa-envelope" style="color:var(--accent-2);margin-right:8px;"></i>
+            Need Help with Returns?
+          </p>
+          <p style="color:var(--muted);font-weight:600;font-size:0.95rem;text-align:center;">
+            Contact us at vpetopia@gmail.com or call +63 917 123 4567
+          </p>
+        </div>
+      </div>
+      </div>
+    </div>
+  `;
+  document.body.appendChild(div);
+  
+  // Close button handler
+  document.getElementById('closeReturnsRefundsModal').addEventListener('click', function() {
+    div.remove();
+  });
+  
+  // Close when clicking outside
+  div.addEventListener('click', function(e) {
+    if (e.target === div) {
+      div.remove();
+    }
+  });
+  
+  // Close on Escape key
+  const escapeHandler = function(e) {
+    if (e.key === 'Escape') {
+      div.remove();
+      document.removeEventListener('keydown', escapeHandler);
+    }
+  };
+  document.addEventListener('keydown', escapeHandler);
+}
+
+// Attach event listeners for footer buttons
+document.addEventListener('DOMContentLoaded', function() {
+  const aboutPetopiaLink = document.getElementById('aboutPetopiaLink');
+  const careersLink = document.getElementById('careersLink');
+  const blogLink = document.getElementById('blogLink');
+  const helpCenterLink = document.getElementById('helpCenterLink');
+  const trackOrderLink = document.getElementById('trackOrderLink');
+  const returnsRefundsLink = document.getElementById('returnsRefundsLink');
+  
+  if (aboutPetopiaLink) {
+    aboutPetopiaLink.addEventListener('click', function(e) {
+      e.preventDefault();
+      showAboutPetopiaModal();
+    });
+  }
+  
+  if (careersLink) {
+    careersLink.addEventListener('click', function(e) {
+      e.preventDefault();
+      showCareersModal();
+    });
+  }
+  
+  if (blogLink) {
+    blogLink.addEventListener('click', function(e) {
+      e.preventDefault();
+      showBlogModal();
+    });
+  }
+  
+  if (helpCenterLink) {
+    helpCenterLink.addEventListener('click', function(e) {
+      e.preventDefault();
+      showHelpCenterModal();
+    });
+  }
+  
+  if (trackOrderLink) {
+    trackOrderLink.addEventListener('click', function(e) {
+      e.preventDefault();
+      showTrackOrderModal();
+    });
+  }
+  
+  if (returnsRefundsLink) {
+    returnsRefundsLink.addEventListener('click', function(e) {
+      e.preventDefault();
+      showReturnsRefundsModal();
+    });
+  }
+});
+  </script>
+</body>
+</html>
+
+
+

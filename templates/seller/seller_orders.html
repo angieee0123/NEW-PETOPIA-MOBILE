@@ -1,0 +1,1909 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Petopia • Seller Orders</title>
+
+  <!-- Fonts + Icons -->
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+
+  <style>
+    :root{
+      --bg: #f6f8ff;
+      --panel: rgba(255,255,255,.60);
+      --panel-strong: rgba(255,255,255,.95);
+      --text: #0b0f1a;
+      --muted: #5b6378;
+      --accent: #7cf4d1;
+      --accent-2: #8bb6ff;
+      --glass-shadow: 0 10px 30px rgba(16,24,40,.08);
+      --card-radius: 12px;
+      --gap: 18px;
+      --sidebar-w: 260px;
+      --warning: #ffb86b;
+      --success: #4ade80;
+      --error: #ff6b6b;
+    }
+
+    *{box-sizing:border-box}
+    body{ margin:0; font-family:"Inter",system-ui,-apple-system,"Segoe UI",Roboto,"Helvetica Neue",Arial;
+      background:var(--bg); color:var(--text); min-height:100vh; display:flex;}
+    
+    /* Sidebar */
+    .sidebar{ width:var(--sidebar-w); position:fixed; top:0; left:0; bottom:0; padding:22px 18px;
+      background:var(--panel-strong); backdrop-filter:blur(10px); box-shadow:var(--glass-shadow);
+      display:flex; flex-direction:column; gap:14px; z-index:50; }
+    .brand{ display:flex; align-items:center; gap:10px; margin-bottom:6px; }
+    .brand .logo{ width:44px; height:44px; border-radius:10px;
+      background:linear-gradient(135deg,var(--accent),var(--accent-2)); display:flex; align-items:center; justify-content:center;
+      color:#051014; font-weight:800; font-size:1.05rem; }
+    .brand .title{ font-weight:800; color:#23272f; font-size:1.05rem; }
+    nav.side-nav{ display:flex; flex-direction:column; gap:6px; margin-top:8px; padding-top:6px; }
+    nav.side-nav a{ display:flex; gap:12px; align-items:center; padding:10px 12px; border-radius:10px;
+      color:var(--text); text-decoration:none; font-weight:600; transition:all .16s ease; }
+    nav.side-nav a i{ width:20px; text-align:center; color:#5b6378; }
+    nav.side-nav a:hover, nav.side-nav a.active{ background:linear-gradient(135deg,var(--accent),var(--accent-2)); color:#051014; }
+    .sidebar .spacer{ flex:1 }
+    .sidebar .small{ font-size:0.85rem; color:var(--muted); text-align:center; padding:6px 8px; }
+
+    /* Main Content */
+    .main{ margin-left:calc(var(--sidebar-w) + 20px); padding:26px; flex:1; display:flex; flex-direction:column; gap:var(--gap); }
+    header.topbar{ display:flex; justify-content:space-between; align-items:center; gap:12px;
+      background:var(--panel); padding:12px 16px; border-radius:12px; box-shadow:var(--glass-shadow); flex-wrap:wrap; }
+    .search{ display:flex; align-items:center; gap:8px; flex:1; max-width:500px; }
+    .search input{ flex:1; padding:10px 12px; border-radius:10px; border:1px solid rgba(11,15,26,.06); background:#fff; }
+    .icon-btn{ border:none; background:transparent; font-size:1.05rem; padding:8px; border-radius:8px; cursor:pointer; color:var(--text); position:relative; }
+    .badge{ position:absolute; top:2px; right:2px; background:var(--accent-2); color:#051014; border-radius:999px; padding:2px 6px; font-weight:800; font-size:0.72rem; }
+
+    /* Orders Panel */
+    .panel{ background:var(--panel-strong); border-radius:12px; padding:20px; box-shadow:var(--glass-shadow); }
+    .panel h3{ margin:0 0 16px 0; font-size:1.15rem; color:#23272f; font-weight:800; }
+
+    /* Tabs */
+    .tabs{ display:flex; gap:8px; flex-wrap:wrap; margin-bottom:16px; }
+    .tab{ padding:8px 14px; border-radius:999px; border:1px solid rgba(11,15,26,.08); background:#fff; font-weight:700; color:#23272f; cursor:pointer; transition:all .2s ease; }
+    .tab:hover{ background:rgba(139,182,255,.08); }
+    .tab.active{ background:rgba(139,182,255,.12); border-color:rgba(139,182,255,.35); color:var(--accent-2); }
+    .tab[data-filter="pending"].active{ background: rgba(255,184,107,.2); border-color: rgba(255,184,107,.45); color: var(--warning); }
+    .tab[data-filter="processing"].active{ background: rgba(139,182,255,.2); border-color: rgba(139,182,255,.45); color: var(--accent-2); }
+    .tab[data-filter="shipped"].active{ background: rgba(124,244,209,.2); border-color: rgba(124,244,209,.45); color: var(--accent); }
+    .tab[data-filter="delivered"].active{ background: rgba(74,222,128,.2); border-color: rgba(74,222,128,.45); color: var(--success); }
+    .tab[data-filter="cancelled"].active{ background: rgba(239,68,68,.15); border-color: rgba(239,68,68,.35); color: #ef4444; }
+
+    /* Order Cards */
+    .orders{ display:grid; gap:12px; }
+    .order-card{ border:1px solid #e5e8f0; border-radius:12px; background:#fff; overflow:hidden; }
+    .order-header{ display:flex; justify-content:space-between; align-items:center; padding:12px 16px; background:#f9fbff; border-bottom:1px solid #e5e8f0; }
+    .order-id{ font-weight:800; color:#23272f; font-size:.95rem; }
+    .order-status{ padding:4px 12px; border-radius:20px; font-size:.8rem; font-weight:800; }
+    .order-status.pending{ background: rgba(255,184,107,.2); color: var(--warning); }
+    .order-status.processing{ background: rgba(139,182,255,.2); color: var(--accent-2); }
+    .order-status.shipped{ background: rgba(124,244,209,.2); color: var(--accent); }
+    .order-status.delivered{ background: rgba(74,222,128,.2); color: var(--success); }
+    .order-status.cancelled{ background: rgba(239,68,68,.15); color: #ef4444; }
+
+    .order-body{ padding:16px; }
+    .customer-info{ display:flex; align-items:center; gap:12px; margin-bottom:14px; padding-bottom:14px; border-bottom:1px solid #e5e8f0; }
+    .customer-avatar{ width:48px; height:48px; border-radius:50%; background:linear-gradient(135deg,var(--accent),var(--accent-2)); display:flex; align-items:center; justify-content:center; color:#051014; font-weight:800; font-size:1.1rem; }
+    .customer-details{ flex:1; }
+    .customer-name{ font-weight:800; color:#23272f; font-size:.95rem; }
+    .customer-contact{ color:var(--muted); font-size:.85rem; font-weight:600; }
+
+    .items-list{ display:grid; gap:10px; margin-bottom:14px; }
+    .item-row{ display:flex; align-items:center; gap:12px; }
+    .item-row.hidden{ display:none; }
+    .view-more-btn{ width:100%; padding:8px 12px; margin-top:8px; border-radius:8px; border:1px solid rgba(139,182,255,.3); background:rgba(139,182,255,.08); color:var(--accent-2); font-weight:700; cursor:pointer; transition:all .2s ease; font-size:.85rem; text-align:center; }
+    .view-more-btn:hover{ background:rgba(139,182,255,.15); border-color:rgba(139,182,255,.5); }
+    .item-img{ width:60px; height:60px; border-radius:8px; object-fit:cover; }
+    .item-details{ flex:1; }
+    .item-title{ font-weight:700; color:#23272f; font-size:.9rem; }
+    .item-meta{ color:var(--muted); font-size:.85rem; font-weight:600; }
+    .item-price{ font-weight:800; color:#23272f; }
+
+    .order-summary{ display:grid; gap:6px; padding:12px; background:rgba(139,182,255,.04); border-radius:8px; margin-bottom:12px; }
+    .summary-row{ display:flex; justify-content:space-between; font-size:.9rem; }
+    .summary-row.total{ font-weight:800; color:#23272f; font-size:1rem; padding-top:8px; border-top:1px solid #e5e8f0; }
+
+    .order-actions{ display:flex; gap:8px; flex-wrap:wrap; }
+    .btn{ padding:8px 14px; border-radius:8px; border:none; font-weight:700; cursor:pointer; transition:all .2s ease; }
+    .btn-primary{ background:linear-gradient(135deg,var(--accent),var(--accent-2)); color:#051014; }
+    .btn-secondary{ background:#fff; border:1px solid rgba(11,15,26,.1); color:#23272f; }
+    .btn-danger{ background:var(--error); color:#fff; }
+    .btn:hover{ transform:translateY(-1px); box-shadow:0 4px 12px rgba(0,0,0,.1); }
+
+    .empty-state{ text-align:center; padding:40px; color:var(--muted); }
+    .empty-state i{ font-size:3rem; margin-bottom:12px; opacity:.5; }
+
+    footer{ margin-top:16px; padding:18px; text-align:center; color:var(--muted); font-size:0.9rem; }
+
+    /* Modal */
+    .modal{ display:none; position:fixed; inset:0; background:rgba(0,0,0,0.5); justify-content:center; align-items:center; z-index:1000; }
+    .modal-content{ background:#fff; width:600px; max-width:95%; border-radius:12px; max-height:90vh; overflow:auto; }
+    .modal-header{ padding:16px; border-bottom:1px solid #e5e8f0; display:flex; justify-content:space-between; align-items:center; }
+    .modal-title{ font-weight:800; font-size:1.1rem; color:#23272f; }
+    .close-btn{ border:none; background:none; font-size:1.5rem; cursor:pointer; color:var(--muted); }
+    .modal-body{ padding:20px; }
+    .form-group{ margin-bottom:16px; }
+    .form-group label{ display:block; font-weight:700; color:#23272f; margin-bottom:6px; }
+    .form-group select, .form-group textarea{ width:100%; padding:10px 12px; border-radius:8px; border:1px solid rgba(11,15,26,.1); }
+    .form-group textarea{ resize:vertical; min-height:80px; }
+
+    /* Print Receipt Styles */
+    @media print {
+      body * { visibility: hidden; }
+      #printReceipt, #printReceipt * { visibility: visible; }
+      #printReceipt { position: absolute; left: 0; top: 0; width: 100%; }
+      .no-print { display: none !important; }
+    }
+    
+    #printReceipt {
+      display: none;
+      background: white;
+      padding: 40px;
+      max-width: 800px;
+      margin: 0 auto;
+    }
+    
+    .receipt-header {
+      text-align: center;
+      border-bottom: 2px solid #23272f;
+      padding-bottom: 20px;
+      margin-bottom: 20px;
+    }
+    
+    .receipt-logo {
+      font-size: 2rem;
+      font-weight: 800;
+      color: #23272f;
+      margin-bottom: 5px;
+    }
+    
+    .receipt-title {
+      font-size: 1.5rem;
+      font-weight: 700;
+      color: #23272f;
+      margin-top: 10px;
+    }
+    
+    .receipt-section {
+      margin-bottom: 20px;
+    }
+    
+    .receipt-section-title {
+      font-weight: 700;
+      font-size: 0.9rem;
+      color: #5b6378;
+      text-transform: uppercase;
+      margin-bottom: 8px;
+      letter-spacing: 0.5px;
+    }
+    
+    .receipt-info {
+      line-height: 1.8;
+    }
+    
+    .receipt-table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 20px 0;
+    }
+    
+    .receipt-table th {
+      background: #f9fbff;
+      padding: 10px;
+      text-align: left;
+      font-weight: 700;
+      border-bottom: 2px solid #23272f;
+    }
+    
+    .receipt-table td {
+      padding: 10px;
+      border-bottom: 1px solid #e5e8f0;
+    }
+    
+    .receipt-total {
+      text-align: right;
+      margin-top: 20px;
+      padding-top: 20px;
+      border-top: 2px solid #23272f;
+    }
+    
+    .receipt-total-row {
+      display: flex;
+      justify-content: flex-end;
+      gap: 40px;
+      margin-bottom: 8px;
+    }
+    
+    .receipt-total-label {
+      font-weight: 600;
+    }
+    
+    .receipt-total-value {
+      font-weight: 700;
+      min-width: 100px;
+      text-align: right;
+    }
+    
+    .receipt-grand-total {
+      font-size: 1.2rem;
+      font-weight: 800;
+      margin-top: 10px;
+      padding-top: 10px;
+      border-top: 1px solid #23272f;
+    }
+    
+    .receipt-footer {
+      text-align: center;
+      margin-top: 30px;
+      padding-top: 20px;
+      border-top: 1px solid #e5e8f0;
+      color: #5b6378;
+      font-size: 0.9rem;
+    }
+  </style>
+</head>
+<body>
+  <!-- SIDEBAR -->
+  <aside class="sidebar">
+    <div class="brand"><div class="logo">P</div><div class="title">Petopia</div></div>
+    <nav class="side-nav">
+      <a href="{{ url_for('seller_dashboard') }}"><i class="fa-solid fa-chart-line"></i><span>Dashboard</span></a>
+      <a href="{{ url_for('seller_products') }}"><i class="fa-solid fa-box"></i><span>My Products</span></a>
+      <a href="{{ url_for('seller_orders') }}" class="active"><i class="fa-solid fa-cart-shopping"></i><span>My Orders</span></a>
+      <a href="{{ url_for('seller_earnings_commission') }}"><i class="fa-solid fa-sack-dollar"></i><span>Earnings & Commission</span></a>
+      <a href="{{ url_for('seller_promotions') }}"><i class="fa-solid fa-bullhorn"></i><span>Promotions</span></a>
+      <a href="{{ url_for('seller_reports') }}"><i class="fa-solid fa-chart-pie"></i><span>Reports & Analytics</span></a>
+      <a href="{{ url_for('logout') }}" id="logoutLink"><i class="fa-solid fa-right-from-bracket"></i><span>Logout</span></a>
+    </nav>
+    <div class="spacer"></div>
+    <div class="small">Signed in as <strong>Seller</strong></div>
+  </aside>
+
+  <!-- MAIN -->
+  <main class="main">
+    <header class="topbar">
+      <div>
+        <div style="font-weight:800;font-size:1.05rem">My Orders 📦</div>
+        <div style="font-size:0.88rem;color:var(--muted)">Manage and fulfill customer orders</div>
+      </div>
+
+      <div class="search">
+        <input type="text" id="searchInput" placeholder="Search by order ID or customer name..." />
+        <button class="icon-btn"><i class="fa-solid fa-magnifying-glass"></i></button>
+      </div>
+
+      <div style="display:flex;align-items:center;gap:12px;">
+        <button class="icon-btn" title="Notifications"><i class="fa-regular fa-bell"></i><span class="badge">5</span></button>
+        <button class="icon-btn"><i class="fa-regular fa-envelope"></i></button>
+      </div>
+    </header>
+
+    <!-- Orders Panel -->
+    <section class="panel">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">
+        <h3>Customer Orders</h3>
+        <div style="color:var(--muted);font-weight:600;font-size:.9rem;">
+          Total: <span id="totalOrders" style="color:#23272f;font-weight:800;">0</span> orders
+        </div>
+      </div>
+
+      <div class="tabs">
+        <button class="tab active" data-filter="all">All Orders</button>
+        <button class="tab" data-filter="pending">Pending</button>
+        <button class="tab" data-filter="processing">Processing</button>
+        <button class="tab" data-filter="shipped">Shipped</button>
+        <button class="tab" data-filter="delivered">Delivered</button>
+        <button class="tab" data-filter="cancelled">Cancelled</button>
+      </div>
+
+      <div id="emptyState" class="empty-state" style="display:none;">
+        <i class="fa-solid fa-box-open"></i>
+        <div style="font-weight:700;font-size:1.1rem;margin-bottom:6px;">No orders found</div>
+        <div>Orders from customers will appear here</div>
+      </div>
+
+      <div id="ordersWrap" class="orders"></div>
+    </section>
+
+    <footer>© <span id="yr"></span> Petopia. All rights reserved.</footer>
+  </main>
+
+  <!-- Print Receipt (Hidden) -->
+  <div id="printReceipt"></div>
+
+  <!-- Update Status Modal -->
+  <div id="statusModal" class="modal">
+    <div class="modal-content">
+      <div class="modal-header">
+        <div class="modal-title">Update Order Status</div>
+        <button class="close-btn" onclick="closeStatusModal()">&times;</button>
+      </div>
+      <div class="modal-body">
+        <div class="form-group">
+          <label>Order ID</label>
+          <input type="text" id="modalOrderId" readonly style="width:100%;padding:10px 12px;border-radius:8px;border:1px solid rgba(11,15,26,.1);background:#f9fbff;">
+        </div>
+        <div class="form-group">
+          <label>New Status</label>
+          <select id="modalStatus">
+            <option value="pending">Pending</option>
+            <option value="processing">Processing</option>
+            <option value="shipped">Shipped</option>
+            <option value="delivered">Delivered</option>
+            <option value="cancelled">Cancelled</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Notes (Optional)</label>
+          <textarea id="modalNotes" placeholder="Add any notes about this status update..."></textarea>
+        </div>
+        <div style="display:flex;gap:8px;justify-content:flex-end;">
+          <button class="btn btn-secondary" onclick="closeStatusModal()">Cancel</button>
+          <button class="btn btn-primary" onclick="saveStatusUpdate()">Update Status</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Report Modal -->
+  <div id="reportModal" class="modal">
+    <div class="modal-content">
+      <div class="modal-header">
+        <div class="modal-title">Report Order</div>
+        <button class="close-btn" onclick="closeReportModal()">&times;</button>
+      </div>
+      <div class="modal-body">
+        <div class="form-group">
+          <label>Order ID</label>
+          <input type="text" id="reportOrderId" readonly style="width:100%;padding:10px 12px;border-radius:8px;border:1px solid rgba(11,15,26,.1);background:#f9fbff;">
+        </div>
+        <div class="form-group">
+          <label>Reason for Report <span style="color:var(--error);">*</span></label>
+          <select id="reportReason" required style="width:100%;padding:10px 12px;border-radius:8px;border:1px solid rgba(11,15,26,.1);">
+            <option value="">Select a reason...</option>
+            <option value="fake_orders">Fake Orders</option>
+            <option value="non_payment">Non-Payment</option>
+            <option value="inappropriate_behavior">Inappropriate Behavior</option>
+            <option value="delivery_issues">Delivery Issues</option>
+            <option value="other">Other</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Description <span style="color:var(--error);">*</span></label>
+          <textarea id="reportDescription" placeholder="Please provide details about the issue..." required style="width:100%;padding:10px 12px;border-radius:8px;border:1px solid rgba(11,15,26,.1);resize:vertical;min-height:100px;"></textarea>
+        </div>
+        <div class="form-group">
+          <label>Evidence (Optional)</label>
+          <input type="file" id="reportEvidence" multiple accept="image/*" style="width:100%;padding:10px 12px;border-radius:8px;border:1px solid rgba(11,15,26,.1);">
+          <div style="font-size:0.85rem;color:var(--muted);margin-top:6px;">You can upload multiple images (PNG, JPG, JPEG, GIF, WEBP)</div>
+        </div>
+        <div style="display:flex;gap:8px;justify-content:flex-end;">
+          <button class="btn btn-secondary" onclick="closeReportModal()">Cancel</button>
+          <button class="btn btn-primary" onclick="submitReport()">Submit Report</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    document.getElementById('yr').textContent = new Date().getFullYear();
+
+    // Custom alert function to replace browser alert dialogs
+    function showCustomAlert(message, type = 'error', title = null) {
+      const div = document.createElement('div');
+      div.id = 'customAlertModal';
+      div.style = 'position:fixed;top:0;left:0;width:100vw;height:100vh;z-index:9999;background:rgba(0,0,0,.25);backdrop-filter:blur(2px);display:flex;align-items:center;justify-content:center;';
+      
+      // Determine icon and colors based on type
+      let iconBg, iconColor, iconClass, alertTitle, borderColor;
+      const errorColor = '#ff6b6b';
+      const successColor = '#4ade80';
+      const warningColor = '#fbbf24';
+      const infoColor = '#8bb6ff';
+      
+      if (type === 'success') {
+        iconBg = 'rgba(74,222,128,.15)';
+        iconColor = successColor;
+        iconClass = 'fa-circle-check';
+        alertTitle = title || 'Success';
+        borderColor = successColor;
+      } else if (type === 'warning') {
+        iconBg = 'rgba(251,191,36,.15)';
+        iconColor = warningColor;
+        iconClass = 'fa-triangle-exclamation';
+        alertTitle = title || 'Warning';
+        borderColor = warningColor;
+      } else if (type === 'info') {
+        iconBg = 'rgba(139,182,255,.15)';
+        iconColor = infoColor;
+        iconClass = 'fa-circle-info';
+        alertTitle = title || 'Notice';
+        borderColor = infoColor;
+      } else {
+        // error (default)
+        iconBg = 'rgba(255,107,107,.15)';
+        iconColor = errorColor;
+        iconClass = 'fa-circle-exclamation';
+        alertTitle = title || 'Error';
+        borderColor = errorColor;
+      }
+      
+      div.innerHTML = `
+        <div style="background:rgba(255,255,255,.97);border-radius:18px;max-width:500px;width:90vw;box-shadow:0 10px 40px rgba(16,24,40,.22);position:relative;overflow:hidden;">
+          <div style="padding:32px;text-align:center;">
+            <div style="width:64px;height:64px;border-radius:50%;background:${iconBg};display:flex;align-items:center;justify-content:center;margin:0 auto 20px;border:2px solid ${borderColor};">
+              <i class="fa-solid ${iconClass}" style="font-size:2rem;color:${iconColor};"></i>
+            </div>
+            <h3 style="font-size:1.5rem;font-weight:800;color:#23272f;margin-bottom:12px;">${alertTitle}</h3>
+            <p style="color:#5b6378;font-weight:600;font-size:1rem;line-height:1.6;margin-bottom:24px;white-space:pre-line;">${message}</p>
+            <div style="display:flex;gap:12px;justify-content:center;">
+              <button id="alertOk" style="padding:12px 32px;border-radius:10px;background:linear-gradient(135deg, var(--accent), var(--accent-2));color:#051014;font-weight:700;border:none;cursor:pointer;font-size:1rem;box-shadow:0 8px 26px rgba(139,182,255,.08);transition:all .2s ease;">OK</button>
+            </div>
+          </div>
+        </div>
+      `;
+      document.body.appendChild(div);
+      
+      const closeHandler = function() {
+        div.remove();
+      };
+      
+      document.getElementById('alertOk').addEventListener('click', closeHandler);
+      
+      div.addEventListener('click', function(e) {
+        if (e.target === div) closeHandler();
+      });
+      
+      const escapeHandler = function(e) {
+        if (e.key === 'Escape') {
+          closeHandler();
+          document.removeEventListener('keydown', escapeHandler);
+        }
+      };
+      document.addEventListener('keydown', escapeHandler);
+    }
+
+    // Custom confirmation function to replace browser confirm dialogs
+    function showCustomConfirm(message, onConfirm, onCancel = null) {
+      const div = document.createElement('div');
+      div.id = 'customConfirmModal';
+      div.style = 'position:fixed;top:0;left:0;width:100vw;height:100vh;z-index:9999;background:rgba(0,0,0,.25);backdrop-filter:blur(2px);display:flex;align-items:center;justify-content:center;';
+      
+      div.innerHTML = `
+        <div style="background:rgba(255,255,255,.97);border-radius:18px;max-width:500px;width:90vw;box-shadow:0 10px 40px rgba(16,24,40,.22);position:relative;overflow:hidden;">
+          <div style="padding:32px;text-align:center;">
+            <div style="width:64px;height:64px;border-radius:50%;background:rgba(251,191,36,.15);display:flex;align-items:center;justify-content:center;margin:0 auto 20px;border:2px solid #fbbf24;">
+              <i class="fa-solid fa-circle-question" style="font-size:2rem;color:#fbbf24;"></i>
+            </div>
+            <h3 style="font-size:1.5rem;font-weight:800;color:#23272f;margin-bottom:12px;">Confirm Action</h3>
+            <p style="color:#5b6378;font-weight:600;font-size:1rem;line-height:1.6;margin-bottom:24px;">${message}</p>
+            <div style="display:flex;gap:12px;justify-content:center;">
+              <button id="confirmCancel" style="padding:12px 24px;border-radius:10px;background:#e5e8f0;color:#23272f;font-weight:700;border:none;cursor:pointer;font-size:1rem;transition:all .2s ease;">Cancel</button>
+              <button id="confirmOk" style="padding:12px 24px;border-radius:10px;background:linear-gradient(135deg, var(--accent), var(--accent-2));color:#051014;font-weight:700;border:none;cursor:pointer;font-size:1rem;box-shadow:0 8px 26px rgba(139,182,255,.08);transition:all .2s ease;">Confirm</button>
+            </div>
+          </div>
+        </div>
+      `;
+      document.body.appendChild(div);
+      
+      const closeHandler = function() {
+        div.remove();
+      };
+      
+      document.getElementById('confirmOk').addEventListener('click', function() {
+        closeHandler();
+        if (onConfirm) onConfirm();
+      });
+      
+      document.getElementById('confirmCancel').addEventListener('click', function() {
+        closeHandler();
+        if (onCancel) onCancel();
+      });
+      
+      div.addEventListener('click', function(e) {
+        if (e.target === div) {
+          closeHandler();
+          if (onCancel) onCancel();
+        }
+      });
+      
+      const escapeHandler = function(e) {
+        if (e.key === 'Escape') {
+          closeHandler();
+          if (onCancel) onCancel();
+          document.removeEventListener('keydown', escapeHandler);
+        }
+      };
+      document.addEventListener('keydown', escapeHandler);
+    }
+
+    // Orders Management (DB-backed)
+    async function fetchSellerOrders(){
+      const res = await fetch('/seller/orders', { credentials: 'same-origin' });
+      if (!res.ok) return [];
+      const data = await res.json();
+      return Array.isArray(data) ? data : [];
+    }
+
+    // Deprecated local sync helpers removed (now DB is source of truth)
+
+    function syncFromBuyerOrders(){ return false; }
+    function peso(n){ return '₱' + (n||0).toLocaleString(); }
+
+    // Removed demo seeding; DB provides orders
+
+    // Example: For a shipped demo order, set delivery status to 'accepted' so details will show
+(function(){
+  const deliveries = JSON.parse(localStorage.getItem('petopia_deliveries') || '[]');
+  // Find the shipped demo order
+  const shippedOrderId = 'DEMO-20003';
+  let delivery = deliveries.find(d => d.orderId === shippedOrderId);
+  if (!delivery) {
+    // Create delivery if missing
+    delivery = {
+      id: Date.now(),
+      orderId: shippedOrderId,
+      status: 'accepted', // Rider has accepted
+      riderName: 'Demo Rider',
+      riderPhone: '+63 912 345 6789',
+      pickupName: 'Petopia Warehouse',
+      pickupAddress: '123 Demo St, Makati',
+      deliveryName: 'Demo Buyer',
+      deliveryAddress: 'Demo Address',
+      deliveryPhone: '+63 900 000 0000',
+      items: 1,
+      distance: '5.0 km',
+      eta: '25 mins',
+      fee: 75
+    };
+    deliveries.push(delivery);
+  } else {
+    // Ensure status is 'accepted'
+    delivery.status = 'accepted';
+    delivery.riderName = 'Demo Rider';
+    delivery.riderPhone = '+63 912 345 6789';
+  }
+  localStorage.setItem('petopia_deliveries', JSON.stringify(deliveries));
+})();
+
+    let currentFilter = 'all';
+    let currentOrderId = null;
+
+    async function renderOrders(){
+      const orders = await fetchSellerOrders();
+      const searchQuery = document.getElementById('searchInput').value.trim().toLowerCase();
+
+      // Apply status filter first (map seller tab -> DB status)
+      let filtered;
+      if (currentFilter === 'all') {
+        filtered = orders;
+      } else {
+        const dbStatus = mapSellerToDb(currentFilter);
+        filtered = orders.filter(o => o.status === dbStatus);
+      }
+
+      // Apply search filter on top of status filter
+      if (searchQuery) {
+        filtered = filtered.filter(o => {
+          const idStr = String(o.id || '').toLowerCase();
+          const nameStr = String(o.fullName || '').toLowerCase();
+          return idStr.includes(searchQuery) || nameStr.includes(searchQuery);
+        });
+      }
+
+      const wrap = document.getElementById('ordersWrap');
+      const empty = document.getElementById('emptyState');
+
+      document.getElementById('totalOrders').textContent = orders.length;
+
+      if (filtered.length === 0) {
+        wrap.innerHTML = '';
+        empty.style.display = 'block';
+        return;
+      }
+
+      empty.style.display = 'none';
+      wrap.innerHTML = filtered.sort((a,b) => new Date(b.createdAt) - new Date(a.createdAt)).map(order => {
+        const date = new Date(order.createdAt).toLocaleDateString('en-PH', { year: 'numeric', month: 'short', day: 'numeric' });
+        const buyerName = order.fullName || 'Customer';
+        const initials = buyerName.split(' ').map(w => w[0]).join('').toUpperCase().slice(0,2);
+
+        // Seller status info box
+        let statusInfo = '';
+        if (order.status === 'to_pay') {
+          statusInfo = `
+            <div style="margin-bottom:12px;padding:10px 12px;background:rgba(255,184,107,.08);border-radius:8px;border:1px solid rgba(255,184,107,.2);">
+              <div style="font-weight:800;color:var(--warning);font-size:.92rem;">
+                <i class="fa-solid fa-clock"></i> Awaiting buyer payment.
+              </div>
+            </div>
+          `;
+        } else if (order.status === 'to_ship') {
+          statusInfo = `
+            <div style="margin-bottom:12px;padding:10px 12px;background:rgba(139,182,255,.08);border-radius:8px;border:1px solid rgba(139,182,255,.2);">
+              <div style="font-weight:800;color:var(--accent-2);font-size:.92rem;">
+                <i class="fa-solid fa-box"></i> Prepare items for shipping. Book a rider when ready.
+              </div>
+            </div>
+          `;
+        } else if (order.status === 'completed') {
+          statusInfo = `
+            <div style="margin-bottom:12px;padding:10px 12px;background:rgba(74,222,128,.08);border-radius:8px;border:1px solid rgba(74,222,128,.2);">
+              <div style="font-weight:800;color:var(--success);font-size:.92rem;">
+                <i class="fa-solid fa-circle-check"></i> Order delivered to customer. 
+              </div>
+            </div>
+          `;
+        } else if (order.status === 'cancelled') {
+          statusInfo = `
+            <div style="margin-bottom:12px;padding:10px 12px;background:rgba(239,68,68,.08);border-radius:8px;border:1px solid rgba(239,68,68,.2);">
+              <div style="font-weight:800;color:#ef4444;font-size:.92rem;">
+                <i class="fa-solid fa-ban"></i> Order cancelled by buyer or seller.
+              </div>
+            </div>
+          `;
+        }
+
+        // No longer using localStorage for delivery info - using database instead
+
+        let deliveryDetailsBlock = '';
+        let riderStatusBlock = '';
+        let shippedInfoBlock = '';
+
+        // For shipped orders: show rider status and shipped info if rider is assigned
+        if (
+          order.status === 'to_receive' &&
+          order.rider && (order.rider.name || order.rider.phone)
+        ) {
+          riderStatusBlock = `
+            <div style="padding:10px 12px;background:rgba(124,244,209,.10);border-radius:8px;margin-bottom:12px;">
+              <div style="font-size:.85rem;color:var(--muted);font-weight:600;margin-bottom:4px;">
+                Rider Status
+              </div>
+              <div style="font-weight:700;color:#23272f;">
+                Order picked up by rider. In transit to customer.
+              </div>
+            </div>
+          `;
+          shippedInfoBlock = `
+            <div style="margin-bottom:12px;padding:10px 12px;background:rgba(124,244,209,.08);border-radius:8px;border:1px solid rgba(124,244,209,.2);">
+              <div style="font-weight:800;color:var(--accent);font-size:.92rem;">
+                <i class="fa-solid fa-truck"></i> Order picked up by rider. In transit to customer.
+              </div>
+            </div>
+          `;
+        }
+
+        // Use DB rider info if present (preferred over localStorage)
+        if (
+          (order.status === 'to_receive' || order.status === 'completed') &&
+          order.rider && (order.rider.name || order.rider.phone)
+        ) {
+          const riderName = order.rider.name || 'Not assigned yet';
+          const riderPhone = order.rider.phone || '-';
+          const dropName = buyerName || '-';
+          const dropAddr = order.address || '-';
+          deliveryDetailsBlock = `
+            <div style="margin-bottom:12px;padding:10px 12px;background:rgba(139,182,255,.06);border-radius:8px;">
+              <div style="font-weight:700;color:#23272f;">Delivery Details</div>
+              <div style="color:var(--muted);font-size:.9rem;">
+                Rider: ${riderName}<br>
+                Rider Contact: ${riderPhone}<br>
+                Deliver to: ${dropName}, ${dropAddr}
+              </div>
+            </div>
+          `;
+        }
+
+        // For delivered orders: show only "Order delivered to customer." status box (already handled by statusInfo)
+        // Do NOT show riderStatusBlock or shippedInfoBlock for delivered
+
+        return `
+          <div class="order-card">
+            <div class="order-header">
+              <div class="order-id">${order.id}</div>
+              <div class="order-status ${mapSellerBadgeClass(order.status)}">${mapSellerStatusLabel(order.status)}</div>
+            </div>
+            <div class="order-body">
+              <div class="customer-info">
+                <div class="customer-avatar">${initials}</div>
+                <div class="customer-details">
+                  <div class="customer-name">${buyerName}</div>
+                  <div class="customer-contact">${order.phone || ''}</div>
+                  <div class="customer-contact" style="margin-top:2px;"><i class="fa-solid fa-location-dot"></i> ${order.address || ''}</div>
+                </div>
+              </div>
+
+              <div class="items-list" id="items-list-${order.id}">
+                ${order.items.map((item, index) => {
+                  // Display selected attributes if any
+                  let attributesText = '';
+                  if (item.selected_attributes && Object.keys(item.selected_attributes).length > 0) {
+                    const attributes = Object.entries(item.selected_attributes)
+                      .map(([key, value]) => `${key.charAt(0).toUpperCase() + key.slice(1)}: ${value}`)
+                      .join(', ');
+                    attributesText = `<div style="color:var(--muted);font-size:0.8rem;font-weight:600;margin-top:2px;">${attributes}</div>`;
+                  }
+                  
+                  const MAX_VISIBLE = 1;
+                  const isHidden = index >= MAX_VISIBLE;
+                  
+                  return `
+                  <div class="item-row ${isHidden ? 'hidden' : ''}" data-index="${index}">
+                    <img src="${item.img || 'https://via.placeholder.com/60'}" alt="${item.title}" class="item-img">
+                    <div class="item-details">
+                      <div class="item-title">${item.title}</div>
+                      ${attributesText}
+                      <div class="item-meta">Qty: ${item.qty} × ${peso(item.price)}</div>
+                    </div>
+                    <div class="item-price">${peso(item.qty * item.price)}</div>
+                  </div>
+                `;
+                }).join('')}
+                ${order.items.length > 1 ? `
+                  <button class="view-more-btn" onclick="toggleOrderItems('${order.id}', ${order.items.length})" id="viewMoreBtn-${order.id}">
+                    View More (${order.items.length - 1} more)
+                  </button>
+                ` : ''}
+              </div>
+
+              <div class="order-summary">
+                <div class="summary-row"><span style="color:var(--muted);font-weight:600;">Subtotal</span><span style="font-weight:700;">${peso(order.subtotal)}</span></div>
+                ${ (typeof order.discount === 'number' && order.discount > 0) ? `
+                <div class="summary-row"><span style="color:var(--muted);font-weight:600;">Discount</span><span style="font-weight:700;color:#16a34a;">- ${peso(order.discount)}</span></div>
+                ` : '' }
+                <div class="summary-row"><span style="color:var(--muted);font-weight:600;">Shipping</span><span style="font-weight:700;">${peso(order.shipping)}</span></div>
+                <div class="summary-row total"><span>Total</span><span>${peso(order.total)}</span></div>
+                ${ (typeof order.sellerAmount === 'number') ? `
+                <div class="summary-row" title="Subtotal minus shipping covered when free shipping applies"><span style="color:var(--muted);font-weight:600;">Seller Amount</span><span style="font-weight:800;color:#23272f;">${peso(order.sellerAmount)}</span></div>
+                ` : '' }
+              </div>
+
+              <div style="padding:10px 12px;background:rgba(139,182,255,.06);border-radius:8px;margin-bottom:12px;">
+                <div style="font-size:.85rem;color:var(--muted);font-weight:600;margin-bottom:4px;">Order Date</div>
+                <div style="font-weight:700;color:#23272f;">${date}</div>
+              </div>
+
+              ${order.status === 'to_receive' && riderStatusBlock ? riderStatusBlock : ''}
+              ${deliveryDetailsBlock}
+              ${order.status === 'to_receive' && shippedInfoBlock ? shippedInfoBlock : ''}
+              
+              ${statusInfo}
+
+              <div class="order-actions">
+                <button class="btn btn-primary"
+                  onclick="openStatusModal('${order.id}')"
+                  ${['to_receive','completed'].includes(order.status) ? 'disabled style=\"opacity:.5;cursor:not-allowed;\"' : ''}
+                >
+                  <i class="fa-solid fa-pen"></i> Update Status
+                </button>
+                <button class="btn btn-secondary" onclick="printReceipt('${order.id}')">
+                  <i class="fa-solid fa-print"></i> Print Receipt
+                </button>
+                <button class="btn btn-secondary" onclick="viewOrderDetails('${order.id}')">
+                  <i class="fa-solid fa-eye"></i> View Details
+                </button>
+                ${(['to_receive', 'completed'].includes(order.status) && order.rider && order.rider.id) ? `
+                <button class="btn btn-secondary" onclick="messageRider('${order.id}', ${order.rider.id}, '${(order.rider.name || 'Rider').replace(/'/g, "\\'")}')">
+                  <i class="fa-solid fa-message"></i> Message Rider
+                </button>
+                ` : ''}
+                ${order.status === 'completed' ? `
+                <button class="btn btn-secondary" onclick="openReportModal('${order.id}')">
+                  <i class="fa-solid fa-flag"></i> Report
+                </button>
+                ` : ''}
+                ${order.status === 'to_pay' ? `<button class="btn btn-danger" onclick="cancelOrder('${order.id}')"><i class="fa-solid fa-xmark"></i> Cancel</button>` : ''}
+              </div>
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    // Tab filtering
+    document.querySelectorAll('.tab').forEach(tab => {
+      tab.addEventListener('click', function(){
+        console.log('Tab clicked:', this.dataset.filter);
+        document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+        this.classList.add('active');
+        currentFilter = this.dataset.filter;
+        console.log('currentFilter set to:', currentFilter);
+        renderOrders();
+      });
+    });
+
+    // Auto-refresh every 3 seconds
+    setInterval(() => {
+      const hasChanges = syncFromBuyerOrders(); // Check for buyer updates (e.g., cancellations)
+      
+      if (hasChanges) {
+        renderOrders();
+        console.log('✅ Seller orders updated from buyer');
+      }
+    }, 3000);
+
+    // Search functionality
+    document.getElementById('searchInput').addEventListener('input', function(e){
+      renderOrders();
+    });
+
+    // Modal functions
+    async function openStatusModal(orderId){
+      currentOrderId = orderId;
+      // Load latest status and set the dropdown to seller-facing status
+      try {
+        const orders = await fetchSellerOrders();
+        const order = orders.find(o => String(o.id) === String(orderId));
+        const sellerStatus = order ? mapDbToSeller(order.status) : '';
+        document.getElementById('modalStatus').value = sellerStatus || 'pending';
+      } catch(e) {
+        document.getElementById('modalStatus').value = 'pending';
+      }
+      
+      document.getElementById('modalOrderId').value = orderId;
+      document.getElementById('modalNotes').value = '';
+      document.getElementById('statusModal').style.display = 'flex';
+    }
+
+    function closeStatusModal(){
+      document.getElementById('statusModal').style.display = 'none';
+      currentOrderId = null;
+    }
+
+    async function saveStatusUpdate(){
+      if (!currentOrderId) return;
+      
+      const newSellerStatus = document.getElementById('modalStatus').value;
+      const newStatus = mapSellerToDb(newSellerStatus);
+      const notes = document.getElementById('modalNotes').value;
+      // Map UI statuses to DB statuses
+      // Keep same naming as DB: to_pay, to_ship, to_receive, completed, cancelled
+      try {
+        const res = await fetch(`/seller/orders/${currentOrderId}/status`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          credentials: 'same-origin',
+          body: JSON.stringify({ status: newStatus, notes })
+        });
+        const data = await res.json();
+        if (!res.ok || !data.success) throw new Error(data.message || 'Failed');
+        // No longer creating localStorage delivery tasks - using database instead
+        await renderOrders();
+        closeStatusModal();
+        showCustomAlert('Order status updated successfully!', 'success', 'Status Updated');
+      } catch (e) {
+        showCustomAlert('Failed to update status: ' + e.message, 'error', 'Update Error');
+      }
+    }
+
+    // Create delivery task for rider
+    function createDeliveryTask(order){
+      const shopData = JSON.parse(localStorage.getItem('petopia_shop_data') || '{}');
+      const deliveries = JSON.parse(localStorage.getItem('petopia_deliveries') || '[]');
+      
+      // Check if delivery already exists
+      if(deliveries.find(d => d.orderId === order.id)) return;
+      
+      const delivery = {
+        id: Date.now(),
+        orderId: order.id,
+        status: 'available',
+        pickupName: shopData.name || 'My Pet Shop',
+        pickupAddress: shopData.address || 'Manila, Philippines',
+        pickupPhone: shopData.phone || '+63 917 123 4567',
+        deliveryName: order.customer.name,
+        deliveryAddress: order.customer.address,
+        deliveryPhone: order.customer.phone,
+        items: order.items.length,
+        distance: '5.0 km', // Mock data
+        eta: '25 mins',     // Mock data
+        fee: order.shipping || 60
+      };
+      
+      deliveries.push(delivery);
+      localStorage.setItem('petopia_deliveries', JSON.stringify(deliveries));
+      console.log('Delivery task created for rider:', delivery);
+    }
+
+    async function viewOrderDetails(orderId){
+      const orders = await fetchSellerOrders();
+      const order = orders.find(o => String(o.id) === String(orderId));
+      if (!order) {
+        showCustomAlert('Order not found', 'error', 'Not Found');
+        return;
+      }
+      const details = `Order ID: ${order.id}\nCustomer: ${order.fullName}\nStatus: ${order.status}\nTotal: ${peso(order.total)}\n\nItems: ${order.items.length}`;
+      showCustomAlert(details, 'info', 'Order Details');
+    }
+
+    async function cancelOrder(orderId){
+      showCustomConfirm('Are you sure you want to cancel this order?', async function() {
+        try {
+          const res = await fetch(`/seller/orders/${orderId}/status`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            credentials: 'same-origin',
+            body: JSON.stringify({ status: 'cancelled' })
+          });
+          const data = await res.json();
+          if (!res.ok || !data.success) throw new Error(data.message || 'Failed');
+          await renderOrders();
+          showCustomAlert('Order cancelled successfully!', 'success', 'Cancelled');
+        } catch (e) {
+          showCustomAlert('Failed to cancel: ' + e.message, 'error', 'Cancel Error');
+        }
+      });
+    }
+
+    // Close modal on outside click
+    document.getElementById('statusModal').addEventListener('click', function(e){
+      if (e.target === this) closeStatusModal();
+    });
+
+    // Report Modal Functions
+    let currentReportOrderId = null;
+
+    function openReportModal(orderId){
+      currentReportOrderId = orderId;
+      document.getElementById('reportOrderId').value = orderId;
+      document.getElementById('reportReason').value = '';
+      document.getElementById('reportDescription').value = '';
+      document.getElementById('reportEvidence').value = '';
+      document.getElementById('reportModal').style.display = 'flex';
+    }
+
+    function closeReportModal(){
+      document.getElementById('reportModal').style.display = 'none';
+      currentReportOrderId = null;
+    }
+
+    async function submitReport(){
+      if (!currentReportOrderId) return;
+      
+      const reason = document.getElementById('reportReason').value;
+      const description = document.getElementById('reportDescription').value.trim();
+      const evidenceFiles = document.getElementById('reportEvidence').files;
+      
+      if (!reason) {
+        showCustomAlert('Please select a reason for the report', 'warning', 'Validation Error');
+        return;
+      }
+      
+      if (!description) {
+        showCustomAlert('Please provide a description of the issue', 'warning', 'Description Required');
+        return;
+      }
+      
+      try {
+        const formData = new FormData();
+        formData.append('reason', reason);
+        formData.append('description', description);
+        
+        // Add evidence files if any
+        if (evidenceFiles && evidenceFiles.length > 0) {
+          for (let i = 0; i < evidenceFiles.length; i++) {
+            formData.append('evidence', evidenceFiles[i]);
+          }
+        }
+        
+        const res = await fetch(`/seller/orders/${currentReportOrderId}/report`, {
+          method: 'POST',
+          credentials: 'same-origin',
+          body: formData
+        });
+        
+        const data = await res.json();
+        
+        if (!res.ok || !data.success) {
+          throw new Error(data.error || data.message || 'Failed to submit report');
+        }
+        
+        showCustomAlert('Report submitted successfully! Our team will review it shortly.', 'success', 'Report Submitted');
+        closeReportModal();
+      } catch (e) {
+        showCustomAlert('Failed to submit report: ' + e.message, 'error', 'Submission Error');
+        console.error('Report submission error:', e);
+      }
+    }
+
+    // Close report modal on outside click
+    document.getElementById('reportModal').addEventListener('click', function(e){
+      if (e.target === this) closeReportModal();
+    });
+
+    // Print Receipt Function
+    async function printReceipt(orderId){
+      try {
+        // Fetch the order data
+        const orders = await fetchSellerOrders();
+        const order = orders.find(o => String(o.id) === String(orderId));
+        
+        if (!order) {
+          showCustomAlert('Order not found', 'error', 'Not Found');
+          return;
+        }
+
+        const printDate = new Date().toLocaleDateString('en-PH', { 
+          year: 'numeric', 
+          month: 'long', 
+          day: 'numeric',
+          hour: '2-digit',
+          minute: '2-digit'
+        });
+
+        const orderDate = new Date(order.createdAt).toLocaleDateString('en-PH', { 
+          year: 'numeric', 
+          month: 'long', 
+          day: 'numeric',
+          hour: '2-digit',
+          minute: '2-digit'
+        });
+
+        // Format items with attributes if any
+        const itemsHTML = order.items.map(item => {
+          let itemTitle = item.title;
+          if (item.selected_attributes && Object.keys(item.selected_attributes).length > 0) {
+            const attributes = Object.entries(item.selected_attributes)
+              .map(([key, value]) => `${key.charAt(0).toUpperCase() + key.slice(1)}: ${value}`)
+              .join(', ');
+            itemTitle += ` (${attributes})`;
+          }
+          
+          return `
+            <tr>
+              <td>${itemTitle}</td>
+              <td style="text-align: center;">${item.qty}</td>
+              <td style="text-align: right;">${peso(item.price)}</td>
+              <td style="text-align: right; font-weight: 700;">${peso(item.qty * item.price)}</td>
+            </tr>
+          `;
+        }).join('');
+
+        const receiptHTML = `
+          <div class="receipt-header">
+            <div class="receipt-logo">🐾 PETOPIA</div>
+            <div style="font-size: 0.9rem; color: #5b6378; margin-top: 5px;">Your Pet's Paradise</div>
+            <div class="receipt-title">OFFICIAL RECEIPT</div>
+          </div>
+
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 30px;">
+            <div class="receipt-section">
+              <div class="receipt-section-title">Order Information</div>
+              <div class="receipt-info">
+                <strong>Order ID:</strong> ${order.id}<br>
+                <strong>Order Date:</strong> ${orderDate}<br>
+                <strong>Printed:</strong> ${printDate}<br>
+                <strong>Status:</strong> <span style="text-transform: uppercase; font-weight: 700;">${mapSellerStatusLabel(order.status)}</span>
+              </div>
+            </div>
+
+            <div class="receipt-section">
+              <div class="receipt-section-title">Customer Details</div>
+              <div class="receipt-info">
+                <strong>Name:</strong> ${order.fullName || 'N/A'}<br>
+                <strong>Phone:</strong> ${order.phone || 'N/A'}<br>
+                <strong>Address:</strong> ${order.address || 'N/A'}
+              </div>
+            </div>
+          </div>
+
+          <div class="receipt-section">
+            <div class="receipt-section-title">Order Items</div>
+            <table class="receipt-table">
+              <thead>
+                <tr>
+                  <th style="width: 50%;">Item Description</th>
+                  <th style="text-align: center;">Qty</th>
+                  <th style="text-align: right;">Unit Price</th>
+                  <th style="text-align: right;">Amount</th>
+                </tr>
+              </thead>
+              <tbody>
+                ${itemsHTML}
+              </tbody>
+            </table>
+          </div>
+
+          <div class="receipt-total">
+            <div class="receipt-total-row">
+              <div class="receipt-total-label">Subtotal:</div>
+              <div class="receipt-total-value">${peso(order.subtotal || 0)}</div>
+            </div>
+            ${(typeof order.discount === 'number' && order.discount > 0) ? `
+            <div class="receipt-total-row">
+              <div class="receipt-total-label">Discount:</div>
+              <div class="receipt-total-value" style="color: #16a34a;">- ${peso(order.discount)}</div>
+            </div>
+            ` : ''}
+            <div class="receipt-total-row">
+              <div class="receipt-total-label">Shipping Fee:</div>
+              <div class="receipt-total-value">${peso(order.shipping || 0)}</div>
+            </div>
+            <div class="receipt-total-row receipt-grand-total">
+              <div class="receipt-total-label">TOTAL AMOUNT:</div>
+              <div class="receipt-total-value">${peso(order.total || 0)}</div>
+            </div>
+          </div>
+
+          <div class="receipt-footer">
+            <p style="margin-bottom: 10px;"><strong>Thank you for shopping with Petopia!</strong></p>
+            <p style="font-size: 0.85rem;">For inquiries and support, contact us at support@petopia.ph</p>
+            <p style="font-size: 0.85rem; margin-top: 5px;">Visit us at www.petopia.ph</p>
+            <p style="margin-top: 15px; font-size: 0.8rem; color: #9ca3af;">This is an official receipt. Please keep for your records.</p>
+          </div>
+        `;
+
+        const receiptDiv = document.getElementById('printReceipt');
+        receiptDiv.innerHTML = receiptHTML;
+        receiptDiv.style.display = 'block';
+
+        // Trigger print
+        setTimeout(() => {
+          window.print();
+          receiptDiv.style.display = 'none';
+        }, 100);
+      } catch (error) {
+        showCustomAlert('Failed to generate receipt: ' + error.message, 'error', 'Print Error');
+        console.error('Print receipt error:', error);
+      }
+    }
+
+    // Toggle order items visibility
+    function toggleOrderItems(orderId, totalItems){
+      const itemsList = document.getElementById(`items-list-${orderId}`);
+      if (!itemsList) return;
+      const btn = document.getElementById(`viewMoreBtn-${orderId}`);
+      if (!btn) return;
+      
+      const allItems = itemsList.querySelectorAll('.item-row');
+      const hiddenItems = Array.from(allItems).filter(item => item.classList.contains('hidden'));
+      const MAX_VISIBLE = 1;
+      
+      if (hiddenItems.length > 0) {
+        // Show all items
+        hiddenItems.forEach(item => item.classList.remove('hidden'));
+        btn.innerHTML = 'View Less';
+        btn.onclick = () => toggleOrderItems(orderId, totalItems);
+      } else {
+        // Hide items beyond maxVisible
+        allItems.forEach((item, index) => {
+          if (index >= MAX_VISIBLE) {
+            item.classList.add('hidden');
+          }
+        });
+        btn.innerHTML = `View More (${totalItems - MAX_VISIBLE} more)`;
+        btn.onclick = () => toggleOrderItems(orderId, totalItems);
+      }
+    }
+
+    // Initial render
+    renderOrders();
+
+    // Logout confirmation
+    document.getElementById('logoutLink')?.addEventListener('click', function(e){
+      e.preventDefault();
+      showCustomConfirm('Are you sure you want to logout?', function() {
+        window.location.href = "{{ url_for('logout') }}";
+      });
+    });
+
+    // Helper functions removed - now using database instead of localStorage
+
+    function capitalizeStatus(status) {
+  if (!status) return '';
+  return status.charAt(0).toUpperCase() + status.slice(1).toLowerCase();
+}
+
+    function mapSellerStatusLabel(status){
+      switch(status){
+        case 'to_pay': return 'Pending';
+        case 'to_ship': return 'Processing';
+        case 'to_receive': return 'Shipped';
+        case 'completed': return 'Delivered';
+        case 'cancelled': return 'Cancelled';
+        default: return capitalizeStatus(status || '');
+      }
+    }
+
+    function mapSellerBadgeClass(status){
+      switch(status){
+        case 'to_pay': return 'pending';
+        case 'to_ship': return 'processing';
+        case 'to_receive': return 'shipped';
+        case 'completed': return 'delivered';
+        case 'cancelled': return 'cancelled';
+        default: return '';
+      }
+    }
+
+    function mapDbToSeller(dbStatus){
+      switch(dbStatus){
+        case 'to_pay': return 'pending';
+        case 'to_ship': return 'processing';
+        case 'to_receive': return 'shipped';
+        case 'completed': return 'delivered';
+        case 'cancelled': return 'cancelled';
+        default: return 'pending';
+      }
+    }
+
+    function mapSellerToDb(sellerStatus){
+      switch(sellerStatus){
+        case 'pending': return 'to_pay';
+        case 'processing': return 'to_ship';
+        case 'shipped': return 'to_receive';
+        case 'delivered': return 'completed';
+        case 'cancelled': return 'cancelled';
+        default: return 'to_pay';
+      }
+}
+  </script>
+  <!-- NOTIFICATIONS PANEL & LOGIC (same behavior as seller_dashboard) -->
+  <script>
+  (function(){
+    const FETCH_INTERVAL = 30000;
+    const SEEN_KEY = 'petopia_seller_notif_seen';
+    const CLEARED_KEY = 'petopia_seller_notif_cleared_until';
+    let notifCache = [];
+    const bellBtn = document.querySelector('.top-actions [title="Notifications"]') || document.querySelector('.topbar .icon-btn .fa-regular.fa-bell')?.closest('button');
+    if (!bellBtn) return;
+
+    const panel = document.createElement('div');
+    panel.id = 'notifPanel';
+    panel.style.position = 'fixed';
+    panel.style.width = '360px';
+    panel.style.maxHeight = '60vh';
+    panel.style.overflowY = 'auto';
+    panel.style.background = 'var(--panel-strong)';
+    panel.style.border = '1px solid rgba(11,15,26,.08)';
+    panel.style.borderRadius = '12px';
+    panel.style.boxShadow = 'var(--glass-shadow)';
+    panel.style.display = 'none';
+    panel.style.zIndex = '200';
+    panel.innerHTML = '<div id="notifArrowWrap" style="position:absolute;top:-10px;right:20px; width:0;height:0;">\
+      <div style="position:absolute;top:-1px;right:-1px; width:0;height:0;border-left:9px solid transparent;border-right:9px solid transparent;border-bottom:9px solid rgba(11,15,26,.08);"></div>\
+      <div style="position:relative; width:0;height:0;border-left:8px solid transparent;border-right:8px solid transparent;border-bottom:8px solid var(--panel-strong);"></div>\
+    </div>\
+    <div style="padding:12px 12px 8px 12px; display:flex; justify-content:space-between; align-items:center;">\
+      <div style="font-weight:800;color:#23272f">Notifications</div>\
+      <div>\
+        <button id="clearSellerNotifs" class="btn" style="padding:6px 10px;border-radius:8px;border:1px solid rgba(11,15,26,.1);background:#fff;font-weight:700;color:#23272f;cursor:pointer">Clear</button>\
+        <button id="markAllSellerRead" class="btn" style="padding:6px 10px;border-radius:8px;border:1px solid rgba(11,15,26,.1);background:#fff;font-weight:700;color:#23272f;cursor:pointer">Mark all read</button>\
+      </div>\
+    </div>\
+    <div id="sellerNotifList" style="padding:8px 12px 12px 12px; display:grid; gap:8px;"></div>';
+    document.body.appendChild(panel);
+
+    function escapeHTML(value){
+      return String(value || '').replace(/[&<>"']/g, function(ch){
+        const map = { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' };
+        return map[ch] || ch;
+      });
+    }
+
+    function getSeenMap(){
+      try {
+        return JSON.parse(localStorage.getItem(SEEN_KEY) || '{}') || {};
+      } catch (err){
+        console.warn('Failed to parse seller notification seen map:', err);
+        return {};
+      }
+    }
+
+    function saveSeenMap(map){
+      try {
+        localStorage.setItem(SEEN_KEY, JSON.stringify(map || {}));
+      } catch (err){
+        console.warn('Failed to persist seller notification seen map:', err);
+      }
+    }
+
+    function getClearedUntil(){
+      const raw = localStorage.getItem(CLEARED_KEY);
+      const parsed = raw ? parseInt(raw, 10) : 0;
+      return Number.isFinite(parsed) ? parsed : 0;
+    }
+
+    function setClearedUntil(ts){
+      try {
+        localStorage.setItem(CLEARED_KEY, String(ts));
+      } catch (err){
+        console.warn('Failed to persist seller notification cleared timestamp:', err);
+      }
+    }
+
+    function applyLocalFilters(raw){
+      const cleared = getClearedUntil();
+      return (raw || []).filter(item => {
+        const ts = Number(item && item.timestamp);
+        return !cleared || (Number.isFinite(ts) && ts >= cleared);
+      });
+    }
+
+    function setNotifCache(raw){
+      const filtered = applyLocalFilters(raw).map(item => {
+        const id = item.id || `${item.orderId}-${item.status || 'status'}`;
+        const ts = Number(item.timestamp || Date.now());
+        return {
+          ...item,
+          id,
+          timestamp: Number.isFinite(ts) ? ts : Date.now()
+        };
+      });
+      notifCache = filtered.sort((a, b) => b.timestamp - a.timestamp);
+    }
+
+    function unreadCount(){
+      const seen = getSeenMap();
+      return notifCache.filter(n => !seen[n.id]).length;
+    }
+
+    function refreshSellerNotifBadge(){
+      let badge = bellBtn.querySelector('#notifBadge') || bellBtn.querySelector('.badge');
+      if (badge && !badge.id) badge.id = 'notifBadge';
+      if (!badge){
+        badge = document.createElement('span');
+        badge.id = 'notifBadge';
+        badge.className = 'badge';
+        bellBtn.appendChild(badge);
+      }
+      bellBtn.querySelectorAll('.badge').forEach(el => { if (el !== badge) el.remove(); });
+      const count = unreadCount();
+      badge.textContent = count;
+      badge.style.display = count > 0 ? 'block' : 'none';
+    }
+
+    function formatTimestamp(ts){
+      try {
+        return new Date(ts).toLocaleString();
+      } catch (err){
+        return '';
+      }
+    }
+
+    function renderSellerNotifs(){
+      const list = document.getElementById('sellerNotifList');
+      if (!list) return;
+      const seen = getSeenMap();
+      if (!notifCache.length){
+        list.innerHTML = '<div style="color:var(--muted);font-weight:700;text-align:center;padding:20px;">No notifications</div>';
+        return;
+      }
+      list.innerHTML = notifCache.map(n => {
+        const unread = !seen[n.id];
+        const itemStyle = unread
+          ? 'background:rgba(139,182,255,.12);border:1px solid rgba(139,182,255,.35);'
+          : 'background:#fff;border:1px solid #e5e8f0;opacity:.75;';
+        const bodyColor = unread ? '#23272f' : 'var(--muted)';
+        return `<div class="seller-notif-item" data-id="${escapeHTML(n.id)}" style="${itemStyle}border-radius:10px;padding:10px;">
+          <div style="font-weight:800;color:#23272f;">${escapeHTML(n.title || '')}</div>
+          <div style="color:${bodyColor};font-weight:700;font-size:.9rem;">${escapeHTML(n.body || '')}</div>
+          <div style="color:var(--muted);font-size:.8rem;margin-top:4px;">${escapeHTML(formatTimestamp(n.timestamp))}</div>
+        </div>`;
+      }).join('');
+    }
+
+    async function fetchSellerNotifications(){
+      try {
+        const res = await fetch('/seller/notifications', { credentials: 'same-origin' });
+        if (!res.ok) throw new Error(`HTTP ${res.status}`);
+        const data = await res.json();
+        setNotifCache(Array.isArray(data) ? data : []);
+        refreshSellerNotifBadge();
+        if (panel.style.display === 'block'){
+          renderSellerNotifs();
+        }
+      } catch (err){
+        console.warn('Failed to load seller notifications:', err);
+      }
+    }
+
+    function markNotificationSeen(id){
+      if (!id) return;
+      const seen = getSeenMap();
+      if (!seen[id]){
+        seen[id] = true;
+        saveSeenMap(seen);
+      }
+    }
+
+    function markAllRead(){
+      const seen = getSeenMap();
+      notifCache.forEach(n => { seen[n.id] = true; });
+      saveSeenMap(seen);
+      refreshSellerNotifBadge();
+      renderSellerNotifs();
+    }
+
+    function clearSellerNotifs(){
+      setClearedUntil(Date.now());
+      markAllRead();
+      notifCache = [];
+      renderSellerNotifs();
+      refreshSellerNotifBadge();
+    }
+
+    function placePanel(){
+      const rect = bellBtn.getBoundingClientRect();
+      const width = Math.min(360, Math.max(260, Math.floor(window.innerWidth * 0.9)));
+      panel.style.width = width + 'px';
+      const margin = 12;
+      const top = rect.bottom + 8;
+      let left = rect.right - width;
+      left = Math.max(margin, Math.min(left, window.innerWidth - margin - width));
+      panel.style.top = top + 'px';
+      panel.style.left = left + 'px';
+      const arrow = panel.querySelector('#notifArrowWrap');
+      if (arrow){
+        const rightOffset = Math.max(12, Math.min(width - 24, width - (rect.right - left) - 12));
+        arrow.style.right = rightOffset + 'px';
+      }
+    }
+
+    bellBtn.addEventListener('click', function(){
+      const willShow = panel.style.display === 'none';
+      panel.style.display = willShow ? 'block' : 'none';
+      if (willShow){
+        placePanel();
+        renderSellerNotifs();
+        markAllRead();
+      }
+    });
+
+    window.addEventListener('resize', () => {
+      if (panel.style.display === 'block') placePanel();
+    });
+    window.addEventListener('scroll', () => {
+      if (panel.style.display === 'block') placePanel();
+    }, { passive: true });
+
+    document.addEventListener('click', function(e){
+      if (!panel.contains(e.target) && e.target !== bellBtn && !bellBtn.contains(e.target)){
+        panel.style.display = 'none';
+      }
+    });
+
+    panel.addEventListener('click', function(e){
+      const item = e.target.closest('.seller-notif-item');
+      if (item){
+        markNotificationSeen(item.dataset.id);
+        refreshSellerNotifBadge();
+        renderSellerNotifs();
+      }
+    });
+
+    const markAllBtn = panel.querySelector('#markAllSellerRead');
+    if (markAllBtn){
+      markAllBtn.addEventListener('click', function(){
+        markAllRead();
+      });
+    }
+
+    const clearBtn = panel.querySelector('#clearSellerNotifs');
+    if (clearBtn){
+      clearBtn.addEventListener('click', function(){
+        clearSellerNotifs();
+      });
+    }
+
+    fetchSellerNotifications();
+    refreshSellerNotifBadge();
+    setInterval(fetchSellerNotifications, FETCH_INTERVAL);
+  })();
+  </script>
+  <!-- MESSAGES PANEL & LOGIC (API-based, same as seller_dashboard) -->
+  <script>
+  // --- MESSAGES LOGIC (API-based) ---
+  let sellerConversationsCache = [];
+  let sellerMessagesCache = {};
+  
+  async function fetchSellerConvos(){
+    try{
+      const res = await fetch('/messages/conversations');
+      if (!res.ok) throw new Error('Failed to fetch conversations');
+      const data = await res.json();
+      sellerConversationsCache = Array.isArray(data) ? data : [];
+      return sellerConversationsCache;
+    }catch(e){
+      console.error('Error fetching conversations:', e);
+      return [];
+    }
+  }
+  
+  async function fetchSellerConvMsgs(convId){
+    try{
+      const res = await fetch(`/messages/conversations/${convId}`);
+      if (!res.ok) throw new Error('Failed to fetch messages');
+      const data = await res.json();
+      sellerMessagesCache[convId] = Array.isArray(data) ? data : [];
+      return sellerMessagesCache[convId];
+    }catch(e){
+      console.error('Error fetching messages:', e);
+      return [];
+    }
+  }
+  
+  async function sendSellerMessageToAPI(convId, text){
+    try{
+      const res = await fetch('/messages/send', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ conversationId: convId, message: text })
+      });
+      if (!res.ok) throw new Error('Failed to send message');
+      return await res.json();
+    }catch(e){
+      console.error('Error sending message:', e);
+      throw e;
+    }
+  }
+  
+  async function markSellerMessagesRead(convId){
+    try{
+      await fetch('/messages/mark-read', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ conversationId: convId })
+      });
+    }catch(e){
+      console.error('Error marking messages as read:', e);
+    }
+  }
+  
+  function sellerTotalUnread(){ return sellerConversationsCache.reduce((s,c)=> s + (c.unreadCount||0), 0); }
+  function refreshSellerMsgBadge(){ 
+    const btn = document.querySelector('.fa-regular.fa-envelope')?.closest('button');
+    if (!btn) return;
+    let badge = btn.querySelector('.badge');
+        if (!badge){ badge = document.createElement('span'); badge.className = 'badge'; btn.appendChild(badge); }
+    const c = sellerTotalUnread();
+        badge.textContent = c;
+        badge.style.display = c > 0 ? 'block' : 'none';
+      }
+  
+  // Initial badge refresh
+  fetchSellerConvos().then(() => refreshSellerMsgBadge());
+  
+  // Global function to message a rider (called from order cards)
+  async function messageRider(orderId, riderId, riderName){
+    try {
+      // Create or get conversation with rider
+      const res = await fetch('/messages/conversations/rider', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'same-origin',
+        body: JSON.stringify({ riderId: riderId })
+      });
+      
+      if (!res.ok) {
+        const error = await res.json();
+        throw new Error(error.error || 'Failed to create conversation');
+      }
+      
+      const data = await res.json();
+      const conversationId = data.conversationId;
+      
+      // Refresh conversations cache
+      await fetchSellerConvos();
+      refreshSellerMsgBadge();
+      
+      // Open messaging panel and navigate to conversation
+      const panel = document.getElementById('sellerMsgPanel');
+      const btn = document.querySelector('.fa-regular.fa-envelope')?.closest('button');
+      if (!panel || !btn) {
+        showCustomAlert('Messaging panel not found. Please refresh the page.', 'error', 'Panel Error');
+        return;
+      }
+      
+      // Show panel
+      panel.style.display = 'block';
+      const rect = btn.getBoundingClientRect();
+      const width = Math.min(420, Math.max(280, Math.floor(window.innerWidth * 0.95)));
+      panel.style.width = width + 'px';
+      const margin = 12;
+      const top = rect.bottom + 8;
+      let left = rect.right - width;
+      left = Math.max(margin, Math.min(left, window.innerWidth - margin - width));
+      panel.style.top = top + 'px';
+      panel.style.left = left + 'px';
+      
+      // Navigate to conversation
+      await fetchSellerConvos();
+      
+      // Render inbox to show the new conversation, then open it
+      const renderInbox = window.sellerRenderInbox;
+      const openConv = window.sellerOpenConv;
+      
+      if (renderInbox && openConv) {
+        await renderInbox();
+        // Small delay to ensure DOM is updated
+        setTimeout(() => {
+          openConv(conversationId);
+        }, 100);
+      } else {
+        // Fallback: try clicking the conversation item
+        const convItem = panel.querySelector(`[data-id="${conversationId}"]`);
+        if (convItem) {
+          convItem.click();
+        } else {
+          showCustomAlert(`Conversation created with ${riderName}. Please find it in your messages.`, 'success', 'Conversation Created');
+        }
+      }
+    } catch(e) {
+      console.error('Error messaging rider:', e);
+      showCustomAlert('Failed to create conversation: ' + e.message, 'error', 'Connection Error');
+    }
+  }
+  
+  (function(){
+    const btn = document.querySelector('.fa-regular.fa-envelope')?.closest('button');
+    if(!btn) return;
+    const panel = document.createElement('div');
+      panel.id='sellerMsgPanel'; panel.style.position='fixed'; panel.style.width='420px'; panel.style.maxHeight='70vh'; panel.style.display='none'; panel.style.zIndex='200'; panel.style.background='var(--panel-strong)'; panel.style.border='1px solid rgba(11,15,26,.08)'; panel.style.borderRadius='12px'; panel.style.boxShadow='var(--glass-shadow)'; panel.style.overflow='hidden';
+    panel.innerHTML = `
+    <div id="msgArrowWrap" style="position:absolute;top:-10px;right:20px;width:0;height:0;">
+      <div style="position:absolute;top:-1px;right:-1px;width:0;height:0;border-left:9px solid transparent;border-right:9px solid transparent;border-bottom:9px solid rgba(11,15,26,.08);"></div>
+      <div style="position:relative;width:0;height:0;border-left:8px solid transparent;border-right:8px solid transparent;border-bottom:8px solid var(--panel-strong);"></div>
+    </div>
+    <div id="msgHeader" style="padding:12px 12px 10px 12px;display:flex;align-items:center;gap:8px;justify-content:space-between;border-bottom:1px solid rgba(11,15,26,.08);">
+      <div style="display:flex;align-items:center;gap:8px;">
+        <button id="msgBackBtn" class="btn" style="display:none;padding:6px 10px;border-radius:8px;border:1px solid rgba(11,15,26,.1);background:#fff;font-weight:800;color:#23272f;cursor:pointer">←</button>
+        <div id="msgTitle" style="font-weight:800;color:#23272f;">Messages</div>
+      </div>
+      <div id="msgHeaderActions" style="display:flex;align-items:center;gap:8px;">
+        <button id="clearMsgs" class="btn" style="padding:6px 10px;border-radius:8px;border:1px solid rgba(11,15,26,.1);background:#fff;font-weight:700;color:#23272f;cursor:pointer">Clear</button>
+        <button id="markAllMsgRead" class="btn" style="padding:6px 10px;border-radius:8px;border:1px solid rgba(11,15,26,.1);background:#fff;font-weight:700;color:#23272f;cursor:pointer">Mark all read</button>
+        <!-- Customer Service Icon Button -->
+        <button id="customerServiceBtn" class="icon-btn" title="Customer Service" aria-label="Customer Service" style="font-size:1.2rem;">
+          <i class="fa-solid fa-headset"></i>
+        </button>
+      </div>
+    </div>
+    <div id="inboxView" style="display:grid;gap:0;max-height:calc(70vh - 56px);overflow-y:auto;background:#fff;">
+      <!-- conversation items injected here -->
+    </div>
+    <div id="chatView" style="display:none;max-height:58vh;grid-template-rows:auto 1fr auto;">
+      <div id="chatList" style="padding:12px;display:grid;gap:8px;overflow-y:auto;overflow-x:hidden;background:#fff;max-height:48vh;width:100%;box-sizing:border-box;"></div>
+      <div style="padding:10px;border-top:1px solid #e5e8f0;background:var(--panel-strong);display:flex;gap:8px;align-items:center;">
+        <input id="chatInput" class="input" placeholder="Type a message..." style="flex:1;border-radius:999px;">
+        <button id="sendChatBtn" class="cta" style="min-width:auto;padding:8px 14px;border-radius:999px;">Send</button>
+      </div>
+    </div>`;
+      document.body.appendChild(panel);
+
+    // Customer Service button wiring
+    (function wireCustomerServiceConvo(){
+      const csBtn = panel.querySelector && panel.querySelector('#customerServiceBtn');
+      if (!csBtn) return;
+      let inFlight = false;
+      csBtn.addEventListener('click', async function(e){
+        e.preventDefault(); e.stopPropagation();
+        if (inFlight) return;
+        inFlight = true;
+        const icon = this.querySelector('i');
+        if (icon) icon.classList.add('fa-spin');
+        try {
+          const res = await fetch('/messages/customer-service', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' }
+          });
+          let data = {};
+          try { data = await res.json(); } catch(_) {}
+          if (!res.ok || !data.success) {
+            throw new Error(data && data.error ? data.error : 'Failed to contact customer service');
+          }
+
+          await fetchSellerConvos();
+          refreshSellerMsgBadge();
+
+          const convId = Number(data.conversationId);
+          if (convId) {
+            placePanel();
+            openConv(convId);
+          } else {
+            await renderInbox();
+          }
+        } catch(err) {
+          console.error('Failed to open customer service conversation:', err);
+          showCustomAlert('Unable to contact Customer Service right now. Please try again later.', 'error', 'Service Unavailable');
+        } finally {
+          if (icon) icon.classList.remove('fa-spin');
+          inFlight = false;
+        }
+      });
+    })();
+
+    let currentConvId = null;
+      function placePanel(){
+      const rect = btn.getBoundingClientRect();
+      const width = Math.min(420, Math.max(280, Math.floor(window.innerWidth * 0.95)));
+        panel.style.width = width + 'px';
+      const margin=12; const top=rect.bottom+8; let left = rect.right - width;
+        left = Math.max(margin, Math.min(left, window.innerWidth - margin - width));
+      panel.style.top = top+'px'; panel.style.left = left+'px';
+      const arrow = panel.querySelector('#msgArrowWrap');
+      const rightOffset = Math.max(12, Math.min(width - 24, width - (rect.right - left) - 12));
+      arrow.style.right = rightOffset + 'px';
+    }
+
+    function snippet(text){ const t=String(text||''); return t.length>40? t.slice(0,40)+'…' : t; }
+      function timeStr(ts){ return new Date(ts).toLocaleTimeString(); }
+
+    async function renderInbox(){
+        currentConvId = null;
+        document.getElementById('msgTitle').textContent = 'Messages';
+        document.getElementById('msgBackBtn').style.display = 'none';
+        document.getElementById('msgHeaderActions').style.display = 'flex';
+        document.getElementById('chatView').style.display = 'none';
+      const wrap = document.getElementById('inboxView');
+        wrap.style.display = 'block';
+      wrap.innerHTML = '<div style="color:var(--muted);font-weight:700;text-align:center;padding:20px;">Loading...</div>';
+      
+      const convos = await fetchSellerConvos();
+      sellerConversationsCache = convos;
+      refreshSellerMsgBadge();
+      
+      if (!convos.length){ 
+        wrap.innerHTML = '<div style="color:var(--muted);font-weight:700;text-align:center;padding:20px;">No conversations</div>'; 
+        return; 
+      }
+      
+      const sorted = convos.slice().sort((a,b)=> (b.updatedAt||0)-(a.updatedAt||0));
+      wrap.innerHTML = sorted.map(c=>{
+        const badge = c.unreadCount>0 ? `<span style="background:#ef4444;color:#fff;border-radius:999px;padding:2px 8px;font-weight:800;font-size:.75rem;">${c.unreadCount}</span>` : '';
+        return `<button class="conv-item" data-id="${c.id}" style="text-align:left;display:flex;gap:10px;align-items:center;width:100%;padding:10px 12px;border:none;background:#fff;cursor:pointer;border-bottom:1px solid #e5e8f0;">\
+          <img src="${c.avatar}" alt="${c.name}" style="width:36px;height:36px;border-radius:50%;object-fit:cover;box-shadow:0 2px 8px #eef;">\
+            <div style="flex:1;min-width:0;">\
+              <div style="display:flex;justify-content:space-between;align-items:center;gap:8px;">\
+              <div style="font-weight:800;color:#23272f;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${c.name}</div>\
+              <div style="color:var(--muted);font-size:.8rem;">${timeStr(c.updatedAt||Date.now())}</div>\
+              </div>\
+              <div style="display:flex;justify-content:space-between;align-items:center;gap:8px;">\
+              <div style="color:${c.unreadCount>0?'#23272f':'var(--muted)'};font-weight:700;font-size:.9rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${snippet(c.lastMessage||'')}</div>\
+              ${badge}\
+              </div>\
+            </div>\
+        </button>`; 
+        }).join('');
+      }
+
+    async function renderChat(){
+        if (!currentConvId) return;
+      const conv = sellerConversationsCache.find(c=>c.id===currentConvId); 
+      if (!conv) { renderInbox(); return; }
+        document.getElementById('msgTitle').textContent = conv.name;
+        document.getElementById('msgBackBtn').style.display = 'inline-flex';
+        document.getElementById('msgHeaderActions').style.display = 'none';
+        document.getElementById('inboxView').style.display = 'none';
+      const chat = document.getElementById('chatView'); chat.style.display = 'grid';
+      const list = document.getElementById('chatList');
+      list.innerHTML = '<div style="color:var(--muted);font-weight:700;text-align:center;padding:20px;">Loading...</div>';
+      
+      const items = await fetchSellerConvMsgs(currentConvId);
+      sellerMessagesCache[currentConvId] = items;
+      
+      // Mark messages as read
+      await markSellerMessagesRead(currentConvId);
+      
+      // Update conversation unreadCount in cache
+      const idx = sellerConversationsCache.findIndex(c=>c.id===currentConvId);
+      if (idx>-1){ sellerConversationsCache[idx].unreadCount = 0; }
+      refreshSellerMsgBadge();
+      
+      if (!items.length){ 
+        list.innerHTML = '<div style="color:var(--muted);font-weight:700;text-align:center;padding:20px;">No messages yet</div>'; 
+      } else {
+        list.innerHTML = items.map(m=>{
+          const isIn = m.direction==='in';
+          const bubbleBg = isIn ? 'rgba(139,182,255,.12)' : 'rgba(124,244,209,.15)';
+          const border = isIn ? '1px solid rgba(139,182,255,.35)' : '1px solid rgba(124,244,209,.45)';
+          const justify = isIn ? 'flex-start' : 'flex-end';
+          return `<div style="display:flex;justify-content:${justify};min-width:0;width:100%;">\
+            <div style="max-width:78%;min-width:0;background:${bubbleBg};border:${border};border-radius:12px;padding:8px 10px;word-wrap:break-word;overflow-wrap:break-word;word-break:break-word;overflow:hidden;box-sizing:border-box;">\
+              <div style="font-weight:700;font-size:.95rem;color:#23272f;word-wrap:break-word;overflow-wrap:anywhere;word-break:break-word;white-space:pre-wrap;overflow:hidden;">${String(m.body).replace(/</g,'&lt;')}</div>\
+              <div style="color:var(--muted);font-size:.75rem;margin-top:4px;">${timeStr(m.createdAt)}</div>\
+              </div>\
+          </div>`;
+          }).join('');
+        }
+        list.scrollTop = list.scrollHeight;
+      }
+
+    function openConv(id){ currentConvId = Number(id); renderChat(); }
+    
+    // Expose functions to window for messageRider to access
+    window.sellerRenderInbox = renderInbox;
+    window.sellerOpenConv = openConv;
+
+    async function sendChat(text){
+      const t = text.trim(); if (!t || !currentConvId) return;
+      
+      try {
+        // Send message to API
+        await sendSellerMessageToAPI(currentConvId, t);
+        
+        // Refresh messages and conversations
+        await fetchSellerConvMsgs(currentConvId);
+        await fetchSellerConvos();
+        refreshSellerMsgBadge();
+        
+        // Re-render chat
+        await renderChat();
+      } catch(e) {
+        showCustomAlert('Failed to send message. Please try again.', 'error', 'Message Error');
+        console.error(e);
+      }
+    }
+
+    // wire events
+      btn.addEventListener('click', function(){
+      const willShow = panel.style.display === 'none';
+        panel.style.display = willShow ? 'block' : 'none';
+        if (willShow) { placePanel(); }
+        if (panel.style.display==='block'){
+          if (currentConvId) renderChat(); else renderInbox();
+        }
+      });
+      document.addEventListener('click', function(e){ if (!panel.contains(e.target) && e.target !== btn && !btn.contains(e.target)) panel.style.display = 'none'; });
+    panel.addEventListener('click', function(e){
+      const item = e.target.closest('.conv-item'); if (item){ openConv(Number(item.dataset.id)); return; }
+    });
+    document.getElementById('msgBackBtn').addEventListener('click', function(){ currentConvId=null; renderInbox(); });
+    document.getElementById('markAllMsgRead').addEventListener('click', async function(){
+      // Mark all conversations as read
+      for (const conv of sellerConversationsCache) {
+        await markSellerMessagesRead(conv.id);
+      }
+      await fetchSellerConvos();
+      refreshSellerMsgBadge();
+      renderInbox();
+    });
+    document.getElementById('clearMsgs').addEventListener('click', function(){
+      // Clear is not supported via API (conversations persist in DB)
+      showCustomAlert('Conversations are stored in the database. To clear, please contact support.', 'info', 'Information');
+    });
+    document.getElementById('sendChatBtn').addEventListener('click', function(){ const inp=document.getElementById('chatInput'); const v=inp.value; inp.value=''; sendChat(v); });
+    document.getElementById('chatInput').addEventListener('keydown', function(e){ if (e.key==='Enter'){ e.preventDefault(); const v=this.value; this.value=''; sendChat(v); }});
+    
+    // Poll for new messages every 10 seconds (always, to update badge)
+    let pollInterval = null;
+    function startPolling(){
+      if (pollInterval) return;
+      pollInterval = setInterval(async ()=>{
+        await fetchSellerConvos();
+        refreshSellerMsgBadge();
+        if (panel.style.display==='block'){
+          if (currentConvId) {
+            await fetchSellerConvMsgs(currentConvId);
+            await renderChat();
+          } else {
+            await renderInbox();
+          }
+        }
+      }, 10000);
+    }
+    function stopPolling(){
+      if (pollInterval) {
+        clearInterval(pollInterval);
+        pollInterval = null;
+      }
+    }
+    // Start polling immediately to keep badge updated
+    startPolling();
+    btn.addEventListener('click', function(){
+      if (panel.style.display==='block') {
+        // Ensure polling is active when panel opens
+        if (!pollInterval) startPolling();
+      }
+    });
+    
+      window.addEventListener('resize', function(){ if (panel.style.display==='block') placePanel(); });
+      window.addEventListener('scroll', function(){ if (panel.style.display==='block') placePanel(); }, { passive:true });
+    })();
+  </script>
+</body>
+</html>

@@ -1,0 +1,1733 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Petopia • Seller Dashboard</title>
+
+  <!-- Fonts + Icons + Chart.js -->
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+
+  <style>
+    :root{
+      --bg: #f6f8ff;
+      --panel: rgba(255,255,255,.60);
+      --panel-strong: rgba(255,255,255,.95);
+      --text: #0b0f1a;
+      --muted: #5b6378;
+      --accent: #7cf4d1;
+      --accent-2: #8bb6ff;
+      --glass-shadow: 0 10px 30px rgba(16,24,40,.08);
+      --card-radius: 12px;
+      --gap: 18px;
+      --sidebar-w: 260px;
+    }
+    *{box-sizing:border-box}
+    body{ margin:0; font-family:"Inter",system-ui,-apple-system,"Segoe UI",Roboto,"Helvetica Neue",Arial;
+      background:var(--bg); color:var(--text); min-height:100vh; display:flex;}
+    .sidebar{ width:var(--sidebar-w); position:fixed; top:0; left:0; bottom:0; padding:22px 18px;
+      background:var(--panel-strong); backdrop-filter:blur(10px); box-shadow:var(--glass-shadow);
+      display:flex; flex-direction:column; gap:14px; z-index:50; }
+    .brand{ display:flex; align-items:center; gap:10px; margin-bottom:6px; }
+    .brand .logo{ width:44px; height:44px; border-radius:10px;
+      background:linear-gradient(135deg,var(--accent),var(--accent-2)); display:flex; align-items:center; justify-content:center;
+      color:#051014; font-weight:800; font-size:1.05rem; }
+    .brand .title{ font-weight:800; color:#23272f; font-size:1.05rem; }
+    nav.side-nav{ display:flex; flex-direction:column; gap:6px; margin-top:8px; padding-top:6px; }
+    nav.side-nav a{ display:flex; gap:12px; align-items:center; padding:10px 12px; border-radius:10px;
+      color:var(--text); text-decoration:none; font-weight:600; transition:all .16s ease; }
+    nav.side-nav a i{ width:20px; text-align:center; color:#5b6378; }
+    nav.side-nav a:hover, nav.side-nav a.active{ background:linear-gradient(135deg,var(--accent),var(--accent-2)); color:#051014; }
+    .sidebar .spacer{ flex:1 }
+    .sidebar .small{ font-size:0.85rem; color:var(--muted); text-align:center; padding:6px 8px; }
+
+    .main{ margin-left:calc(var(--sidebar-w) + 20px); padding:26px; flex:1; display:flex; flex-direction:column; gap:var(--gap); }
+    header.topbar{ display:flex; justify-content:space-between; align-items:center; gap:12px;
+      background:var(--panel); padding:12px 16px; border-radius:12px; box-shadow:var(--glass-shadow); }
+    .search{ display:flex; align-items:center; gap:8px; flex:1; max-width:600px; }
+    .search input{ flex:1; padding:10px 12px; border-radius:10px; border:1px solid rgba(11,15,26,.06); background:#fff; }
+    .icon-btn{ border:none; background:transparent; font-size:1.05rem; padding:8px; border-radius:8px; cursor:pointer; color:var(--text); position:relative; }
+    .badge{ position:absolute; top:2px; right:2px; background:var(--accent-2); color:#051014; border-radius:999px; padding:1px 4px; font-weight:800; font-size:0.65rem; min-width:16px; height:19px; display:flex; align-items:center; justify-content:center; }
+
+    .grid-4{ display:grid; grid-template-columns:repeat(auto-fit,minmax(200px,1fr)); gap:var(--gap); }
+    .stat-card{ background:#fff; border-radius:var(--card-radius); padding:16px; box-shadow:var(--glass-shadow);
+      display:flex; justify-content:space-between; align-items:center; }
+    .stat-left small{ color:var(--muted); font-weight:600; }
+    .stat-left h3{ margin:0; font-size:1.15rem; }
+    .stat-right{ width:56px; height:56px; border-radius:12px; display:flex; align-items:center; justify-content:center;
+      background:linear-gradient(135deg,rgba(139,182,255,0.12),rgba(124,244,209,0.10)); color:var(--accent-2); font-size:1.2rem; }
+    .panels{ display:grid; grid-template-columns:1fr 420px; gap:var(--gap); }
+    .panel{ background:var(--panel-strong); border-radius:12px; padding:14px; box-shadow:var(--glass-shadow); }
+    .panel h4{ margin:0 0 12px 0; font-size:1.05rem; color:#23272f; }
+    table.clean{ width:100%; border-collapse:collapse; font-size:0.95rem; }
+    table.clean thead th{ text-align:left; padding:10px; background:rgba(11,15,26,.03); font-weight:700; }
+    table.clean tbody td{ padding:10px; border-bottom:1px solid rgba(11,15,26,.04); }
+    .chart-wrapper{ background:#fff; padding:16px 16px 32px 16px; border-radius:10px; height:400px; margin-bottom:1px; }
+    .chart-wrapper canvas{ width:100% !important; height:100% !important; display:block; }
+    footer{ margin-top:16px; padding:18px; text-align:center; color:var(--muted); font-size:0.9rem; }
+    .report-btn{ border:none; cursor:pointer; font-weight:600; padding:10px 14px; border-radius:8px; box-shadow:var(--glass-shadow); }
+
+    /* Enhanced Top Products visuals */
+    .product-cell{ display:flex; align-items:center; gap:10px; }
+    .product-avatar{ width:28px; height:28px; border-radius:6px; background:linear-gradient(135deg,var(--accent),var(--accent-2)); color:#051014; display:flex; align-items:center; justify-content:center; font-weight:800; box-shadow:0 2px 8px rgba(139,182,255,.15); overflow:hidden; }
+    .pill{ display:inline-block; padding:2px 8px; border-radius:999px; font-weight:800; font-size:.78rem; background:rgba(139,182,255,.15); color:var(--accent-2); }
+    .bar-wrap{ width:100%; height:8px; background:rgba(11,15,26,.06); border-radius:999px; overflow:hidden; }
+    .bar{ height:100%; background:linear-gradient(135deg,var(--accent),var(--accent-2)); }
+
+    /* Enhanced Recent Orders visuals */
+    .order-cell{ display:flex; align-items:center; gap:10px; }
+    .order-avatar{ width:30px; height:30px; border-radius:50%; background:linear-gradient(135deg,rgba(139,182,255,.35),rgba(124,244,209,.35)); color:#051014; display:flex; align-items:center; justify-content:center; font-weight:800; box-shadow:0 2px 8px rgba(139,182,255,.12); }
+    .muted{ color:var(--muted); }
+    .status-pill{ display:inline-block; padding:4px 10px; border-radius:999px; font-weight:800; font-size:.78rem; border:1px solid transparent; }
+    /* Match seller_orders status palette */
+    .status-pending{ background: rgba(255,184,107,.2); color: #ffb86b; border-color: rgba(255,184,107,.45); }
+    .status-processing{ background: rgba(139,182,255,.2); color: var(--accent-2); border-color: rgba(139,182,255,.45); }
+    .status-shipped{ background: rgba(124,244,209,.2); color: var(--accent); border-color: rgba(124,244,209,.45); }
+    .status-delivered{ background: rgba(74,222,128,.2); color: #4ade80; border-color: rgba(74,222,128,.45); }
+    .status-cancelled{ background: rgba(239,68,68,.15); color: #ef4444; border-color: rgba(239,68,68,.35); }
+
+    /* Match buyer/rider CTA (used by Send) */
+    .cta{ margin-top:6px; display:inline-block; padding:8px 12px; background:linear-gradient(135deg, var(--accent), var(--accent-2)); border-radius:6px; font-weight:700; text-decoration:none; color:#051014; box-shadow:0 8px 26px rgba(139,182,255,.08); border:none; outline:none; cursor:pointer; transition:background .16s, color .16s; }
+    .cta:active, .cta:focus { outline:none; }
+
+    /* Profile Settings Modal */
+    .profile-modal{ display:none; position:fixed; inset:0; background:rgba(0,0,0,0.5); justify-content:center; align-items:center; z-index:1000; }
+    .profile-modal-content{ background:#fff; width:600px; max-width:95%; border-radius:12px; max-height:90vh; overflow:auto; }
+    .profile-modal-header{ padding:16px 20px; border-bottom:1px solid #e5e8f0; display:flex; justify-content:space-between; align-items:center; }
+    .profile-modal-title{ font-weight:800; font-size:1.1rem; color:#23272f; }
+    .profile-close-btn{ border:none; background:none; font-size:1.5rem; cursor:pointer; color:var(--muted); }
+    .profile-modal-body{ padding:24px; }
+    .profile-form-group{ margin-bottom:20px; }
+    .profile-form-group label{ display:block; font-weight:700; color:#23272f; margin-bottom:8px; font-size:0.9rem; }
+    .profile-form-group input, .profile-form-group textarea{ width:100%; padding:12px; border-radius:8px; border:1px solid rgba(11,15,26,.1); font-family:inherit; }
+    .profile-form-group textarea{ resize:vertical; min-height:80px; }
+    .profile-avatar-section{ text-align:center; margin-bottom:24px; padding:20px; background:rgba(139,182,255,.04); border-radius:12px; }
+    .profile-avatar-preview{ width:100px; height:100px; border-radius:50%; background:linear-gradient(135deg,var(--accent),var(--accent-2)); display:inline-flex; align-items:center; justify-content:center; color:#051014; font-weight:800; font-size:2rem; margin-bottom:12px; overflow:hidden; }
+    .profile-avatar-preview img{ width:100%; height:100%; object-fit:cover; }
+    .profile-btn{ padding:10px 18px; border-radius:8px; border:none; font-weight:700; cursor:pointer; transition:all .2s ease; }
+    .profile-btn-primary{ background:linear-gradient(135deg,var(--accent),var(--accent-2)); color:#051014; }
+    .profile-btn-secondary{ background:#fff; border:1px solid rgba(11,15,26,.1); color:#23272f; }
+    .theme-option:hover{ border-color:var(--accent-2) !important; transform:translateY(-2px); }
+    .theme-option input:checked + div{ box-shadow:0 0 0 3px rgba(139,182,255,.3); }
+    .theme-option:has(input:checked){ border-color:var(--accent-2) !important; background:rgba(139,182,255,.05); }
+    
+    /* Refresh animation */
+    @keyframes spin {
+      from { transform: rotate(0deg); }
+      to { transform: rotate(360deg); }
+    }
+  </style>
+</head>
+<body>
+  <!-- SIDEBAR -->
+  <aside class="sidebar">
+    <div class="brand"><div class="logo">P</div><div class="title">Petopia</div></div>
+    <nav class="side-nav">
+      <a href="{{ url_for('seller_dashboard') }}" class="active"><i class="fa-solid fa-chart-line"></i><span>Dashboard</span></a>
+      <a href="{{ url_for('seller_products') }}"><i class="fa-solid fa-box"></i><span>My Products</span></a>
+      <a href="{{ url_for('seller_orders') }}"><i class="fa-solid fa-cart-shopping"></i><span>My Orders</span></a>
+      <a href="{{ url_for('seller_earnings_commission') }}"><i class="fa-solid fa-sack-dollar"></i><span>Earnings & Commission</span></a>
+      <a href="{{ url_for('seller_promotions') }}"><i class="fa-solid fa-bullhorn"></i><span>Promotions</span></a>
+      <a href="{{ url_for('seller_reports') }}"><i class="fa-solid fa-chart-pie"></i><span>Reports & Analytics</span></a>
+      <a href="{{ url_for('logout') }}" id="logoutLink"><i class="fa-solid fa-right-from-bracket"></i><span>Logout</span></a>
+    </nav>
+    <div class="spacer"></div>
+    <div class="small">Signed in as <strong>Seller</strong></div>
+  </aside>
+
+  <!-- MAIN -->
+  <main class="main">
+    <header class="topbar">
+      <div>
+        <div style="font-weight:800;font-size:1.05rem">Welcome back, {{ seller_name }} 🐾</div>
+        <div style="font-size:0.88rem;color:var(--muted)">Manage your shop and track your growth</div>
+      </div>
+
+      <div class="search">
+        <input id="dashboardSearch" type="text" placeholder="Search products or orders..." />
+        <button class="icon-btn"><i class="fa-solid fa-magnifying-glass"></i></button>
+      </div>
+
+      <div style="display:flex;align-items:center;gap:12px;position:relative;">
+        <div class="top-actions">
+          <button class="icon-btn" title="Notifications"><i class="fa-regular fa-bell"></i></button>
+          <button class="icon-btn" title="Messages" id="msgBtn"><i class="fa-regular fa-envelope"></i><span id="msgBadge" class="badge" style="display:none">0</span></button>
+        </div>
+        <div style="border-left:1px solid rgba(11,15,26,.1);padding-left:12px;display:flex;align-items:center;gap:8px;">
+          <a class="icon-btn" href="{{ url_for('seller_shop_public') }}" title="View My Shop">
+            <i class="fa-solid fa-store"></i>
+          </a>
+          <div id="profileAvatarBtn" style="width:40px;height:40px;border-radius:50%;background:linear-gradient(135deg,var(--accent),var(--accent-2));display:flex;align-items:center;justify-content:center;color:#051014;font-weight:800;cursor:pointer;overflow:hidden;" title="Profile Settings">
+            S
+          </div>
+        </div>
+      </div>
+    </header>
+
+    <!-- Stats -->
+    <section class="grid-4">
+      <div class="stat-card"><div class="stat-left"><small>Total Sales</small><h3 id="totalSales">₱ 0</h3></div><div class="stat-right"><i class="fa-solid fa-peso-sign"></i></div></div>
+      <div class="stat-card"><div class="stat-left"><small>Total Orders</small><h3 id="totalOrders">0</h3></div><div class="stat-right"><i class="fa-solid fa-cart-shopping"></i></div></div>
+      <div class="stat-card"><div class="stat-left"><small>Active Products</small><h3 id="activeProducts">0</h3></div><div class="stat-right"><i class="fa-solid fa-box"></i></div></div>
+      <div class="stat-card"><div class="stat-left"><small>Net Earnings</small><h3 id="netEarnings">₱ 0</h3></div><div class="stat-right"><i class="fa-solid fa-wallet"></i></div></div>
+    </section>
+
+    <!-- Panels -->
+    <section class="panels">
+      <div>
+        <!-- Product List (moved up) -->
+        <div class="panel" style="margin-bottom:calc(var(--gap) + 1px);">
+          <h4>Top Products</h4>
+          <table class="clean">
+            <thead><tr><th>Product</th><th>Category</th><th style="width:90px;">Stock</th><th style="width:160px;">Sales</th></tr></thead>
+            <tbody id="topProductsBody"></tbody>
+          </table>
+          <a href="{{ url_for('seller_products') }}" style="display:block;text-align:right;margin-top:10px;color:var(--accent-2);font-weight:600;font-size:.80rem;">Manage products →</a>
+        </div>
+
+        <!-- Recent Orders (moved below Top Products) -->
+        <div class="panel" style="margin-bottom:var(--gap);">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
+            <h4 style="margin:0;">Recent Orders</h4>
+            <button id="refreshOrdersBtn" class="icon-btn" title="Refresh Orders" style="font-size:0.9rem;padding:6px 8px;">
+              <i class="fa-solid fa-arrow-rotate-right"></i>
+            </button>
+          </div>
+          <table class="clean">
+            <thead><tr><th>Order</th><th>Customer</th><th>Status</th><th>Date</th></tr></thead>
+            <tbody id="recentOrdersBody">
+              
+            </tbody>
+          </table>
+          <a href="{{ url_for('seller_orders') }}" style="display:block;text-align:right;margin-top:10px;color:var(--accent-2);font-weight:600;font-size:.80rem;">View all →</a>
+        </div>
+      </div>
+
+      <!-- Right Column -->
+      <aside style="display:flex;flex-direction:column;gap:var(--gap);">
+        <div class="panel chart-wrapper">
+          <div style="display:flex;justify-content:space-between;align-items:center;gap:10px;">
+            <h4 id="salesChartTitle">Sales Trend (7 days)</h4>
+            <select id="salesRange" style="padding:6px 10px;border-radius:8px;border:1px solid rgba(11,15,26,.1);background:#fff;font-weight:700;">
+              <option value="7d" selected>Last 7 days</option>
+              <option value="monthly">Monthly</option>
+              <option value="yearly">Yearly</option>
+            </select>
+          </div>
+          <canvas id="salesChart"></canvas>
+        </div>
+        <div class="panel">
+          <h4>Commission Breakdown</h4>
+          <table class="clean">
+            <thead><tr><th>Order</th><th>Admin</th><th>Rider</th><th>Seller</th></tr></thead>
+            <tbody id="commissionBreakdownBody">
+              <tr><td colspan="4" style="text-align:center;color:var(--muted);font-weight:700;padding:20px;"><i class="fa-solid fa-spinner fa-spin" style="margin-right:8px;"></i>Loading commission data...</td></tr>
+            </tbody>
+          </table>
+          <div id="commissionTotals" style="margin-top:12px;">
+            <strong>Total Commission Deducted:</strong> ₱ 0<br>
+            <strong>Seller Net Earnings:</strong> ₱ 0
+          </div>
+        </div>
+        
+      </aside>
+    </section>
+
+    <footer>© 2025 Petopia — Seller Dashboard</footer>
+  </main>
+
+  <!-- Profile Settings Modal -->
+  <div id="profileModal" class="profile-modal">
+    <div class="profile-modal-content">
+      <div class="profile-modal-header">
+        <div class="profile-modal-title">Profile Settings</div>
+        <button class="profile-close-btn" onclick="closeProfileModal()">&times;</button>
+      </div>
+      <div class="profile-modal-body">
+        <div class="profile-avatar-section">
+          <div id="profileAvatarPreview" class="profile-avatar-preview">S</div>
+          <div style="display:flex;gap:8px;justify-content:center;">
+            <label for="profileAvatarUpload" class="profile-btn profile-btn-secondary" style="cursor:pointer;display:inline-block;">
+              <i class="fa-solid fa-camera"></i> Change Avatar
+            </label>
+            <button type="button" class="profile-btn profile-btn-secondary" onclick="removeAvatar()" style="display:inline-block;">
+              <i class="fa-solid fa-trash"></i> Remove
+            </button>
+            <input type="file" id="profileAvatarUpload" accept="image/*" style="display:none;">
+          </div>
+        </div>
+
+        <div class="profile-form-group">
+          <label for="shopName">Shop Name</label>
+          <input type="text" id="shopName" placeholder="Enter your shop name">
+        </div>
+
+        <div class="profile-form-group">
+          <label for="shopDescription">Shop Description</label>
+          <textarea id="shopDescription" placeholder="Describe your shop..."></textarea>
+        </div>
+
+        <div class="profile-form-group">
+          <label for="shopEmail">Contact Email</label>
+          <input type="email" id="shopEmail" placeholder="shop@example.com">
+        </div>
+
+        <div class="profile-form-group">
+          <label for="shopPhone">Contact Phone</label>
+          <input type="tel" id="shopPhone" placeholder="+63 917 123 4567">
+        </div>
+
+        <div class="profile-form-group">
+          <label for="shopAddress">Shop Address</label>
+          <input type="text" id="shopAddress" placeholder="Manila, Philippines">
+        </div>
+
+        <!-- Business Hours -->
+        <div class="profile-form-group">
+          <label>Business Hours</label>
+          <input type="text" id="shopHoursWeekdays" placeholder="Monday - Friday: 9:00 AM - 6:00 PM" style="margin-bottom:8px;">
+          <input type="text" id="shopHoursSaturday" placeholder="Saturday: 10:00 AM - 4:00 PM" style="margin-bottom:8px;">
+          <input type="text" id="shopHoursSunday" placeholder="Sunday: Closed">
+        </div>
+
+        <!-- Shipping & Returns -->
+        <div class="profile-form-group">
+          <label>Shipping & Returns</label>
+          <textarea id="shopShippingPolicy" placeholder="Free shipping on orders over ₱500" style="margin-bottom:8px;"></textarea>
+          <textarea id="shopReturnPolicy" placeholder="7-day return policy"></textarea>
+        </div>
+
+        <div class="profile-form-group">
+          <label for="shopTheme">Shop Color Theme</label>
+          <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:12px;margin-top:8px;">
+            <label class="theme-option" style="cursor:pointer;padding:12px;border-radius:8px;border:2px solid #e5e8f0;display:flex;flex-direction:column;align-items:center;gap:6px;transition:all .2s;">
+              <input type="radio" name="shopTheme" value="default" checked style="display:none;">
+              <div style="width:100%;height:40px;border-radius:6px;background:linear-gradient(135deg,#7cf4d1,#8bb6ff);"></div>
+              <span style="font-weight:700;font-size:0.85rem;">Default</span>
+            </label>
+            <label class="theme-option" style="cursor:pointer;padding:12px;border-radius:8px;border:2px solid #e5e8f0;display:flex;flex-direction:column;align-items:center;gap:6px;transition:all .2s;">
+              <input type="radio" name="shopTheme" value="purple" style="display:none;">
+              <div style="width:100%;height:40px;border-radius:6px;background:linear-gradient(135deg,#a78bfa,#ec4899);"></div>
+              <span style="font-weight:700;font-size:0.85rem;">Purple</span>
+            </label>
+            <label class="theme-option" style="cursor:pointer;padding:12px;border-radius:8px;border:2px solid #e5e8f0;display:flex;flex-direction:column;align-items:center;gap:6px;transition:all .2s;">
+              <input type="radio" name="shopTheme" value="orange" style="display:none;">
+              <div style="width:100%;height:40px;border-radius:6px;background:linear-gradient(135deg,#fb923c,#fbbf24);"></div>
+              <span style="font-weight:700;font-size:0.85rem;">Orange</span>
+            </label>
+            <label class="theme-option" style="cursor:pointer;padding:12px;border-radius:8px;border:2px solid #e5e8f0;display:flex;flex-direction:column;align-items:center;gap:6px;transition:all .2s;">
+              <input type="radio" name="shopTheme" value="green" style="display:none;">
+              <div style="width:100%;height:40px;border-radius:6px;background:linear-gradient(135deg,#34d399,#10b981);"></div>
+              <span style="font-weight:700;font-size:0.85rem;">Green</span>
+            </label>
+            <label class="theme-option" style="cursor:pointer;padding:12px;border-radius:8px;border:2px solid #e5e8f0;display:flex;flex-direction:column;align-items:center;gap:6px;transition:all .2s;">
+              <input type="radio" name="shopTheme" value="blue" style="display:none;">
+              <div style="width:100%;height:40px;border-radius:6px;background:linear-gradient(135deg,#3b82f6,#06b6d4);"></div>
+              <span style="font-weight:700;font-size:0.85rem;">Blue</span>
+            </label>
+            <label class="theme-option" style="cursor:pointer;padding:12px;border-radius:8px;border:2px solid #e5e8f0;display:flex;flex-direction:column;align-items:center;gap:6px;transition:all .2s;">
+              <input type="radio" name="shopTheme" value="pink" style="display:none;">
+              <div style="width:100%;height:40px;border-radius:6px;background:linear-gradient(135deg,#f472b6,#fb7185);"></div>
+              <span style="font-weight:700;font-size:0.85rem;">Pink</span>
+            </label>
+          </div>
+        </div>
+
+        <div style="display:flex;gap:12px;justify-content:flex-end;margin-top:24px;">
+          <button class="profile-btn profile-btn-secondary" onclick="closeProfileModal()">Cancel</button>
+          <button class="profile-btn profile-btn-primary" onclick="saveProfileSettings()">
+            <i class="fa-solid fa-check"></i> Save Changes
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Chart -->
+  <script>
+    // Custom alert function to replace browser alert dialogs
+    function showCustomAlert(message, type = 'error', title = null) {
+      const div = document.createElement('div');
+      div.id = 'customAlertModal';
+      div.style = 'position:fixed;top:0;left:0;width:100vw;height:100vh;z-index:9999;background:rgba(0,0,0,.25);backdrop-filter:blur(2px);display:flex;align-items:center;justify-content:center;';
+      
+      // Determine icon and colors based on type
+      let iconBg, iconColor, iconClass, alertTitle, borderColor;
+      const errorColor = '#ff6b6b';
+      const successColor = '#4ade80';
+      const warningColor = '#fbbf24';
+      const infoColor = '#8bb6ff';
+      
+      if (type === 'success') {
+        iconBg = 'rgba(74,222,128,.15)';
+        iconColor = successColor;
+        iconClass = 'fa-circle-check';
+        alertTitle = title || 'Success';
+        borderColor = successColor;
+      } else if (type === 'warning') {
+        iconBg = 'rgba(251,191,36,.15)';
+        iconColor = warningColor;
+        iconClass = 'fa-triangle-exclamation';
+        alertTitle = title || 'Warning';
+        borderColor = warningColor;
+      } else if (type === 'info') {
+        iconBg = 'rgba(139,182,255,.15)';
+        iconColor = infoColor;
+        iconClass = 'fa-circle-info';
+        alertTitle = title || 'Notice';
+        borderColor = infoColor;
+      } else {
+        // error (default)
+        iconBg = 'rgba(255,107,107,.15)';
+        iconColor = errorColor;
+        iconClass = 'fa-circle-exclamation';
+        alertTitle = title || 'Error';
+        borderColor = errorColor;
+      }
+      
+      div.innerHTML = `
+        <div style="background:rgba(255,255,255,.97);border-radius:18px;max-width:500px;width:90vw;box-shadow:0 10px 40px rgba(16,24,40,.22);position:relative;overflow:hidden;">
+          <div style="padding:32px;text-align:center;">
+            <div style="width:64px;height:64px;border-radius:50%;background:${iconBg};display:flex;align-items:center;justify-content:center;margin:0 auto 20px;border:2px solid ${borderColor};">
+              <i class="fa-solid ${iconClass}" style="font-size:2rem;color:${iconColor};"></i>
+            </div>
+            <h3 style="font-size:1.5rem;font-weight:800;color:#23272f;margin-bottom:12px;">${alertTitle}</h3>
+            <p style="color:#5b6378;font-weight:600;font-size:1rem;line-height:1.6;margin-bottom:24px;white-space:pre-line;">${message}</p>
+            <div style="display:flex;gap:12px;justify-content:center;">
+              <button id="alertOk" style="padding:12px 32px;border-radius:10px;background:linear-gradient(135deg, var(--accent), var(--accent-2));color:#051014;font-weight:700;border:none;cursor:pointer;font-size:1rem;box-shadow:0 8px 26px rgba(139,182,255,.08);transition:all .2s ease;">OK</button>
+            </div>
+          </div>
+        </div>
+      `;
+      document.body.appendChild(div);
+      
+      const closeHandler = function() {
+        div.remove();
+      };
+      
+      document.getElementById('alertOk').addEventListener('click', closeHandler);
+      
+      div.addEventListener('click', function(e) {
+        if (e.target === div) closeHandler();
+      });
+      
+      const escapeHandler = function(e) {
+        if (e.key === 'Escape') {
+          closeHandler();
+          document.removeEventListener('keydown', escapeHandler);
+        }
+      };
+      document.addEventListener('keydown', escapeHandler);
+    }
+
+    // Custom confirmation function to replace browser confirm dialogs
+    function showCustomConfirm(message, onConfirm, onCancel = null) {
+      const div = document.createElement('div');
+      div.id = 'customConfirmModal';
+      div.style = 'position:fixed;top:0;left:0;width:100vw;height:100vh;z-index:9999;background:rgba(0,0,0,.25);backdrop-filter:blur(2px);display:flex;align-items:center;justify-content:center;';
+      
+      div.innerHTML = `
+        <div style="background:rgba(255,255,255,.97);border-radius:18px;max-width:500px;width:90vw;box-shadow:0 10px 40px rgba(16,24,40,.22);position:relative;overflow:hidden;">
+          <div style="padding:32px;text-align:center;">
+            <div style="width:64px;height:64px;border-radius:50%;background:rgba(251,191,36,.15);display:flex;align-items:center;justify-content:center;margin:0 auto 20px;border:2px solid #fbbf24;">
+              <i class="fa-solid fa-circle-question" style="font-size:2rem;color:#fbbf24;"></i>
+            </div>
+            <h3 style="font-size:1.5rem;font-weight:800;color:#23272f;margin-bottom:12px;">Confirm Action</h3>
+            <p style="color:#5b6378;font-weight:600;font-size:1rem;line-height:1.6;margin-bottom:24px;">${message}</p>
+            <div style="display:flex;gap:12px;justify-content:center;">
+              <button id="confirmCancel" style="padding:12px 24px;border-radius:10px;background:#e5e8f0;color:#23272f;font-weight:700;border:none;cursor:pointer;font-size:1rem;transition:all .2s ease;">Cancel</button>
+              <button id="confirmOk" style="padding:12px 24px;border-radius:10px;background:linear-gradient(135deg, var(--accent), var(--accent-2));color:#051014;font-weight:700;border:none;cursor:pointer;font-size:1rem;box-shadow:0 8px 26px rgba(139,182,255,.08);transition:all .2s ease;">Confirm</button>
+            </div>
+          </div>
+        </div>
+      `;
+      document.body.appendChild(div);
+      
+      const closeHandler = function() {
+        div.remove();
+      };
+      
+      document.getElementById('confirmOk').addEventListener('click', function() {
+        closeHandler();
+        if (onConfirm) onConfirm();
+      });
+      
+      document.getElementById('confirmCancel').addEventListener('click', function() {
+        closeHandler();
+        if (onCancel) onCancel();
+      });
+      
+      div.addEventListener('click', function(e) {
+        if (e.target === div) {
+          closeHandler();
+          if (onCancel) onCancel();
+        }
+      });
+      
+      const escapeHandler = function(e) {
+        if (e.key === 'Escape') {
+          closeHandler();
+          if (onCancel) onCancel();
+          document.removeEventListener('keydown', escapeHandler);
+        }
+      };
+      document.addEventListener('keydown', escapeHandler);
+    }
+
+    let salesChart;
+    
+    async function fetchSalesData(range){
+      try {
+        const response = await fetch(`/seller/sales-trend?range=${range}`, {
+          credentials: 'same-origin',
+          headers: {
+            'Content-Type': 'application/json'
+          }
+        });
+        
+        if (response.ok) {
+          const data = await response.json();
+          return data;
+        } else {
+          console.warn('Failed to fetch sales data from API:', response.status);
+        }
+      } catch (error) {
+        console.warn('Error fetching sales data:', error);
+      }
+      
+      // Fallback to empty data if API fails
+      return {
+        title: `Sales Trend (${range === 'monthly' ? 'Monthly' : range === 'yearly' ? 'Yearly' : '7 days'})`,
+        labels: range === 'monthly' ? ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'] : 
+                range === 'yearly' ? ['2021','2022','2023','2024','2025'] : 
+                ['Day 1','Day 2','Day 3','Day 4','Day 5','Day 6','Day 7'],
+        data: range === 'monthly' ? [0,0,0,0,0,0,0,0,0,0,0,0] : 
+              range === 'yearly' ? [0,0,0,0,0] : [0,0,0,0,0,0,0]
+      };
+    }
+    
+    async function renderSalesChart(range){
+      const ctx = document.getElementById('salesChart');
+      if (!ctx || !window.Chart) return;
+      
+      // Show loading state
+      if (salesChart) salesChart.destroy();
+      document.getElementById('salesChartTitle').textContent = 'Loading...';
+      
+      try {
+        const cfg = await fetchSalesData(range);
+        document.getElementById('salesChartTitle').textContent = cfg.title;
+        
+        salesChart = new Chart(ctx, {
+          type: 'line',
+          data: { 
+            labels: cfg.labels, 
+            datasets: [{ 
+              label:'Sales (₱)', 
+              data: cfg.data, 
+              backgroundColor:'rgba(139,182,255,0.3)', 
+              borderColor:'rgba(139,182,255,1)', 
+              fill:true, 
+              tension:0.3 
+            }] 
+          },
+          options: { 
+            responsive:true, 
+            maintainAspectRatio:false, 
+            plugins:{ legend:{ display:false } },
+            scales: {
+              y: {
+                beginAtZero: true,
+                ticks: {
+                  callback: function(value) {
+                    return '₱' + value.toLocaleString();
+                  }
+                }
+              }
+            }
+          }
+        });
+      } catch (error) {
+        console.error('Error rendering sales chart:', error);
+        document.getElementById('salesChartTitle').textContent = 'Error loading chart';
+      }
+    }
+    
+    // Initialize chart on page load
+    renderSalesChart('7d');
+    
+    // Handle range selector changes
+    const salesRangeSel = document.getElementById('salesRange');
+    if (salesRangeSel) {
+      salesRangeSel.addEventListener('change', function(){ 
+        renderSalesChart(this.value); 
+      });
+    }
+
+    // Profile Settings Functions
+    async function apiGetShopDetails(){
+      try {
+        const res = await fetch('/seller/shop-details', { credentials: 'same-origin' });
+        if (!res.ok) throw new Error('net');
+        return await res.json();
+      } catch(_) { return null; }
+    }
+    async function apiSaveShopDetails(payload){
+      const res = await fetch('/seller/shop-details', { method:'POST', headers:{'Content-Type':'application/json'}, credentials:'same-origin', body: JSON.stringify(payload) });
+      return res.ok;
+    }
+    function loadShopData(){
+      const data = JSON.parse(localStorage.getItem('petopia_shop_data') || '{}');
+      return {
+        name: data.name || '',
+        description: data.description || '',
+        email: data.email || '',
+        phone: data.phone || '',
+        address: data.address || '',
+        hoursWeekdays: data.hoursWeekdays || '',
+        hoursSaturday: data.hoursSaturday || '',
+        hoursSunday: data.hoursSunday || '',
+        shippingPolicy: data.shippingPolicy || '',
+        returnPolicy: data.returnPolicy || '',
+        avatar: data.avatar || '',
+        initials: data.initials || 'S',
+        theme: data.theme || 'default',
+        customAccent: data.customAccent || '#7cf4d1',
+        customAccent2: data.customAccent2 || '#8bb6ff'
+      };
+    }
+    function saveShopData(data){ localStorage.setItem('petopia_shop_data', JSON.stringify(data)); }
+    async function syncShopDataFromServer(){
+      const srv = await apiGetShopDetails();
+      if (!srv) return;
+      const name = srv.name || '';
+      const initials = name ? name.split(' ').map(w=>w[0]).join('').toUpperCase().slice(0,2) : 'S';
+      const current = loadShopData();
+      const merged = {
+        ...current,
+        name: srv.name || '',
+        description: srv.description || '',
+        email: srv.email || '',
+        phone: srv.phone || '',
+        address: srv.address || '',
+        hoursWeekdays: srv.hoursWeekdays || '',
+        hoursSaturday: srv.hoursSaturday || '',
+        hoursSunday: srv.hoursSunday || '',
+        shippingPolicy: srv.shippingPolicy || '',
+        returnPolicy: srv.returnPolicy || '',
+        theme: srv.theme || 'default',
+        customAccent: srv.customAccent || '#7cf4d1',
+        customAccent2: srv.customAccent2 || '#8bb6ff',
+        avatar: srv.avatar || '',
+        initials
+      };
+      saveShopData(merged);
+      await updateHeaderAvatar();
+    }
+
+    async function updateHeaderAvatar(){
+      // Always fetch fresh data from server for current seller
+      const data = await apiGetShopDetails() || loadShopData();
+      const avatarBtn = document.getElementById('profileAvatarBtn');
+      if (data.avatar) {
+        avatarBtn.style.background = `url(${data.avatar})`;
+        avatarBtn.style.backgroundSize = 'cover';
+        avatarBtn.style.backgroundPosition = 'center';
+        avatarBtn.textContent = '';
+      } else {
+        avatarBtn.style.background = 'linear-gradient(135deg,var(--accent),var(--accent-2))';
+        avatarBtn.style.backgroundImage = 'none';
+        avatarBtn.textContent = (data.name || 'S').split(' ').map(w=>w[0]).join('').toUpperCase().slice(0,2) || 'S';
+      }
+    }
+
+    async function openProfileModal(){
+      // Always fetch fresh data from server for current seller
+      const data = await apiGetShopDetails() || loadShopData();
+      console.log('Opening profile modal with data:', data); // Debug
+      document.getElementById('shopName').value = data.name || '';
+      document.getElementById('shopDescription').value = data.description || '';
+      document.getElementById('shopEmail').value = data.email || '';
+      document.getElementById('shopPhone').value = data.phone || '';
+      document.getElementById('shopAddress').value = data.address || '';
+      const hw = document.getElementById('shopHoursWeekdays'); if (hw) hw.value = data.hoursWeekdays || '';
+      const hs = document.getElementById('shopHoursSaturday'); if (hs) hs.value = data.hoursSaturday || '';
+      const hy = document.getElementById('shopHoursSunday'); if (hy) hy.value = data.hoursSunday || '';
+      const sp = document.getElementById('shopShippingPolicy'); if (sp) sp.value = data.shippingPolicy || '';
+      const rp = document.getElementById('shopReturnPolicy'); if (rp) rp.value = data.returnPolicy || '';
+      
+      // Set theme radio button
+      const themeRadio = document.querySelector(`input[name="shopTheme"][value="${data.theme || 'default'}"]`);
+      if (themeRadio) themeRadio.checked = true;
+      
+      const preview = document.getElementById('profileAvatarPreview');
+      if (data.avatar) {
+        preview.style.background = `url(${data.avatar}) center/cover`;
+        preview.textContent = '';
+      } else {
+        preview.style.background = 'linear-gradient(135deg,var(--accent),var(--accent-2))';
+        preview.textContent = (data.name || 'S').split(' ').map(w=>w[0]).join('').toUpperCase().slice(0,2) || 'S';
+      }
+      
+      document.getElementById('profileModal').style.display = 'flex';
+    }
+
+    function closeProfileModal(){
+      document.getElementById('profileModal').style.display = 'none';
+    }
+
+    async function removeAvatar(){
+      try {
+        const res = await fetch('/seller/shop-avatar', { method:'DELETE', credentials:'same-origin' });
+        const out = await res.json();
+        if (out.success) {
+          // Clear local cache
+          const data = loadShopData();
+          data.avatar = '';
+          saveShopData(data);
+          const preview = document.getElementById('profileAvatarPreview');
+          preview.style.background = 'linear-gradient(135deg,var(--accent),var(--accent-2))';
+          preview.textContent = (data.name || 'S').split(' ').map(w=>w[0]).join('').toUpperCase().slice(0,2) || 'S';
+          await updateHeaderAvatar();
+          showCustomAlert('Avatar removed successfully!', 'success', 'Avatar Removed');
+        } else {
+          throw new Error(out.message || 'Failed to remove avatar');
+        }
+      } catch(err) {
+        console.error('Failed to remove avatar:', err);
+        showCustomAlert('Failed to remove avatar.', 'error', 'Remove Error');
+      }
+    }
+
+    async function saveProfileSettings(){
+      const name = document.getElementById('shopName').value.trim();
+      const description = document.getElementById('shopDescription').value.trim();
+      const email = document.getElementById('shopEmail').value.trim();
+      const phone = document.getElementById('shopPhone').value.trim();
+      const address = document.getElementById('shopAddress').value.trim();
+      const hoursWeekdays = (document.getElementById('shopHoursWeekdays')?.value || '').trim();
+      const hoursSaturday = (document.getElementById('shopHoursSaturday')?.value || '').trim();
+      const hoursSunday = (document.getElementById('shopHoursSunday')?.value || '').trim();
+      const shippingPolicy = (document.getElementById('shopShippingPolicy')?.value || '').trim();
+      const returnPolicy = (document.getElementById('shopReturnPolicy')?.value || '').trim();
+      const theme = document.querySelector('input[name="shopTheme"]:checked')?.value || 'default';
+      const customAccent = '#7cf4d1';
+      const customAccent2 = '#8bb6ff';
+      
+      const currentData = loadShopData();
+      const initials = name.split(' ').map(w => w[0]).join('').toUpperCase().slice(0, 2) || 'S';
+      const payload = {
+        name, description, email, phone, address,
+        hoursWeekdays, hoursSaturday, hoursSunday,
+        shippingPolicy, returnPolicy, theme,
+        customAccent, customAccent2
+      };
+      const ok = await apiSaveShopDetails(payload);
+      const newData = { ...payload, avatar: currentData.avatar, initials };
+      saveShopData(newData);
+      try { const bc = new BroadcastChannel('petopia_shop_sync'); bc.postMessage('shop_updated'); } catch(_) {}
+      await updateHeaderAvatar();
+      closeProfileModal();
+      if (ok) {
+        showCustomAlert('Profile settings saved successfully! Your shop theme has been updated.', 'success', 'Settings Saved');
+      } else {
+        showCustomAlert('Saved locally. Server sync failed.', 'warning', 'Sync Warning');
+      }
+    }
+
+    // Avatar upload handler (upload to server)
+    document.getElementById('profileAvatarUpload').addEventListener('change', async function(){
+      const file = this.files && this.files[0];
+      if (!file) return;
+      const fd = new FormData();
+      fd.append('avatar', file);
+      try {
+        const res = await fetch('/seller/shop-avatar', { method:'POST', body: fd, credentials:'same-origin' });
+        const out = await res.json();
+        if (!out.success) throw new Error(out.message||'Upload failed');
+        const url = out.avatar;
+        const preview = document.getElementById('profileAvatarPreview');
+        preview.style.background = `url(${url}) center/cover`;
+        preview.textContent = '';
+        const data = loadShopData();
+        data.avatar = url;
+        saveShopData(data);
+        await updateHeaderAvatar();
+      } catch(err) {
+        console.error('Failed to upload avatar:', err);
+        showCustomAlert('Failed to upload avatar.', 'error', 'Upload Error');
+      }
+    });
+
+    // Profile avatar button click
+    document.getElementById('profileAvatarBtn').addEventListener('click', openProfileModal);
+
+    // Close modal on outside click
+    document.getElementById('profileModal').addEventListener('click', function(e){
+      if (e.target === this) closeProfileModal();
+    });
+
+    // Initialize header avatar and sync shop details from server
+    updateHeaderAvatar();
+    syncShopDataFromServer();
+
+    document.getElementById('logoutLink').addEventListener('click', function(e){
+      e.preventDefault();
+      showCustomConfirm('Are you sure you want to logout?', function() {
+        window.location.href = "{{ url_for('logout') }}";
+      });
+    });
+
+    // --- Recent Orders + Search Filter ---
+    let cachedRecentOrders = [];
+    
+    async function loadRecentOrders(){
+      try {
+        // Try to fetch from API first
+        const response = await fetch('/seller/recent-orders', {
+          credentials: 'same-origin',
+          headers: {
+            'Content-Type': 'application/json'
+          }
+        });
+        
+        if (response.ok) {
+          const orders = await response.json();
+          cachedRecentOrders = orders.slice().sort((a,b)=> (b.createdAt||0)-(a.createdAt||0));
+          return cachedRecentOrders;
+        } else {
+          console.warn('Failed to fetch recent orders from API:', response.status);
+        }
+      } catch (error) {
+        console.warn('Error fetching recent orders:', error);
+      }
+      
+      // Fallback to localStorage if API fails
+      const raw = JSON.parse(localStorage.getItem('petopia_seller_orders')||'[]');
+      if (raw && raw.length) {
+        cachedRecentOrders = raw.slice().sort((a,b)=> (b.createdAt||0)-(a.createdAt||0)).slice(0,50);
+        return cachedRecentOrders;
+      }
+      
+      // Final fallback to static sample
+      cachedRecentOrders = [
+        { id:'#2048', customer:{name:'Pedro Lopez'}, status:'Cancelled', createdAt: Date.parse('2025-09-29') },
+        { id:'#2047', customer:{name:'Ana Dela Cruz'}, status:'Shipped', createdAt: Date.parse('2025-09-28') },
+        { id:'#2046', customer:{name:'John Cruz'}, status:'Pending', createdAt: Date.parse('2025-09-28') },
+        { id:'#2045', customer:{name:'Maria Santos'}, status:'Delivered', createdAt: Date.parse('2025-09-27') }
+      ];
+      return cachedRecentOrders;
+    }
+    function formatDate(ts){ try{ return new Date(ts).toISOString().slice(0,10); }catch(e){ return '-'; } }
+    function renderRecentOrders(q, isLoading = false){
+      const tbody = document.getElementById('recentOrdersBody');
+      if (!tbody) return;
+      
+      if (isLoading) {
+        tbody.innerHTML = '<tr><td colspan="4" style="text-align:center;color:var(--muted);font-weight:700;padding:20px;"><i class="fa-solid fa-spinner fa-spin" style="margin-right:8px;"></i>Loading orders...</td></tr>';
+        return;
+      }
+      
+      const query = (q||'').toLowerCase().trim();
+      const rows = cachedRecentOrders.filter(r=>{
+        const hay = `${r.id} ${r.customer?.name||''} ${r.status}`.toLowerCase();
+        return hay.includes(query);
+      }).slice(0,4);
+      tbody.innerHTML = rows.map(r=>{
+        const initials = (r.customer?.name||'-').split(' ').map(w=>w[0]).join('').toUpperCase().slice(0,2) || 'C';
+        const raw = String(r.status||'').toLowerCase();
+        // Map backend statuses to original UI labels and classes
+        // To Pay — Pending, To Ship — Processing, To Receive — Shipped, Completed — Delivered, Cancelled — Cancelled
+        const statusMap = {
+          'to_pay': { label: 'Pending', cls: 'status-pending' },
+          'pending': { label: 'Pending', cls: 'status-pending' },
+          'to_ship': { label: 'Processing', cls: 'status-processing' },
+          'processing': { label: 'Processing', cls: 'status-processing' },
+          'to_receive': { label: 'Shipped', cls: 'status-shipped' },
+          'shipped': { label: 'Shipped', cls: 'status-shipped' },
+          'completed': { label: 'Delivered', cls: 'status-delivered' },
+          'delivered': { label: 'Delivered', cls: 'status-delivered' },
+          'cancelled': { label: 'Cancelled', cls: 'status-cancelled' }
+        };
+        const mapped = statusMap[raw] || { label: (r.status||'').toString(), cls: '' };
+        return `<tr>
+          <td>
+            <div class="order-cell"><div class="order-avatar">${initials}</div><div style="font-weight:800;color:#23272f;">${r.id}</div></div>
+          </td>
+          <td>
+            <div style="display:flex;flex-direction:column;">
+              <div style="font-weight:700;color:#23272f;">${r.customer?.name||'-'}</div>
+              <div class="muted" style="font-size:.82rem;">${r.customer?.email||''}</div>
+            </div>
+          </td>
+          <td><span class="status-pill ${mapped.cls}">${mapped.label}</span></td>
+          <td><span style="font-weight:700;color:#23272f;">${formatDate(r.createdAt)}</span></td>
+        </tr>`;
+      }).join('') || '<tr><td colspan="4" style="text-align:center;color:var(--muted);font-weight:700;">No results</td></tr>';
+    }
+    // --- Top Products (limit 4) ---
+    async function loadTopProducts(){
+      try {
+        const response = await fetch('/seller/top-products', {
+          credentials: 'same-origin',
+          headers: {
+            'Content-Type': 'application/json'
+          }
+        });
+        
+        if (response.ok) {
+          const products = await response.json();
+          return products.slice(0, 4); // Limit to 4 products
+        } else {
+          console.warn('Failed to fetch top products from API:', response.status);
+        }
+      } catch (error) {
+        console.warn('Error fetching top products:', error);
+      }
+      
+      // Fallback to empty array if API fails
+      return [];
+    }
+    
+    async function renderTopProducts(){
+      const body = document.getElementById('topProductsBody'); 
+      if (!body) return;
+      
+      // Show loading state
+      body.innerHTML = '<tr><td colspan="4" style="text-align:center;color:var(--muted);font-weight:700;padding:20px;"><i class="fa-solid fa-spinner fa-spin" style="margin-right:8px;"></i>Loading products...</td></tr>';
+      
+      try {
+        const rows = await loadTopProducts();
+        const maxSales = rows.reduce((m,p)=> Math.max(m, p.total_sales||0), 0) || 1;
+        
+        if (rows.length === 0) {
+          body.innerHTML = '<tr><td colspan="4" style="text-align:center;color:var(--muted);font-weight:700;">No products found</td></tr>';
+          return;
+        }
+        
+        body.innerHTML = rows.map(p=>{
+          const initials = (p.name||'P')[0].toUpperCase();
+          const pct = Math.round(((p.total_sales||0)/maxSales)*100);
+          return `<tr>
+            <td>
+              <div class="product-cell">
+                <div class="product-avatar">${initials}</div>
+                <div style="font-weight:700;color:#23272f;">${p.name}</div>
+              </div>
+            </td>
+            <td><span class="pill">${p.category}</span></td>
+            <td>${p.stock}</td>
+            <td>
+              <div style="display:flex;align-items:center;gap:10px;">
+                <div class="bar-wrap"><div class="bar" style="width:${pct}%"></div></div>
+                <div style="min-width:46px;text-align:right;font-weight:800;color:#23272f;">${p.total_sales}</div>
+              </div>
+            </td>
+          </tr>`;
+        }).join('');
+      } catch (error) {
+        console.error('Error rendering top products:', error);
+        body.innerHTML = '<tr><td colspan="4" style="text-align:center;color:var(--muted);font-weight:700;">Error loading products</td></tr>';
+      }
+    }
+    
+    // Initialize top products on page load
+    renderTopProducts();
+    
+    // --- Commission Breakdown ---
+    async function loadCommissionBreakdown(){
+      try {
+        const response = await fetch('/seller/commission-breakdown', {
+          credentials: 'same-origin',
+          headers: {
+            'Content-Type': 'application/json'
+          }
+        });
+        
+        if (response.ok) {
+          const data = await response.json();
+          return data;
+        } else {
+          console.warn('Failed to fetch commission breakdown from API:', response.status);
+        }
+      } catch (error) {
+        console.warn('Error fetching commission breakdown:', error);
+      }
+      
+      // Fallback to empty data if API fails
+      return {
+        breakdown: [],
+        totals: {
+          total_admin_commission: 0,
+          total_rider_fee: 0,
+          total_seller_net: 0
+        }
+      };
+    }
+    
+    async function renderCommissionBreakdown(){
+      const tbody = document.getElementById('commissionBreakdownBody');
+      const totalsDiv = document.getElementById('commissionTotals');
+      
+      if (!tbody || !totalsDiv) return;
+      
+      try {
+        const data = await loadCommissionBreakdown();
+        const breakdown = data.breakdown || [];
+        const totals = data.totals || {};
+        
+        if (breakdown.length === 0) {
+          tbody.innerHTML = '<tr><td colspan="4" style="text-align:center;color:var(--muted);font-weight:700;">No commission data available</td></tr>';
+          totalsDiv.innerHTML = `
+            <strong>Total Commission Deducted:</strong> ₱ 0<br>
+            <strong>Seller Net Earnings:</strong> ₱ 0
+          `;
+          return;
+        }
+        
+        // Render commission breakdown table
+        tbody.innerHTML = breakdown.slice(0, 5).map(item => `
+          <tr>
+            <td>#${item.order_id}</td>
+            <td>₱${item.admin_commission.toLocaleString()}</td>
+            <td>₱${item.rider_fee.toLocaleString()}</td>
+            <td>₱${item.seller_net.toLocaleString()}</td>
+          </tr>
+        `).join('');
+        
+        // Render totals
+        totalsDiv.innerHTML = `
+          <strong>Total Commission Deducted:</strong> ₱ ${totals.total_admin_commission.toLocaleString()}<br>
+          <strong>Seller Net Earnings:</strong> ₱ ${totals.total_seller_net.toLocaleString()}
+        `;
+        
+      } catch (error) {
+        console.error('Error rendering commission breakdown:', error);
+        tbody.innerHTML = '<tr><td colspan="4" style="text-align:center;color:var(--muted);font-weight:700;">Error loading commission data</td></tr>';
+        totalsDiv.innerHTML = `
+          <strong>Total Commission Deducted:</strong> ₱ 0<br>
+          <strong>Seller Net Earnings:</strong> ₱ 0
+        `;
+      }
+    }
+    
+    // Initialize commission breakdown on page load
+    renderCommissionBreakdown();
+    
+    // --- Dashboard Statistics ---
+    async function loadDashboardStats(){
+      try {
+        const response = await fetch('/seller/dashboard-stats', {
+          credentials: 'same-origin',
+          headers: {
+            'Content-Type': 'application/json'
+          }
+        });
+        
+        if (response.ok) {
+          const data = await response.json();
+          return data;
+        } else {
+          console.warn('Failed to fetch dashboard stats from API:', response.status);
+        }
+      } catch (error) {
+        console.warn('Error fetching dashboard stats:', error);
+      }
+      
+      // Fallback to zero values if API fails
+      return {
+        total_sales: 0,
+        total_orders: 0,
+        active_products: 0,
+        net_earnings: 0
+      };
+    }
+    
+    async function renderDashboardStats(){
+      try {
+        const stats = await loadDashboardStats();
+        
+        // Update total sales
+        const totalSalesEl = document.getElementById('totalSales');
+        if (totalSalesEl) {
+          totalSalesEl.textContent = `₱ ${stats.total_sales.toLocaleString()}`;
+        }
+        
+        // Update total orders
+        const totalOrdersEl = document.getElementById('totalOrders');
+        if (totalOrdersEl) {
+          totalOrdersEl.textContent = stats.total_orders.toLocaleString();
+        }
+        
+        // Update active products
+        const activeProductsEl = document.getElementById('activeProducts');
+        if (activeProductsEl) {
+          activeProductsEl.textContent = stats.active_products.toLocaleString();
+        }
+        
+        // Update net earnings
+        const netEarningsEl = document.getElementById('netEarnings');
+        if (netEarningsEl) {
+          netEarningsEl.textContent = `₱ ${stats.net_earnings.toLocaleString()}`;
+        }
+        
+      } catch (error) {
+        console.error('Error rendering dashboard stats:', error);
+        // Keep default values (₱ 0, 0, 0, ₱ 0) if there's an error
+      }
+    }
+    
+    // Initialize dashboard stats on page load
+    renderDashboardStats();
+    
+    // Initialize recent orders
+    async function initializeRecentOrders() {
+      renderRecentOrders('', true); // Show loading state
+      await loadRecentOrders();
+    renderRecentOrders('');
+    }
+    initializeRecentOrders();
+    
+    const dashSearch = document.getElementById('dashboardSearch');
+    if (dashSearch){
+      let t; function go(){ renderRecentOrders(dashSearch.value); }
+      dashSearch.addEventListener('input', function(){ clearTimeout(t); t=setTimeout(go, 200); });
+      dashSearch.addEventListener('keydown', function(e){ if (e.key==='Enter'){ e.preventDefault(); go(); } });
+    }
+    
+    // Refresh orders functionality
+    const refreshOrdersBtn = document.getElementById('refreshOrdersBtn');
+    if (refreshOrdersBtn) {
+      refreshOrdersBtn.addEventListener('click', async function() {
+        const icon = this.querySelector('i');
+        icon.style.animation = 'spin 1s linear infinite';
+        
+        // Show loading state
+        renderRecentOrders(dashSearch?.value || '', true);
+        
+        try {
+          await loadRecentOrders();
+          renderRecentOrders(dashSearch?.value || '');
+        } catch (error) {
+          console.error('Error refreshing orders:', error);
+          renderRecentOrders(dashSearch?.value || '');
+        } finally {
+          setTimeout(() => {
+            icon.style.animation = '';
+          }, 1000);
+        }
+      });
+    }
+    
+    // Auto-refresh orders every 30 seconds
+    setInterval(async () => {
+      try {
+        await loadRecentOrders();
+        renderRecentOrders(dashSearch?.value || '');
+      } catch (error) {
+        console.warn('Auto-refresh orders failed:', error);
+      }
+    }, 30000);
+  </script>
+
+  <!-- NOTIFICATIONS PANEL & LOGIC (same UI as rider_dashboard, seller content) -->
+  <script>
+  (function(){
+    const FETCH_INTERVAL = 30000;
+    const SEEN_KEY = 'petopia_seller_notif_seen';
+    const CLEARED_KEY = 'petopia_seller_notif_cleared_until';
+    let notifCache = [];
+    const bellBtn = document.querySelector('.top-actions [title="Notifications"]') || document.querySelector('.topbar .icon-btn .fa-regular.fa-bell')?.closest('button');
+    if (!bellBtn) return;
+
+    const panel = document.createElement('div');
+    panel.id = 'notifPanel';
+    panel.style.position = 'fixed';
+    panel.style.width = '360px';
+    panel.style.maxHeight = '60vh';
+    panel.style.overflowY = 'auto';
+    panel.style.background = 'var(--panel-strong)';
+    panel.style.border = '1px solid rgba(11,15,26,.08)';
+    panel.style.borderRadius = '12px';
+    panel.style.boxShadow = 'var(--glass-shadow)';
+    panel.style.display = 'none';
+    panel.style.zIndex = '200';
+    panel.innerHTML = '<div id="notifArrowWrap" style="position:absolute;top:-10px;right:20px; width:0;height:0;">\
+      <div style="position:absolute;top:-1px;right:-1px; width:0;height:0;border-left:9px solid transparent;border-right:9px solid transparent;border-bottom:9px solid rgba(11,15,26,.08);"></div>\
+      <div style="position:relative; width:0;height:0;border-left:8px solid transparent;border-right:8px solid transparent;border-bottom:8px solid var(--panel-strong);"></div>\
+    </div>\
+    <div style="padding:12px 12px 8px 12px; display:flex; justify-content:space-between; align-items:center;">\
+      <div style="font-weight:800;color:#23272f">Notifications</div>\
+      <div>\
+        <button id="clearSellerNotifs" class="btn" style="padding:6px 10px;border-radius:8px;border:1px solid rgba(11,15,26,.1);background:#fff;font-weight:700;color:#23272f;cursor:pointer">Clear</button>\
+        <button id="markAllSellerRead" class="btn" style="padding:6px 10px;border-radius:8px;border:1px solid rgba(11,15,26,.1);background:#fff;font-weight:700;color:#23272f;cursor:pointer">Mark all read</button>\
+      </div>\
+    </div>\
+    <div id="sellerNotifList" style="padding:8px 12px 12px 12px; display:grid; gap:8px;"></div>';
+    document.body.appendChild(panel);
+
+    function escapeHTML(value){
+      return String(value || '').replace(/[&<>"']/g, function(ch){
+        const map = { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' };
+        return map[ch] || ch;
+      });
+    }
+
+    function getSeenMap(){
+      try {
+        return JSON.parse(localStorage.getItem(SEEN_KEY) || '{}') || {};
+      } catch (err){
+        console.warn('Failed to parse seller notification seen map:', err);
+        return {};
+      }
+    }
+
+    function saveSeenMap(map){
+      try {
+        localStorage.setItem(SEEN_KEY, JSON.stringify(map || {}));
+      } catch (err){
+        console.warn('Failed to persist seller notification seen map:', err);
+      }
+    }
+
+    function getClearedUntil(){
+      const raw = localStorage.getItem(CLEARED_KEY);
+      const parsed = raw ? parseInt(raw, 10) : 0;
+      return Number.isFinite(parsed) ? parsed : 0;
+    }
+
+    function setClearedUntil(ts){
+      try {
+        localStorage.setItem(CLEARED_KEY, String(ts));
+      } catch (err){
+        console.warn('Failed to persist seller notification cleared timestamp:', err);
+      }
+    }
+
+    function applyLocalFilters(raw){
+      const cleared = getClearedUntil();
+      return (raw || []).filter(item => {
+        const ts = Number(item && item.timestamp);
+        return !cleared || (Number.isFinite(ts) && ts >= cleared);
+      });
+    }
+
+    function setNotifCache(raw){
+      const filtered = applyLocalFilters(raw).map(item => {
+        const id = item.id || `${item.orderId}-${item.status || 'status'}`;
+        const ts = Number(item.timestamp || Date.now());
+        return {
+          ...item,
+          id,
+          timestamp: Number.isFinite(ts) ? ts : Date.now()
+        };
+      });
+      notifCache = filtered.sort((a, b) => b.timestamp - a.timestamp);
+    }
+
+    function unreadCount(){
+      const seen = getSeenMap();
+      return notifCache.filter(n => !seen[n.id]).length;
+    }
+
+    function refreshSellerNotifBadge(){
+      let badge = bellBtn.querySelector('#notifBadge') || bellBtn.querySelector('.badge');
+      if (badge && !badge.id) badge.id = 'notifBadge';
+      if (!badge){
+        badge = document.createElement('span');
+        badge.id = 'notifBadge';
+        badge.className = 'badge';
+        bellBtn.appendChild(badge);
+      }
+      bellBtn.querySelectorAll('.badge').forEach(el => { if (el !== badge) el.remove(); });
+      const count = unreadCount();
+      badge.textContent = count;
+      badge.style.display = count > 0 ? 'block' : 'none';
+    }
+
+    function formatTimestamp(ts){
+      try {
+        return new Date(ts).toLocaleString();
+      } catch (err){
+        return '';
+      }
+    }
+
+    function renderSellerNotifs(){
+      const list = document.getElementById('sellerNotifList');
+      if (!list) return;
+      const seen = getSeenMap();
+      if (!notifCache.length){
+        list.innerHTML = '<div style="color:var(--muted);font-weight:700;text-align:center;padding:20px;">No notifications</div>';
+        return;
+      }
+      list.innerHTML = notifCache.map(n => {
+        const unread = !seen[n.id];
+        const itemStyle = unread
+          ? 'background:rgba(139,182,255,.12);border:1px solid rgba(139,182,255,.35);'
+          : 'background:#fff;border:1px solid #e5e8f0;opacity:.75;';
+        const bodyColor = unread ? '#23272f' : 'var(--muted)';
+        return `<div class="seller-notif-item" data-id="${escapeHTML(n.id)}" style="${itemStyle}border-radius:10px;padding:10px;">
+          <div style="font-weight:800;color:#23272f;">${escapeHTML(n.title || '')}</div>
+          <div style="color:${bodyColor};font-weight:700;font-size:.9rem;">${escapeHTML(n.body || '')}</div>
+          <div style="color:var(--muted);font-size:.8rem;margin-top:4px;">${escapeHTML(formatTimestamp(n.timestamp))}</div>
+        </div>`;
+      }).join('');
+    }
+
+    async function fetchSellerNotifications(){
+      try {
+        const res = await fetch('/seller/notifications', { credentials: 'same-origin' });
+        if (!res.ok) throw new Error(`HTTP ${res.status}`);
+        const data = await res.json();
+        setNotifCache(Array.isArray(data) ? data : []);
+        refreshSellerNotifBadge();
+        if (panel.style.display === 'block'){
+          renderSellerNotifs();
+        }
+      } catch (err){
+        console.warn('Failed to load seller notifications:', err);
+      }
+    }
+
+    function markNotificationSeen(id){
+      if (!id) return;
+      const seen = getSeenMap();
+      if (!seen[id]){
+        seen[id] = true;
+        saveSeenMap(seen);
+      }
+    }
+
+    function markAllRead(){
+      const seen = getSeenMap();
+      notifCache.forEach(n => { seen[n.id] = true; });
+      saveSeenMap(seen);
+      refreshSellerNotifBadge();
+      renderSellerNotifs();
+    }
+
+    function clearSellerNotifs(){
+      setClearedUntil(Date.now());
+      markAllRead();
+      notifCache = [];
+      renderSellerNotifs();
+      refreshSellerNotifBadge();
+    }
+
+    function placePanel(){
+      const rect = bellBtn.getBoundingClientRect();
+      const width = Math.min(360, Math.max(260, Math.floor(window.innerWidth * 0.9)));
+      panel.style.width = width + 'px';
+      const margin = 12;
+      const top = rect.bottom + 8;
+      let left = rect.right - width;
+      left = Math.max(margin, Math.min(left, window.innerWidth - margin - width));
+      panel.style.top = top + 'px';
+      panel.style.left = left + 'px';
+      const arrow = panel.querySelector('#notifArrowWrap');
+      if (arrow){
+        const rightOffset = Math.max(12, Math.min(width - 24, width - (rect.right - left) - 12));
+        arrow.style.right = rightOffset + 'px';
+      }
+    }
+
+    bellBtn.addEventListener('click', function(){
+      const willShow = panel.style.display === 'none';
+      panel.style.display = willShow ? 'block' : 'none';
+      if (willShow){
+        placePanel();
+        renderSellerNotifs();
+      }
+    });
+
+    window.addEventListener('resize', () => {
+      if (panel.style.display === 'block') placePanel();
+    });
+    window.addEventListener('scroll', () => {
+      if (panel.style.display === 'block') placePanel();
+    }, { passive: true });
+
+    document.addEventListener('click', function(e){
+      if (!panel.contains(e.target) && e.target !== bellBtn && !bellBtn.contains(e.target)){
+        panel.style.display = 'none';
+      }
+    });
+
+    panel.addEventListener('click', function(e){
+      const item = e.target.closest('.seller-notif-item');
+      if (item){
+        markNotificationSeen(item.dataset.id);
+        refreshSellerNotifBadge();
+        renderSellerNotifs();
+      }
+    });
+
+    const markAllBtn = panel.querySelector('#markAllSellerRead');
+    if (markAllBtn){
+      markAllBtn.addEventListener('click', function(){
+        markAllRead();
+      });
+    }
+
+    const clearBtn = panel.querySelector('#clearSellerNotifs');
+    if (clearBtn){
+      clearBtn.addEventListener('click', function(){
+        clearSellerNotifs();
+      });
+    }
+
+    fetchSellerNotifications();
+    refreshSellerNotifBadge();
+    setInterval(fetchSellerNotifications, FETCH_INTERVAL);
+  })();
+  </script>
+
+  <!-- MESSAGES PANEL & LOGIC (API-based, same as buyer) -->
+  <script>
+  // --- MESSAGES LOGIC (API-based) ---
+  let sellerConversationsCache = [];
+  let sellerMessagesCache = {};
+  
+  async function fetchSellerConvos(){
+    try{
+      const res = await fetch('/messages/conversations', { credentials: 'same-origin' });
+      if (!res.ok) throw new Error('Failed to fetch conversations');
+      const data = await res.json();
+      sellerConversationsCache = Array.isArray(data) ? data : [];
+      return sellerConversationsCache;
+    }catch(e){
+      console.error('Error fetching conversations:', e);
+      return [];
+    }
+  }
+  
+  async function fetchSellerConvMsgs(convId){
+    try{
+      const res = await fetch(`/messages/conversations/${convId}`);
+      if (!res.ok) throw new Error('Failed to fetch messages');
+      const data = await res.json();
+      sellerMessagesCache[convId] = Array.isArray(data) ? data : [];
+      return sellerMessagesCache[convId];
+    }catch(e){
+      console.error('Error fetching messages:', e);
+      return [];
+    }
+  }
+  
+  async function sendSellerMessageToAPI(convId, text){
+    try{
+      const res = await fetch('/messages/send', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ conversationId: convId, message: text })
+      });
+      if (!res.ok) throw new Error('Failed to send message');
+      return await res.json();
+    }catch(e){
+      console.error('Error sending message:', e);
+      throw e;
+    }
+  }
+  
+  async function markSellerMessagesRead(convId){
+    try{
+      await fetch('/messages/mark-read', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ conversationId: convId })
+      });
+    }catch(e){
+      console.error('Error marking messages as read:', e);
+    }
+  }
+  
+  function sellerTotalUnread(){ return sellerConversationsCache.reduce((s,c)=> s + (c.unreadCount||0), 0); }
+  function refreshSellerMsgBadge(){ 
+    const btn = document.querySelector('.top-actions [title="Messages"]') || document.getElementById('msgBtn');
+    if (!btn) return;
+    let badge = document.getElementById('msgBadge');
+    if (!badge){
+      badge = document.createElement('span');
+      badge.id = 'msgBadge';
+      badge.className = 'badge';
+      btn.appendChild(badge);
+    }
+    const c = sellerTotalUnread();
+    badge.textContent = c;
+    badge.style.display = c > 0 ? 'block' : 'none';
+  }
+  
+  // Initial badge refresh
+  fetchSellerConvos().then(() => refreshSellerMsgBadge());
+  (function(){
+    const btn = document.querySelector('.top-actions [title="Messages"]') || document.getElementById('msgBtn'); if(!btn) return;
+    const panel = document.createElement('div');
+    panel.id='msgPanel'; panel.style.position='fixed'; panel.style.width='420px'; panel.style.maxHeight='70vh'; panel.style.display='none'; panel.style.zIndex='200'; panel.style.background='var(--panel-strong)'; panel.style.border='1px solid rgba(11,15,26,.08)'; panel.style.borderRadius='12px'; panel.style.boxShadow='var(--glass-shadow)'; panel.style.overflow='hidden';
+    panel.innerHTML = `
+    <div id="msgArrowWrap" style="position:absolute;top:-10px;right:20px;width:0;height:0;">
+      <div style="position:absolute;top:-1px;right:-1px;width:0;height:0;border-left:9px solid transparent;border-right:9px solid transparent;border-bottom:9px solid rgba(11,15,26,.08);"></div>
+      <div style="position:relative;width:0;height:0;border-left:8px solid transparent;border-right:8px solid transparent;border-bottom:8px solid var(--panel-strong);"></div>
+    </div>
+    <div id="msgHeader" style="padding:12px 12px 10px 12px;display:flex;align-items:center;gap:8px;justify-content:space-between;border-bottom:1px solid rgba(11,15,26,.08);">
+      <div style="display:flex;align-items:center;gap:8px;">
+        <button id="msgBackBtn" class="btn" style="display:none;padding:6px 10px;border-radius:8px;border:1px solid rgba(11,15,26,.1);background:#fff;font-weight:800;color:#23272f;cursor:pointer">←</button>
+        <div id="msgTitle" style="font-weight:800;color:#23272f;">Messages</div>
+      </div>
+      <div id="msgHeaderActions" style="display:flex;align-items:center;gap:8px;">
+        <button id="clearMsgs" class="btn" style="padding:6px 10px;border-radius:8px;border:1px solid rgba(11,15,26,.1);background:#fff;font-weight:700;color:#23272f;cursor:pointer">Clear</button>
+        <button id="markAllMsgRead" class="btn" style="padding:6px 10px;border-radius:8px;border:1px solid rgba(11,15,26,.1);background:#fff;font-weight:700;color:#23272f;cursor:pointer">Mark all read</button>
+        <!-- Customer Service Icon Button -->
+        <button id="customerServiceBtn" class="icon-btn" title="Customer Service" aria-label="Customer Service" style="font-size:1.2rem;">
+          <i class="fa-solid fa-headset"></i>
+        </button>
+      </div>
+    </div>
+    <div id="inboxView" style="display:grid;gap:0;max-height:calc(70vh - 56px);overflow-y:auto;background:#fff;">
+      <!-- conversation items injected here -->
+    </div>
+    <div id="chatView" style="display:none;max-height:58vh;grid-template-rows:auto 1fr auto;">
+      <div id="chatList" style="padding:12px;display:grid;gap:8px;overflow-y:auto;overflow-x:hidden;background:#fff;max-height:48vh;width:100%;box-sizing:border-box;"></div>
+      <div style="padding:10px;border-top:1px solid #e5e8f0;background:var(--panel-strong);display:flex;gap:8px;align-items:center;">
+        <input id="chatInput" class="input" placeholder="Type a message..." style="flex:1;border-radius:999px;">
+        <button id="sendChatBtn" class="cta" style="min-width:auto;padding:8px 14px;border-radius:999px;">Send</button>
+      </div>
+    </div>`;
+    document.body.appendChild(panel);
+
+    // Customer Service button wiring
+    (function wireCustomerServiceConvo(){
+      const csBtn = panel.querySelector && panel.querySelector('#customerServiceBtn');
+      if (!csBtn) return;
+      let inFlight = false;
+      csBtn.addEventListener('click', async function(e){
+        e.preventDefault(); e.stopPropagation();
+        if (inFlight) return;
+        inFlight = true;
+        const icon = this.querySelector('i');
+        if (icon) icon.classList.add('fa-spin');
+        try {
+          const res = await fetch('/messages/customer-service', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' }
+          });
+          let data = {};
+          try { data = await res.json(); } catch(_) {}
+          if (!res.ok || !data.success) {
+            throw new Error(data && data.error ? data.error : 'Failed to contact customer service');
+          }
+
+          await fetchSellerConvos();
+          refreshSellerMsgBadge();
+
+          const convId = Number(data.conversationId);
+          if (convId) {
+            placePanel();
+            openConv(convId);
+          } else {
+            await renderInbox();
+          }
+        } catch(err) {
+          console.error('Failed to open customer service conversation:', err);
+          showCustomAlert('Unable to contact Customer Service right now. Please try again later.', 'error', 'Service Unavailable');
+        } finally {
+          if (icon) icon.classList.remove('fa-spin');
+          inFlight = false;
+        }
+      });
+    })();
+
+    let currentConvId = null;
+    function placePanel(){
+      const rect = btn.getBoundingClientRect();
+      const width = Math.min(420, Math.max(280, Math.floor(window.innerWidth * 0.95)));
+      panel.style.width = width + 'px';
+      const margin=12; const top=rect.bottom+8; let left = rect.right - width;
+      left = Math.max(margin, Math.min(left, window.innerWidth - margin - width));
+      panel.style.top = top+'px'; panel.style.left = left+'px';
+      const arrow = panel.querySelector('#msgArrowWrap');
+      const rightOffset = Math.max(12, Math.min(width - 24, width - (rect.right - left) - 12));
+      arrow.style.right = rightOffset + 'px';
+    }
+
+    // Reposition the panel on viewport changes and scrolling so it follows the Messages button
+    window.addEventListener('resize', function(){ if (panel.style.display==='block') placePanel(); });
+    window.addEventListener('scroll', function(){ if (panel.style.display==='block') placePanel(); }, { passive:true });
+
+    function snippet(text){ const t=String(text||''); return t.length>40? t.slice(0,40)+'…' : t; }
+    function timeStr(ts){ return new Date(ts).toLocaleTimeString(); }
+
+    async function renderInbox(){
+      currentConvId = null;
+      document.getElementById('msgTitle').textContent = 'Messages';
+      document.getElementById('msgBackBtn').style.display = 'none';
+      document.getElementById('msgHeaderActions').style.display = 'block';
+      document.getElementById('chatView').style.display = 'none';
+      const wrap = document.getElementById('inboxView');
+      wrap.style.display = 'block';
+      wrap.innerHTML = '<div style="color:var(--muted);font-weight:700;text-align:center;padding:20px;">Loading...</div>';
+      
+      const convos = await fetchSellerConvos();
+      sellerConversationsCache = convos;
+      refreshSellerMsgBadge();
+      
+      if (!convos.length){ 
+        wrap.innerHTML = '<div style="color:var(--muted);font-weight:700;text-align:center;padding:20px;">No conversations</div>'; 
+        return; 
+      }
+      
+      const sorted = convos.slice().sort((a,b)=> (b.updatedAt||0)-(a.updatedAt||0));
+      wrap.innerHTML = sorted.map(c=>{
+        const badge = c.unreadCount>0 ? `<span style="background:#ef4444;color:#fff;border-radius:999px;padding:2px 8px;font-weight:800;font-size:.75rem;">${c.unreadCount}</span>` : '';
+        return `<button class="conv-item" data-id="${c.id}" style="text-align:left;display:flex;gap:10px;align-items:center;width:100%;padding:10px 12px;border:none;background:#fff;cursor:pointer;border-bottom:1px solid #e5e8f0;">\
+          <img src="${c.avatar}" alt="${c.name}" style="width:36px;height:36px;border-radius:50%;object-fit:cover;box-shadow:0 2px 8px #eef;">\
+          <div style="flex:1;min-width:0;">\
+            <div style="display:flex;justify-content:space-between;align-items:center;gap:8px;">\
+              <div style="font-weight:800;color:#23272f;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${c.name}</div>\
+              <div style="color:var(--muted);font-size:.8rem;">${timeStr(c.updatedAt||Date.now())}</div>\
+            </div>\
+            <div style="display:flex;justify-content:space-between;align-items:center;gap:8px;">\
+              <div style="color:${c.unreadCount>0?'#23272f':'var(--muted)'};font-weight:700;font-size:.9rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${snippet(c.lastMessage||'')}</div>\
+              ${badge}\
+            </div>\
+          </div>\
+        </button>`; 
+      }).join('');
+    }
+
+    async function renderChat(){
+      if (!currentConvId) return;
+      const conv = sellerConversationsCache.find(c=>c.id===currentConvId); 
+      if (!conv) { renderInbox(); return; }
+      document.getElementById('msgTitle').textContent = conv.name;
+      document.getElementById('msgBackBtn').style.display = 'inline-flex';
+      document.getElementById('msgHeaderActions').style.display = 'none';
+      document.getElementById('inboxView').style.display = 'none';
+      const chat = document.getElementById('chatView'); chat.style.display = 'grid';
+      const list = document.getElementById('chatList');
+      list.innerHTML = '<div style="color:var(--muted);font-weight:700;text-align:center;padding:20px;">Loading...</div>';
+      
+      const items = await fetchSellerConvMsgs(currentConvId);
+      sellerMessagesCache[currentConvId] = items;
+      
+      // Mark messages as read
+      await markSellerMessagesRead(currentConvId);
+      
+      // Update conversation unreadCount in cache
+      const idx = sellerConversationsCache.findIndex(c=>c.id===currentConvId);
+      if (idx>-1){ sellerConversationsCache[idx].unreadCount = 0; }
+      refreshSellerMsgBadge();
+      
+      if (!items.length){ 
+        list.innerHTML = '<div style="color:var(--muted);font-weight:700;text-align:center;padding:20px;">No messages yet</div>'; 
+      } else {
+        list.innerHTML = items.map(m=>{
+          const isIn = m.direction==='in';
+          const bubbleBg = isIn ? 'rgba(139,182,255,.12)' : 'rgba(124,244,209,.15)';
+          const border = isIn ? '1px solid rgba(139,182,255,.35)' : '1px solid rgba(124,244,209,.45)';
+          const justify = isIn ? 'flex-start' : 'flex-end';
+          return `<div style="display:flex;justify-content:${justify};min-width:0;width:100%;">\
+            <div style="max-width:78%;min-width:0;background:${bubbleBg};border:${border};border-radius:12px;padding:8px 10px;word-wrap:break-word;overflow-wrap:break-word;word-break:break-word;overflow:hidden;box-sizing:border-box;">\
+              <div style="font-weight:700;font-size:.95rem;color:#23272f;word-wrap:break-word;overflow-wrap:anywhere;word-break:break-word;white-space:pre-wrap;overflow:hidden;">${String(m.body).replace(/</g,'&lt;')}</div>\
+              <div style="color:var(--muted);font-size:.75rem;margin-top:4px;">${timeStr(m.createdAt)}</div>\
+            </div>\
+          </div>`;
+        }).join('');
+      }
+      list.scrollTop = list.scrollHeight;
+    }
+
+    function openConv(id){ currentConvId = Number(id); renderChat(); }
+
+    async function sendChat(text){
+      const t = text.trim(); if (!t || !currentConvId) return;
+      
+      try {
+        // Send message to API
+        await sendSellerMessageToAPI(currentConvId, t);
+        
+        // Refresh messages and conversations
+        await fetchSellerConvMsgs(currentConvId);
+        await fetchSellerConvos();
+        refreshSellerMsgBadge();
+        
+        // Re-render chat
+        await renderChat();
+      } catch(e) {
+        showCustomAlert('Failed to send message. Please try again.', 'error', 'Message Error');
+        console.error(e);
+      }
+    }
+
+    // wire events
+    btn.addEventListener('click', function(){
+      const willShow = panel.style.display === 'none';
+      // close notifications panel if opening messages
+      if (willShow) {
+        const other = document.getElementById('notifPanel');
+        if (other) other.style.display = 'none';
+      }
+      panel.style.display = willShow ? 'block' : 'none';
+      if (willShow) { placePanel(); }
+      if (panel.style.display==='block'){
+        if (currentConvId) renderChat(); else renderInbox();
+      }
+    });
+    document.addEventListener('click', function(e){ if (!panel.contains(e.target) && e.target !== btn && !btn.contains(e.target)) panel.style.display = 'none'; });
+    panel.addEventListener('click', function(e){
+      const item = e.target.closest('.conv-item'); if (item){ openConv(Number(item.dataset.id)); return; }
+    });
+    document.getElementById('msgBackBtn').addEventListener('click', function(){ currentConvId=null; renderInbox(); });
+    document.getElementById('markAllMsgRead').addEventListener('click', async function(){
+      // Mark all conversations as read
+      for (const conv of sellerConversationsCache) {
+        await markSellerMessagesRead(conv.id);
+      }
+      await fetchSellerConvos();
+      refreshSellerMsgBadge();
+      renderInbox();
+    });
+    document.getElementById('clearMsgs').addEventListener('click', function(){
+      // Clear is not supported via API (conversations persist in DB)
+      showCustomAlert('Conversations are stored in the database. To clear, please contact support.', 'info', 'Information');
+    });
+    document.getElementById('sendChatBtn').addEventListener('click', function(){ const inp=document.getElementById('chatInput'); const v=inp.value; inp.value=''; sendChat(v); });
+    document.getElementById('chatInput').addEventListener('keydown', function(e){ if (e.key==='Enter'){ e.preventDefault(); const v=this.value; this.value=''; sendChat(v); }});
+    
+    // Poll for new messages every 10 seconds (always, to update badge)
+    let pollInterval = null;
+    function startPolling(){
+      if (pollInterval) return;
+      pollInterval = setInterval(async ()=>{
+        await fetchSellerConvos();
+        refreshSellerMsgBadge();
+        if (panel.style.display==='block'){
+          if (currentConvId) {
+            await fetchSellerConvMsgs(currentConvId);
+            await renderChat();
+          } else {
+            await renderInbox();
+          }
+        }
+      }, 10000);
+    }
+    function stopPolling(){
+      if (pollInterval) {
+        clearInterval(pollInterval);
+        pollInterval = null;
+      }
+    }
+    // Start polling immediately to keep badge updated
+    startPolling();
+    btn.addEventListener('click', function(){
+      if (panel.style.display==='block') {
+        // Ensure polling is active when panel opens
+        if (!pollInterval) startPolling();
+      }
+    });
+  })();
+  </script>
+</body>
+</html>

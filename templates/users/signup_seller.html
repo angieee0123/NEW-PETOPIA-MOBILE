@@ -1,0 +1,1110 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Petopia • Seller Sign Up</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<link href="https://cdn.jsdelivr.net/npm/remixicon@4.3.0/fonts/remixicon.css" rel="stylesheet">
+
+<style>
+:root {
+  --bg: #f6f8ff;
+  --panel: rgba(255,255,255,.6);
+  --panel-strong: rgba(255,255,255,.9);
+  --text: #0b0f1a;
+  --muted: #5b6378;
+  --accent: #7cf4d1;
+  --accent-2: #8bb6ff;
+  --ring: rgba(139,182,255,0.45);
+  --error: #ff6b6b;
+  --shadow: 0 20px 60px rgba(16,24,40,.15);
+}
+* { box-sizing: border-box; }
+html, body { height: 100%; margin:0; font-family: Inter, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial; color: var(--text); background: var(--bg); overflow-x: hidden; }
+html, body {
+  height: 100%;
+  overflow: hidden; /* prevent scrolling completely */
+}
+
+.wrap {
+  min-height: 100vh; /* keep full viewport height */
+  overflow: hidden;   /* prevent internal scroll */
+}
+.panel-wrap {
+  overflow: hidden;  /* remove scroll inside panels */
+}
+.panel {
+  overflow: visible; /* ensure content shows without scroll */
+}
+
+a.back-home {
+  position: fixed; top: 16px; left: 16px; z-index: 99; background: var(--panel); padding: 5px 12px;
+  border-radius: 999px; text-decoration: none; color: var(--text); font-weight: 600; box-shadow: var(--shadow);
+  border: 1px solid var(--panel-strong); display: inline-flex; align-items: center; gap: 6px; font-size: 13px;
+}
+a.back-home i { font-size: 15px; }
+
+.aurora { position: fixed; inset: 0; filter: blur(60px); pointer-events: none; overflow: hidden; }
+.blob { position: absolute; width: 60vmax; height: 60vmax; border-radius: 50%; mix-blend-mode: screen; opacity: .55; animation: float 18s ease-in-out infinite; }
+.blob.a { background: radial-gradient(circle at 30% 30%, var(--accent), transparent 60%); left: -20vmax; top: -10vmax; }
+.blob.b { background: radial-gradient(circle at 70% 30%, var(--accent-2), transparent 60%); right: -15vmax; top: -5vmax; animation-delay: 4s; }
+.blob.c { background: radial-gradient(circle at 50% 70%, #f39cff, transparent 60%); left: 10vmax; bottom: -20vmax; animation-delay: 8s; }
+@keyframes float { 0%,100% { transform: translate3d(0,0,0) scale(1);} 50% { transform: translate3d(0,-4%,0) scale(1.05);} }
+
+.wrap { display: grid; grid-template-columns: 1.1fr .9fr; min-height: 100vh; }
+@media (max-width: 980px) { .wrap { grid-template-columns: 1fr; } .hero { display: none; } }
+
+.hero { display: grid; place-items: center; padding: 6vmin; }
+.hero-inner { max-width: 640px; text-align: left; }
+.brand { display: inline-flex; align-items: center; gap: .6rem; padding: .5rem .9rem; border-radius: 999px; background: var(--panel); backdrop-filter: blur(10px); border: 1px solid var(--panel-strong); box-shadow: var(--shadow); }
+.logo { width: 28px; height: 28px; display: grid; place-items: center; border-radius: 8px; background: linear-gradient(135deg, var(--accent), var(--accent-2)); color: #051014; font-weight: 800; }
+h1 { margin: 16px 0 10px; font-size: clamp(36px, 5.2vw, 56px); line-height: 1.02; }
+p.lede { margin: 0; color: var(--muted); font-size: clamp(14px, 1.6vw, 16px); }
+
+.panel-wrap { display: grid; place-items: center; padding: 2vmin 2vmin; }
+.panel { width: min(600px, 95vw); overflow-y: visible; padding: 28px; border-radius: 22px; background: var(--panel); border: 1px solid var(--panel-strong); box-shadow: var(--shadow); backdrop-filter: blur(18px); }
+.panel header { display:flex; justify-content: space-between; align-items:center; margin-bottom: 20px; flex-wrap: wrap; gap:20px; }
+.panel header h2 { margin: 0; font-size: 26px; }
+
+form { margin-top: 5px; display: grid; gap: 5px; }
+.field { display: grid; gap: 8px; }
+label { font-size: 14px; color: var(--muted); }
+.control { position: relative; }
+.control input, .control select, .control textarea {
+  width: 100%; padding: 12px 44px 12px 14px; border-radius: 14px; border: 1px solid var(--panel-strong);
+  background: rgba(255,255,255,.7); color: var(--text); font-size: 15px; outline: none;
+}
+.control textarea { min-height: 88px; resize: vertical; padding-top:10px; padding-bottom:10px; }
+.control input:focus, .control select:focus, .control textarea:focus { border-color: var(--accent-2); box-shadow: 0 0 0 2px var(--ring); }
+.control i { position: absolute; right: 12px; top: 50%; transform: translateY(-50%); color: var(--muted); }
+
+.btn { width: 100%; padding: 14px 16px; border: 0; border-radius: 16px; font-weight: 700; cursor: pointer; background: linear-gradient(135deg, var(--accent), var(--accent-2)); color: #051014; box-shadow: 0 12px 30px rgba(139,182,255,.25); transition: transform .2s; }
+.btn:hover { transform: translateY(-2px); }
+.btn-outline { background: transparent; border: 2px solid var(--accent-2); color: var(--accent-2); box-shadow: none; transition: border-color .2s, color .2s; }
+.btn-outline:hover { border-color: var(--accent); color: var(--accent); }
+.btn-row { display:flex; gap:10px; margin-top:6px; flex-wrap: wrap; }
+.progress { display:flex; gap:8px; align-items:center; margin-bottom:10px; flex-wrap: wrap; }
+.dot { width:10px; height:10px; border-radius:50%; background: rgba(0,0,0,0.08); }
+.dot.active { background: linear-gradient(135deg, var(--accent), var(--accent-2)); box-shadow: 0 6px 16px rgba(139,182,255,.18); }
+
+.small-muted { font-size:12px; color:var(--muted); margin-top:6px; }
+
+.meta { margin-top: 12px; text-align: center; font-size: 14px; color: var(--muted); }
+.link { color: var(--accent-2); font-weight: 600; text-decoration: none; }
+.link:hover { text-decoration: underline; }
+
+footer { position: relative; bottom: 0; left: 0; right: 0; text-align: center; color: var(--muted); font-size: 12px; padding: 8px 0; }
+@media (max-width:620px) { .btn-row { flex-direction: column; } }
+
+#sellerStep3 { height: 100%; max-width: 520px; margin: 0 auto; font-size: 14px; }
+#sellerStep3 .field label { font-size: 13px; }
+#sellerStep3 .control input, #sellerStep3 .control select, #sellerStep3 .control textarea { font-size: 14px; padding: 10px 12px; }
+#sellerStep3 h3 { font-size: 16px; }
+#sellerStep3 .btn { font-size: 14px; padding: 12px 14px; }
+#sellerStep3 .small-muted { font-size: 12px; }
+#sellerStep3 .two-col { gap: 12px; }
+.two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+@media (max-width: 720px) { .two-col { grid-template-columns: 1fr; } }
+</style>
+</head>
+<body>
+
+<a href="{{ url_for('home') }}" class="back-home">
+  <i class="ri-arrow-left-line"></i> Back to Home
+</a>
+
+<div class="aurora">
+  <div class="blob a"></div>
+  <div class="blob b"></div>
+  <div class="blob c"></div>
+</div>
+
+<main class="wrap">
+
+<section class="hero">
+  <div class="hero-inner">
+    <div class="brand">
+      <span class="logo">🐾</span>
+      <strong>Petopia</strong>
+      <span style="color:var(--muted)">Pet Shop Essentials</span>
+    </div>
+    <h1>Sign Up as Seller</h1>
+    <p class="lede">Grow your business and reach more pet lovers by joining as a seller.</p>
+  </div>
+</section>
+
+<section class="panel-wrap">
+  <div class="panel">
+    <header>
+      <div>
+        <h2>Seller Registration</h2>
+        <div class="small-muted" id="sellerStepLabel">Step 1 of 3 — Personal Information</div>
+      </div>
+      <div class="progress" aria-hidden="true">
+        <div class="dot" id="dot1"></div>
+        <div class="dot" id="dot2"></div>
+        <div class="dot" id="dot3"></div>
+      </div>
+    </header>
+
+    <!-- Flash → JS Alerts (same behavior as login) -->
+    {% set __msgs = get_flashed_messages() %}
+    {% if __msgs %}
+      <meta id="flashMsgs" data-msgs='{{ __msgs|tojson }}'>
+      <script>
+        (function(){
+          var el = document.getElementById('flashMsgs');
+          if(!el) return;
+          var payload = el.dataset.msgs || '[]';
+          document.addEventListener('DOMContentLoaded', function(){
+              try{
+                var msgs = JSON.parse(payload);
+                if(Array.isArray(msgs) && msgs.length){
+                  msgs.forEach(function(m){ 
+                    setTimeout(function(){ 
+                      // Detect message type from content
+                      var type = 'info';
+                      var title = 'Notification';
+                      if((m||'').toLowerCase().includes('error') || (m||'').toLowerCase().includes('invalid') || (m||'').toLowerCase().includes('failed')){
+                        type = 'error';
+                        title = 'Error';
+                      } else if((m||'').toLowerCase().includes('success') || (m||'').includes('✅')){
+                        type = 'success';
+                        title = 'Success';
+                      } else if((m||'').toLowerCase().includes('warning') || (m||'').includes('⚠️')){
+                        type = 'warning';
+                        title = 'Warning';
+                      }
+                      // Remove emoji for cleaner display
+                      var cleanMsg = (m||'').replace(/[✅❌⚠️]/g, '').trim();
+                      showCustomAlert(type, title, cleanMsg); 
+                    }, 200); 
+                  });
+                }
+              }catch(e){}
+          });
+        })();
+      </script>
+    {% endif %}
+
+
+    
+    <form id="sellerForm" action="/signup_seller" method="POST" enctype="multipart/form-data">
+      <!-- STEP 1: Personal Info -->
+      <div class="step" id="sellerStep1">
+        <div class="two-col">
+          <div class="field"><label>Full Name</label><div class="control"><input data-req="true" name="fullname" type="text" placeholder="Juan dela Cruz"><i class="ri-user-line"></i></div></div>
+          <div class="field"><label>Email</label><div class="control"><input data-req="true" name="email" type="email" placeholder="you@example.com"><i class="ri-mail-line"></i></div></div>
+        </div>
+        <div class="two-col">
+          <div class="field"><label>Password</label><div class="control"><input data-req="true" id="sellerPassword" name="password" type="password" placeholder="••••••••" minlength="8"><i class="ri-lock-2-line"></i></div></div>
+          <div class="field"><label>Confirm Password</label><div class="control"><input data-req="true" id="sellerConfirm" name="confirm" type="password" placeholder="••••••••" minlength="8"><i class="ri-lock-password-line"></i></div></div>
+        </div>
+        <div class="two-col">
+          <div class="field"><label>Phone Number</label><div class="control"><input data-req="true" name="phone" type="text" placeholder="09XXXXXXXXX"><i class="ri-phone-line"></i></div></div>
+          <div class="field"><label>Date of Birth</label><div class="control"><input name="dob" type="date" ></div></div>
+        </div>
+        <div class="two-col">
+          <div class="field"><label>Gender</label><div class="control"><select name="gender"><option value="">Rather not say</option><option>Male</option><option>Female</option></select></div></div>
+          <div class="field"><label>Complete Address</label><div class="control"><input id="sellerAddressInput" data-req="true" name="address" type="text" placeholder="Street, Barangay, City, Province, ZIP" readonly style="cursor:pointer;"></div></div>
+        </div>
+        <div class="field"><label>Shop logo (optional)</label><div class="control"><input name="profile_photo" type="file" accept="image/*"></div></div>
+        <div class="btn-row">
+<button id="backBtn" class="btn btn-outline" type="button">Back</button>
+          <button class="btn" type="button" onclick="nextSellerStep(1)">Next</button>
+        </div>
+      </div>
+
+      <!-- STEP 2: Business Info -->
+      <div class="step" id="sellerStep2" style="display:none;">
+        <div class="field"><label>Store / Business Name</label><div class="control"><input data-req="true" name="store_name" type="text" placeholder="Petopia Supplies"><i class="ri-store-2-line"></i></div></div>
+        <div class="two-col">
+          <div class="field"><label>Business Type</label><div class="control">
+            <select data-req="true" name="business_type">
+              <option value="">-- Select --</option>
+              <option>Sole Proprietor</option>
+              <option>Partnership</option>
+              <option>Corporation</option>
+              <option>Cooperative</option>
+              <option>Individual / Freelancer</option>
+            </select>
+          </div></div>
+          <div class="field"><label>Primary Category (what you sell)</label><div class="control">
+            <select data-req="true" name="category">
+              <option value="">-- Select --</option>
+              <option>Food & Treats</option>
+              <option>Grooming & Hygiene</option>
+              <option>Bedding & Housing</option>
+              <option>Clothing & Accessories</option>
+              <option>Training & Behavior</option>
+              <option>Travel & Outdoors</option>
+              <option>Feeding Supplies</option>
+              <option>Cleaning & Waste Management</option>  
+              <option>Safety & Security</option>
+              <option>Breeding & Habitat Essentials</option>
+              <option>Furniture & Décor</option>
+              <option>Others</option>
+            </select>
+            
+          </div></div>
+        </div>
+        <div class="field"><label>Detailed Product Description</label><div class="control"><textarea name="detailed_products" placeholder="Short description of the products you will sell (brands, types, typical price range)"></textarea></div></div>
+        <div class="field"><label>Business Address</label><div class="control"><input id="sellerBusinessAddressInput" data-req="true" name="business_address" type="text" placeholder="Shop / Warehouse Address" readonly style="cursor:pointer;"></div></div>
+        <div class="two-col">
+          <div class="field"><label>Years in Operation</label><div class="control"><input name="years_op" type="number" min="0" placeholder="e.g., 2"></div></div>
+          <div class="field"><label>Business Contact Number</label><div class="control"><input name="business_phone" type="text" placeholder="09XXXXXXXXX"></div></div>
+        </div>
+        <div class="btn-row">
+          <button class="btn btn-outline" type="button" onclick="prevSellerStep(2)">Back</button>
+          <button class="btn" type="button" onclick="nextSellerStep(2)">Next</button>
+        </div>
+      </div>
+
+<!-- STEP 3: Payout & Verification -->
+<div class="step" id="sellerStep3" style="display:none;">
+  <div class="field" style="grid-column: span 2;">
+    <label>Preferred Payout Method</label>
+    <div class="control">
+      <select data-req="true" id="payoutMethod" name="payout_method" onchange="handlePayoutChange(this.value)">
+        <option value="">-- Select --</option>
+        <option value="gcash">E-Wallet</option>
+      </select>
+    </div>
+  </div>
+
+  <div id="payoutGCash" style="display:none; grid-column: span 2;">
+    <div class="field">
+      <label>E-Wallet Number</label>
+      <div class="control">
+        <input data-req="true" name="gcash_number" type="text" placeholder="09XXXXXXXXX">
+      </div>
+    </div>
+  </div>
+
+        <h3>Business Verification Documents (image/pdf)</h3>
+        <div class="two-col">
+          <div class="field"><label>DTI / SEC Registration </label><div class="control"><input data-req="true" name="dti_sec_upload" type="file" accept="image/*,application/pdf"></div></div>
+          <div class="field"><label>Business Permit / Mayor's Permit </label><div class="control"><input data-req="true" name="permit_upload" type="file" accept="image/*,application/pdf"></div></div>
+          <div class="field"><label>BIR Certificate</label><div class="control"><input data-req="true" name="bir_upload" type="file" accept="image/*,application/pdf"></div></div>
+          <div class="field"><label>Owner / Representative Valid ID </label><div class="control"><input data-req="true" name="id_upload" type="file" accept="image/*,application/pdf"></div></div>
+          <div class="field"><label>Selfie with ID</label><div class="control"><input data-req="true" name="selfie_id" type="file" accept="image/*"></div></div>
+          <div class="field"><label>Proof of Address</label><div class="control"><input data-req="true" name="proof_address" type="file" accept="image/*,application/pdf"></div></div>
+        </div>
+
+        <div class="field">
+          <div class="control" style="display: flex; align-items: center; gap: 12px; min-height: 32px;">
+            <input data-req="true" type="checkbox" name="agreement" id="agreement" style="margin:0; width:18px; height:18px; flex-shrink:0;">
+            <label for="agreement" style="font-size:14px; color:var(--muted); line-height:1.5; cursor:pointer;">
+              I agree to <a href="#" class="link show-terms" style="font-size:14px; color:var(--accent-2); text-decoration:underline; cursor:pointer;">Petopia's Terms and Conditions</a>
+            </label>
+          </div>
+        </div>
+
+        <div class="btn-row">
+          <button class="btn btn-outline" type="button" onclick="prevSellerStep(3)">Back</button>
+          <button class="btn" type="submit">Submit Form</button>
+        </div>
+
+        <div class="small-muted" style="margin-top:4px;">
+          After submitting, our team will review your documents. A verification code will be sent to your email to confirm your account. You will receive further email updates regarding approval. Once approved, you will be able to log in.
+        </div>
+      </div>
+    </form>
+  </div>
+</section>
+
+</main>
+
+<!-- Address Modal (Seller) -->
+<div id="sellerAddrModal" style="display:none; position:fixed; inset:0; z-index:9999; background:rgba(11,15,26,0.32); backdrop-filter: blur(2px); align-items:center; justify-content:center;">
+  <div style="background:var(--panel-strong); width:min(720px,95vw); max-height:85vh; overflow:auto; border-radius:18px; box-shadow:var(--shadow); border:1px solid var(--panel-strong);">
+    <div style="display:flex; justify-content:space-between; align-items:center; padding:16px 18px; border-bottom:1px solid rgba(11,15,26,.12);">
+      <h3 style="margin:0; font-size:18px;">Select Complete Address</h3>
+      <button id="sellerAddrCloseBtn" class="btn btn-outline" type="button" style="width:auto; padding:8px 12px; border-radius:10px;">Close</button>
+    </div>
+    <div style="padding:16px 18px; display:grid; gap:12px;">
+      <div class="two-col">
+        <div class="field">
+          <label>Country</label>
+          <div class="control">
+            <select id="sm_country">
+              <option value="Philippines" selected>Philippines</option>
+            </select>
+          </div>
+        </div>
+        <div class="field">
+          <label>Region</label>
+          <div class="control">
+            <select id="sm_region">
+              <option value="" disabled selected>Loading regions…</option>
+            </select>
+          </div>
+        </div>
+      </div>
+      <div class="two-col">
+        <div class="field">
+          <label>City / Municipality</label>
+          <div class="control">
+            <select id="sm_city" disabled>
+              <option value="" disabled selected>Select city</option>
+            </select>
+          </div>
+        </div>
+        <div class="field">
+          <label>Barangay</label>
+          <div class="control">
+            <select id="sm_barangay" disabled>
+              <option value="" disabled selected>Select barangay</option>
+            </select>
+          </div>
+        </div>
+      </div>
+      <div class="two-col">
+        <div class="field">
+          <label>ZIP Code</label>
+          <div class="control"><input id="sm_zip" type="text" inputmode="numeric" placeholder="e.g., 1000"></div>
+        </div>
+        <div class="field">
+          <label>House No.</label>
+          <div class="control"><input id="sm_house" type="text" placeholder="e.g., Blk 12 Lot 3"></div>
+        </div>
+      </div>
+      <div class="two-col">
+        <div class="field">
+          <label>Street</label>
+          <div class="control"><input id="sm_street" type="text" placeholder="e.g., Mabini St."></div>
+        </div>
+        <div class="field">
+          <label>Landmark (optional)</label>
+          <div class="control"><input id="sm_landmark" type="text" placeholder="Near ..."></div>
+        </div>
+      </div>
+      <div class="btn-row" style="justify-content:flex-end;">
+        <button id="sm_cancel" type="button" class="btn btn-outline" style="width:auto;">Cancel</button>
+        <button id="sm_save" type="button" class="btn" style="width:auto;">Use this address</button>
+      </div>
+    </div>
+  </div>
+  <div></div>
+  <div></div>
+  <div></div>
+  <div></div>
+  <div></div>
+</div>
+
+<!-- Business Address Modal (Seller) -->
+<div id="sellerBusinessAddrModal" style="display:none; position:fixed; inset:0; z-index:9999; background:rgba(11,15,26,0.32); backdrop-filter: blur(2px); align-items:center; justify-content:center;">
+  <div style="background:var(--panel-strong); width:min(720px,95vw); max-height:85vh; overflow:auto; border-radius:18px; box-shadow:var(--shadow); border:1px solid var(--panel-strong);">
+    <div style="display:flex; justify-content:space-between; align-items:center; padding:16px 18px; border-bottom:1px solid rgba(11,15,26,.12);">
+      <h3 style="margin:0; font-size:18px;">Select Business Address</h3>
+      <button id="sellerBusinessAddrCloseBtn" class="btn btn-outline" type="button" style="width:auto; padding:8px 12px; border-radius:10px;">Close</button>
+    </div>
+    <div style="padding:16px 18px; display:grid; gap:12px;">
+      <div class="two-col">
+        <div class="field">
+          <label>Country</label>
+          <div class="control">
+            <select id="sb_country">
+              <option value="Philippines" selected>Philippines</option>
+            </select>
+          </div>
+        </div>
+        <div class="field">
+          <label>Region</label>
+          <div class="control">
+            <select id="sb_region">
+              <option value="" disabled selected>Loading regions…</option>
+            </select>
+          </div>
+        </div>
+      </div>
+      <div class="two-col">
+        <div class="field">
+          <label>City / Municipality</label>
+          <div class="control">
+            <select id="sb_city" disabled>
+              <option value="" disabled selected>Select city</option>
+            </select>
+          </div>
+        </div>
+        <div class="field">
+          <label>Barangay</label>
+          <div class="control">
+            <select id="sb_barangay" disabled>
+              <option value="" disabled selected>Select barangay</option>
+            </select>
+          </div>
+        </div>
+      </div>
+      <div class="two-col">
+        <div class="field">
+          <label>ZIP Code</label>
+          <div class="control"><input id="sb_zip" type="text" inputmode="numeric" placeholder="e.g., 1000"></div>
+        </div>
+        <div class="field">
+          <label>House No.</label>
+          <div class="control"><input id="sb_house" type="text" placeholder="e.g., Blk 12 Lot 3"></div>
+        </div>
+      </div>
+      <div class="two-col">
+        <div class="field">
+          <label>Street</label>
+          <div class="control"><input id="sb_street" type="text" placeholder="e.g., Mabini St."></div>
+        </div>
+        <div class="field">
+          <label>Landmark (optional)</label>
+          <div class="control"><input id="sb_landmark" type="text" placeholder="Near ..."></div>
+        </div>
+      </div>
+      <div class="btn-row" style="justify-content:flex-end;">
+        <button id="sb_cancel" type="button" class="btn btn-outline" style="width:auto;">Cancel</button>
+        <button id="sb_save" type="button" class="btn" style="width:auto;">Use this address</button>
+      </div>
+    </div>
+  </div>
+  <div></div>
+  <div></div>
+  <div></div>
+  <div></div>
+  <div></div>
+</div>
+
+<!-- Terms Modal -->
+<div id="termsModal" style="display:none; position:fixed; z-index:9999; left:0; top:0; width:100vw; height:100vh; background:rgba(11,15,26,0.32); backdrop-filter:blur(2px); align-items:center; justify-content:center;">
+  <div style="background:var(--panel-strong); max-width:480px; width:90vw; margin:auto; border-radius:18px; box-shadow:var(--shadow); padding:32px 24px 20px 24px; position:relative;">
+    <button id="closeTerms" style="position:absolute; top:12px; right:12px; background:none; border:none; font-size:22px; color:var(--muted); cursor:pointer;">&times;</button>
+    <h2 style="margin-top:0; font-size:22px;">Petopia Terms and Conditions</h2>
+<div style="max-height:48vh; overflow-y:auto; font-size:14px; color:var(--text); margin-bottom:18px;">
+  <h3>1. Account Responsibilities</h3>
+  <p>Sellers must provide accurate business and personal information when creating a Petopia account. You are responsible for maintaining the confidentiality of your login credentials and all activities under your account.</p>
+
+  <h3>2. Selling & Product Listings</h3>
+  <p>Sellers must provide accurate descriptions, images, and pricing for all products. All products listed must comply with Petopia’s policies and applicable laws. Misrepresentation or false claims are prohibited.</p>
+
+  <h3>3. Transactions and Payments</h3>
+  <p>Sellers are responsible for fulfilling orders promptly and accurately. Payment will be processed according to Petopia’s payout schedule. Unauthorized transactions or attempts to manipulate payment systems are prohibited.</p>
+
+  <h3>4. Shipping and Delivery</h3>
+  <p>Sellers must ensure that orders are shipped in a timely manner. Accurate shipping information must be provided. Delays caused by seller errors or inaccurate details are the seller’s responsibility.</p>
+
+  <h3>5. Prohibited Activities</h3>
+  <p>Sellers may not engage in illegal activities, fraud, harassment, or the sale of prohibited items. Petopia reserves the right to suspend or terminate accounts for violations without prior notice.</p>
+
+  <h3>6. Intellectual Property</h3>
+  <p>All content on Petopia, including logos and platform materials, is the property of Petopia or its licensors. Sellers must not infringe on third-party intellectual property rights.</p>
+
+  <h3>7. Privacy</h3>
+  <p>Petopia collects and uses personal and business information in accordance with its Privacy Policy. Sellers consent to the use of this data for transaction processing, communication, and compliance purposes.</p>
+
+  <h3>8. Liability</h3>
+  <p>Petopia is not liable for disputes between sellers and buyers. Sellers are responsible for product quality, delivery, and compliance with local laws. Transactions are at the seller’s own risk.</p>
+
+  <h3>9. Updates</h3>
+  <p>Petopia may update these Terms and Conditions at any time. Continued use of the platform constitutes acceptance of any updates.</p>
+
+  <p>By checking the box and submitting, you agree to abide by Petopia’s Terms and Conditions for sellers.</p>
+</div>
+
+  </div>
+</div>
+
+<script>
+// Custom alert function to replace browser alert dialogs
+function showCustomAlert(type, title, message, onOkCallback) {
+  const div = document.createElement('div');
+  div.id = 'customAlertModal';
+  div.style = 'position:fixed;top:0;left:0;width:100vw;height:100vh;z-index:9999;background:rgba(0,0,0,.25);backdrop-filter:blur(2px);display:flex;align-items:center;justify-content:center;';
+  
+  // Determine icon and colors based on type
+  let icon = 'ri-information-line';
+  let iconBg = 'rgba(139,182,255,.15)';
+  let iconColor = 'var(--accent-2)';
+  let titleColor = '#23272f';
+  
+  if (type === 'error') {
+    icon = 'ri-error-warning-line';
+    iconBg = 'rgba(255,107,107,.15)';
+    iconColor = 'var(--error)';
+  } else if (type === 'success') {
+    icon = 'ri-checkbox-circle-line';
+    iconBg = 'rgba(124,244,209,.15)';
+    iconColor = 'var(--accent)';
+  } else if (type === 'warning') {
+    icon = 'ri-alert-line';
+    iconBg = 'rgba(255,193,7,.15)';
+    iconColor = '#ffc107';
+  }
+  
+  div.innerHTML = `
+    <div style="background:rgba(255,255,255,.97);border-radius:18px;max-width:500px;width:90vw;box-shadow:0 10px 40px rgba(16,24,40,.22);position:relative;overflow:hidden;">
+      <div style="padding:24px;text-align:center;">
+        <div style="width:64px;height:64px;margin:0 auto 16px;border-radius:50%;background:${iconBg};display:flex;align-items:center;justify-content:center;">
+          <i class="${icon}" style="font-size:32px;color:${iconColor};"></i>
+        </div>
+        <h3 style="margin:0 0 12px;font-size:20px;font-weight:700;color:${titleColor};">${title}</h3>
+        <p style="margin:0 0 24px;font-size:15px;color:var(--muted);line-height:1.5;">${message}</p>
+        <button id="customAlertOk" style="width:100%;padding:12px 24px;border:0;border-radius:12px;font-weight:600;background:linear-gradient(135deg,var(--accent),var(--accent-2));color:#051014;cursor:pointer;font-size:15px;">OK</button>
+      </div>
+    </div>
+  `;
+  
+  document.body.appendChild(div);
+  
+  const closeModal = () => {
+    if (onOkCallback) onOkCallback();
+    document.body.removeChild(div);
+  };
+  
+  div.querySelector('#customAlertOk').addEventListener('click', closeModal);
+  div.addEventListener('click', (e) => {
+    if (e.target === div) closeModal();
+  });
+  
+  document.addEventListener('keydown', function escHandler(e) {
+    if (e.key === 'Escape') {
+      closeModal();
+      document.removeEventListener('keydown', escHandler);
+    }
+  });
+}
+
+const STRONG_PW_REGEX = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[^\w\s]).{8,}$/;
+function isStrongPassword(value){ return STRONG_PW_REGEX.test(value||''); }
+
+// ======================
+// SELLER WIZARD
+// ======================
+function showSellerStep(step){
+  const steps = document.querySelectorAll('.step');
+  steps.forEach(s=>s.style.display='none');
+  const el = document.getElementById('sellerStep'+step);
+  if(el) el.style.display='block';
+  const labels = {1:'Personal Information',2:'Business Details',3:'Payout & Finish'};
+  document.getElementById('sellerStepLabel').textContent = 'Step '+step+' of 3 — '+labels[step];
+  for(let i=1;i<=3;i++) document.getElementById('dot'+i).classList.toggle('active', i<=step);
+  window.scrollTo({top:80, behavior:'smooth'});
+}
+
+function validateSellerStep(step){
+  const container = document.getElementById('sellerStep'+step);
+  if(!container) return true;
+
+  const inputs = container.querySelectorAll('[data-req="true"]');
+  for(let i=0;i<inputs.length;i++){
+    const inp = inputs[i];
+
+    // required check
+    if(inp.type==='file'){
+      if(!inp.files || inp.files.length===0){ 
+        showCustomAlert('error', 'Missing File', 'Please upload "'+(inp.name.replace(/_/g,' '))+'"'); 
+        inp.focus(); return false; 
+      }
+    } else if(inp.type==='checkbox'){
+      if(!inp.checked){ 
+        showCustomAlert('warning', 'Terms Required', 'You must agree to the Terms and Conditions.'); 
+        inp.focus(); return false; 
+      }
+    } else {
+      if(!inp.value || inp.value.trim()===''){ 
+        showCustomAlert('error', 'Missing Field', 'Please fill out "'+(inp.name.replace(/_/g,' '))+'"'); 
+        inp.focus(); return false; 
+      }
+    }
+  }
+
+  // EXTRA VALIDATION STEP 1
+  if(step===1){
+    const email = container.querySelector('input[name="email"]')?.value.trim();
+    const emailPattern = /^[^\s@]+@(gmail|yahoo)\.com$/i;
+    if(!emailPattern.test(email)){
+      showCustomAlert('error', 'Invalid Email', 'Please enter a valid email address (Gmail or Yahoo).');
+      return false;
+    }
+
+    const pw=document.getElementById('sellerPassword').value;
+    const cf=document.getElementById('sellerConfirm').value;
+    if(!isStrongPassword(pw)){
+      showCustomAlert('error', 'Weak Password', 'Password must be at least 8 characters and include uppercase, lowercase, number, and special character.');
+      return false;
+    }
+    if(pw!==cf){ 
+      showCustomAlert('error', 'Password Mismatch', 'Passwords do not match.'); 
+      return false; 
+    }
+
+    const phone = container.querySelector('input[name="phone"]')?.value.trim();
+    if(!/^09\d{9}$/.test(phone)){
+      showCustomAlert('error', 'Invalid Phone Number', 'Phone number must be 11 digits and start with 09.');
+      return false;
+    }
+
+    const dob = container.querySelector('input[name="dob"]')?.value;
+    if(!dob){
+      showCustomAlert('error', 'Missing Birthdate', 'Please select your birthdate.');
+      return false;
+    }
+    const today = new Date();
+    const birthDate = new Date(dob);
+    let age = today.getFullYear() - birthDate.getFullYear();
+    const m = today.getMonth() - birthDate.getMonth();
+    if (m < 0 || (m === 0 && today.getDate() < birthDate.getDate())) {
+      age--;
+    }
+    if(age < 18){
+      showCustomAlert('error', 'Age Requirement', 'You must be at least 18 years old to sign up.');
+      return false;
+    }
+  }
+
+  // EXTRA VALIDATION STEP 2
+  if(step===2){
+    const bphone = container.querySelector('input[name="business_phone"]')?.value.trim();
+    if(!/^09\d{9}$/.test(bphone)){
+      showCustomAlert('error', 'Invalid Business Phone', 'Business contact number must be 11 digits and start with 09.');
+      return false;
+    }
+  }
+
+  // EXTRA VALIDATION STEP 3 (E-Wallet)
+  if(step===3){
+    const gcashNum = container.querySelector('input[name="gcash_number"]')?.value.trim();
+    if(!/^09\d{9}$/.test(gcashNum)){
+      showCustomAlert('error', 'Invalid E-Wallet Number', 'E-Wallet number must be 11 digits and start with 09.');
+      return false;
+    }
+  }
+
+  return true;
+}
+
+function nextSellerStep(step){ 
+  if(!validateSellerStep(step)) return; 
+  showSellerStep(step+1); 
+}
+function prevSellerStep(step){ showSellerStep(step-1); }
+
+function handlePayoutChange(val){
+  document.getElementById('payoutGCash').style.display=(val==='gcash')?'block':'none';
+}
+
+// ======================
+// TERMS MODAL
+// ======================
+document.querySelectorAll('.show-terms').forEach(function(link){
+  link.addEventListener('click', function(e){
+    e.preventDefault();
+    document.getElementById('termsModal').style.display='flex';
+  });
+});
+
+document.getElementById('closeTerms').onclick = function(e){
+  e.preventDefault();
+  document.getElementById('termsModal').style.display='none';
+};
+
+// ======================
+// FORM SUBMIT VALIDATION
+// ======================
+document.getElementById("sellerForm").addEventListener("submit", function(e){
+  // ✅ Kung bagsak sa validation, stop submit
+  if(!validateSellerStep(3)){
+    e.preventDefault();
+    return;
+  }
+  // ❌ WAG na mag window.location.href — backend (Flask) na bahala mag-redirect sa OTP page
+});
+
+// ======================
+// REAL-TIME VALIDATION
+// ======================
+window.addEventListener('DOMContentLoaded', function() {
+  showSellerStep(1);
+
+  const emailField = document.querySelector('#sellerStep1 input[name="email"]');
+  if(emailField){
+    emailField.addEventListener('input', function(){
+      const pattern = /^[^\s@]+@(gmail|yahoo)\.com$/i;
+      emailField.style.borderColor = pattern.test(emailField.value) ? 'green' : 'red';
+    });
+  }
+
+  const pwField = document.getElementById('sellerPassword');
+  const cfField = document.getElementById('sellerConfirm');
+  function checkPassword(){
+    pwField.style.borderColor = isStrongPassword(pwField.value) ? 'green' : 'red';
+    if(pwField.value !== cfField.value || cfField.value.length === 0){
+      cfField.style.borderColor = 'red';
+    } else {
+      cfField.style.borderColor = 'green';
+    }
+  }
+  if(pwField && cfField){
+    pwField.addEventListener('input', checkPassword);
+    cfField.addEventListener('input', checkPassword);
+  }
+
+  const phoneField = document.querySelector('#sellerStep1 input[name="phone"]');
+  if(phoneField){
+    phoneField.addEventListener('input', function(){
+      phoneField.style.borderColor = /^09\d{9}$/.test(phoneField.value) ? 'green' : 'red';
+    });
+  }
+
+  const bphoneField = document.querySelector('#sellerStep2 input[name="business_phone"]');
+  if(bphoneField){
+    bphoneField.addEventListener('input', function(){
+      bphoneField.style.borderColor = /^09\d{9}$/.test(bphoneField.value) ? 'green' : 'red';
+    });
+  }
+
+  const gcashField = document.querySelector('#sellerStep3 input[name="gcash_number"]');
+  if(gcashField){
+    gcashField.addEventListener('input', function(){
+      gcashField.style.borderColor = /^09\d{9}$/.test(gcashField.value) ? 'green' : 'red';
+    });
+  }
+});
+</script>
+
+<script>
+  document.getElementById("backBtn").addEventListener("click", function() {
+    window.location.href = "{{ url_for('signup_role_selection') }}";
+  });
+</script>
+
+<script>
+// Seller Address Modal Logic (same behavior as buyer signup address modal)
+(function(){
+  var addrInput = document.getElementById('sellerAddressInput');
+  var modal = document.getElementById('sellerAddrModal');
+  if(!addrInput || !modal) return;
+
+  var selCountry = document.getElementById('sm_country');
+  var selRegion = document.getElementById('sm_region');
+  var selCity = document.getElementById('sm_city');
+  var selBrgy = document.getElementById('sm_barangay');
+  var inZip = document.getElementById('sm_zip');
+  var inHouse = document.getElementById('sm_house');
+  var inStreet = document.getElementById('sm_street');
+  var inLandmark = document.getElementById('sm_landmark');
+  var btnSave = document.getElementById('sm_save');
+  var btnCancel = document.getElementById('sm_cancel');
+  var btnClose = document.getElementById('sellerAddrCloseBtn');
+
+  var PH_JSON_URL = "{{ url_for('static', filename='js/philippine_provinces_cities_municipalities_and_barangays_2019v2.json') }}";
+  var PH_RAW = null;
+  var PH_READY = false;
+  var PH_REGIONS = [];
+  var REGION_TO_CITIES = new Map();
+  var REGION_CITY_TO_BRGYS = new Map();
+
+  function safeTitle(s){ return String(s||'').trim(); }
+
+  function buildDerivedMaps(){
+    PH_REGIONS.length = 0; REGION_TO_CITIES.clear(); REGION_CITY_TO_BRGYS.clear();
+    var regionEntries = Object.entries(PH_RAW||{});
+    for(var i=0;i<regionEntries.length;i++){
+      var regionCode = regionEntries[i][0];
+      var regionObj = regionEntries[i][1];
+      var regionName = safeTitle((regionObj&&regionObj.region_name)||regionCode);
+      PH_REGIONS.push(regionName);
+      var cityList = [];
+      var seen = new Set();
+      var provinces = (regionObj&&regionObj.province_list)||{};
+      Object.keys(provinces).forEach(function(provName){
+        var provObj = provinces[provName]||{};
+        var muniList = provObj.municipality_list||{};
+        Object.keys(muniList).forEach(function(muniName){
+          var muni = safeTitle(muniName);
+          var prov = safeTitle(provName);
+          var value = encodeURIComponent(muni)+'||'+encodeURIComponent(prov);
+          if(!seen.has(value)){
+            seen.add(value);
+            var label = muni+' — '+prov;
+            cityList.push({ value:value, label:label, muni:muni, prov:prov });
+          }
+          var brgys = Array.isArray(muniList[muniName].barangay_list) ? muniList[muniName].barangay_list.map(safeTitle) : [];
+          REGION_CITY_TO_BRGYS.set(regionName+'||'+value, brgys);
+        });
+      });
+      cityList.sort(function(a,b){ return a.muni.localeCompare(b.muni) || a.prov.localeCompare(b.prov); });
+      REGION_TO_CITIES.set(regionName, cityList);
+    }
+    PH_READY = true;
+  }
+
+  function populateRegions(){
+    if(!selRegion) return;
+    if(!PH_READY){ selRegion.innerHTML = '<option value="" disabled selected>Loading regions…</option>'; return; }
+    selRegion.innerHTML = '<option value="" disabled selected>Select region</option>' + PH_REGIONS.map(function(r){ return '<option value="'+r+'">'+r+'</option>'; }).join('');
+  }
+  function populateCities(region){
+    if(!selCity || !selBrgy) return;
+    if(!PH_READY || !region){
+      selCity.disabled = true; selCity.innerHTML = '<option value="" disabled selected>Select city</option>';
+      selBrgy.disabled = true; selBrgy.innerHTML = '<option value="" disabled selected>Select barangay</option>';
+      return;
+    }
+    var cities = REGION_TO_CITIES.get(region)||[];
+    selCity.disabled = cities.length===0;
+    selCity.innerHTML = '<option value="" disabled selected>Select city</option>' + cities.map(function(c){ return '<option value="'+c.value+'">'+c.label+'</option>'; }).join('');
+    selBrgy.disabled = true; selBrgy.innerHTML = '<option value="" disabled selected>Select barangay</option>';
+  }
+  function populateBarangays(region, cityValue){
+    if(!selBrgy) return;
+    if(!PH_READY || !(region && cityValue)){
+      selBrgy.disabled = true; selBrgy.innerHTML = '<option value="" disabled selected>Select barangay</option>';
+      return;
+    }
+    var key = region+'||'+cityValue;
+    var brgys = REGION_CITY_TO_BRGYS.get(key)||[];
+    selBrgy.disabled = brgys.length===0;
+    selBrgy.innerHTML = '<option value="" disabled selected>Select barangay</option>' + brgys.map(function(b){ return '<option value="'+b+'">'+b+'</option>'; }).join('');
+  }
+
+  function composeFullAddress(){
+    var country = (selCountry&&selCountry.value||'').trim();
+    var region = (selRegion&&selRegion.value||'').trim();
+    var cityVal = (selCity&&selCity.value||'').trim();
+    var barangay = (selBrgy&&selBrgy.value||'').trim();
+    var house = (inHouse&&inHouse.value||'').trim();
+    var street = (inStreet&&inStreet.value||'').trim();
+    var zip = (inZip&&inZip.value||'').trim();
+    var landmark = (inLandmark&&inLandmark.value||'').trim();
+    var parts = [];
+    var line1 = [house, street].filter(Boolean).join(' ');
+    if(line1) parts.push(line1);
+    if(barangay) parts.push(barangay);
+    var cityOut = '';
+    if(cityVal){ var muniEnc = cityVal.split('||')[0]||''; cityOut = decodeURIComponent(muniEnc); }
+    if(cityOut) parts.push(cityOut);
+    if(region) parts.push(region);
+    if(zip) parts.push(zip);
+    if(country) parts.push(country);
+    var full = parts.join(', ');
+    if(landmark) full += ' (Landmark: '+landmark+')';
+    return full;
+  }
+
+  function resetModal(){
+    if(inZip) inZip.value = '';
+    if(inHouse) inHouse.value = '';
+    if(inStreet) inStreet.value = '';
+    if(inLandmark) inLandmark.value = '';
+    if(selCountry) selCountry.value = 'Philippines';
+    if(selRegion) selRegion.value = '';
+    populateCities('');
+  }
+
+  function openModal(){ modal.style.display = 'flex'; }
+  function closeModal(){ modal.style.display = 'none'; }
+
+  async function ensurePhData(){
+    if(PH_READY) return;
+    try{
+      var res = await fetch(PH_JSON_URL, { cache: 'no-store' });
+      if(!res.ok) throw new Error('Failed to load PH data');
+      PH_RAW = await res.json();
+      buildDerivedMaps();
+      populateRegions();
+    }catch(e){ console.error(e); showCustomAlert('error', 'Loading Error', 'Failed to load Philippine address data. Please try again.'); }
+  }
+
+  // Event bindings
+  addrInput.addEventListener('click', function(){ ensurePhData().then(function(){ resetModal(); openModal(); }); });
+  btnClose && btnClose.addEventListener('click', closeModal);
+  btnCancel && btnCancel.addEventListener('click', closeModal);
+  modal.addEventListener('click', function(e){ if(e.target===modal) closeModal(); });
+  selRegion.addEventListener('change', function(){ populateCities(this.value); selCity.value=''; selBrgy.value=''; });
+  selCity.addEventListener('change', function(){ var r = selRegion.value; populateBarangays(r, this.value); selBrgy.value=''; });
+  btnSave.addEventListener('click', function(){
+    var region = (selRegion&&selRegion.value||'').trim();
+    var city = (selCity&&selCity.value||'').trim();
+    var barangay = (selBrgy&&selBrgy.value||'').trim();
+    var house = (inHouse&&inHouse.value||'').trim();
+    var street = (inStreet&&inStreet.value||'').trim();
+    if(!region || !city || !barangay || (!house && !street)){
+      showCustomAlert('error', 'Incomplete Address', 'Please complete region, city/municipality, barangay, and street/house no.');
+      return;
+    }
+    var full = composeFullAddress();
+    addrInput.value = full;
+    closeModal();
+  });
+
+  // Initial paint (shows loading until ensurePhData fills)
+  populateRegions();
+})();
+</script>
+
+<script>
+// Seller Business Address Modal Logic (same behavior as buyer address modal)
+(function(){
+  var addrInput = document.getElementById('sellerBusinessAddressInput');
+  var modal = document.getElementById('sellerBusinessAddrModal');
+  if(!addrInput || !modal) return;
+
+  var selCountry = document.getElementById('sb_country');
+  var selRegion = document.getElementById('sb_region');
+  var selCity = document.getElementById('sb_city');
+  var selBrgy = document.getElementById('sb_barangay');
+  var inZip = document.getElementById('sb_zip');
+  var inHouse = document.getElementById('sb_house');
+  var inStreet = document.getElementById('sb_street');
+  var inLandmark = document.getElementById('sb_landmark');
+  var btnSave = document.getElementById('sb_save');
+  var btnCancel = document.getElementById('sb_cancel');
+  var btnClose = document.getElementById('sellerBusinessAddrCloseBtn');
+
+  var PH_JSON_URL = "{{ url_for('static', filename='js/philippine_provinces_cities_municipalities_and_barangays_2019v2.json') }}";
+  var PH_RAW = null;
+  var PH_READY = false;
+  var PH_REGIONS = [];
+  var REGION_TO_CITIES = new Map();
+  var REGION_CITY_TO_BRGYS = new Map();
+
+  function safeTitle(s){ return String(s||'').trim(); }
+
+  function buildDerivedMaps(){
+    PH_REGIONS.length = 0; REGION_TO_CITIES.clear(); REGION_CITY_TO_BRGYS.clear();
+    var regionEntries = Object.entries(PH_RAW||{});
+    for(var i=0;i<regionEntries.length;i++){
+      var regionCode = regionEntries[i][0];
+      var regionObj = regionEntries[i][1];
+      var regionName = safeTitle((regionObj&&regionObj.region_name)||regionCode);
+      PH_REGIONS.push(regionName);
+      var cityList = [];
+      var seen = new Set();
+      var provinces = (regionObj&&regionObj.province_list)||{};
+      Object.keys(provinces).forEach(function(provName){
+        var provObj = provinces[provName]||{};
+        var muniList = provObj.municipality_list||{};
+        Object.keys(muniList).forEach(function(muniName){
+          var muni = safeTitle(muniName);
+          var prov = safeTitle(provName);
+          var value = encodeURIComponent(muni)+'||'+encodeURIComponent(prov);
+          if(!seen.has(value)){
+            seen.add(value);
+            var label = muni+' — '+prov;
+            cityList.push({ value:value, label:label, muni:muni, prov:prov });
+          }
+          var brgys = Array.isArray(muniList[muniName].barangay_list) ? muniList[muniName].barangay_list.map(safeTitle) : [];
+          REGION_CITY_TO_BRGYS.set(regionName+'||'+value, brgys);
+        });
+      });
+      cityList.sort(function(a,b){ return a.muni.localeCompare(b.muni) || a.prov.localeCompare(b.prov); });
+      REGION_TO_CITIES.set(regionName, cityList);
+    }
+    PH_READY = true;
+  }
+
+  function populateRegions(){
+    if(!selRegion) return;
+    if(!PH_READY){ selRegion.innerHTML = '<option value="" disabled selected>Loading regions…</option>'; return; }
+    selRegion.innerHTML = '<option value="" disabled selected>Select region</option>' + PH_REGIONS.map(function(r){ return '<option value="'+r+'">'+r+'</option>'; }).join('');
+  }
+  function populateCities(region){
+    if(!selCity || !selBrgy) return;
+    if(!PH_READY || !region){
+      selCity.disabled = true; selCity.innerHTML = '<option value="" disabled selected>Select city</option>';
+      selBrgy.disabled = true; selBrgy.innerHTML = '<option value="" disabled selected>Select barangay</option>';
+      return;
+    }
+    var cities = REGION_TO_CITIES.get(region)||[];
+    selCity.disabled = cities.length===0;
+    selCity.innerHTML = '<option value="" disabled selected>Select city</option>' + cities.map(function(c){ return '<option value="'+c.value+'">'+c.label+'</option>'; }).join('');
+    selBrgy.disabled = true; selBrgy.innerHTML = '<option value="" disabled selected>Select barangay</option>';
+  }
+  function populateBarangays(region, cityValue){
+    if(!selBrgy) return;
+    if(!PH_READY || !(region && cityValue)){
+      selBrgy.disabled = true; selBrgy.innerHTML = '<option value="" disabled selected>Select barangay</option>';
+      return;
+    }
+    var key = region+'||'+cityValue;
+    var brgys = REGION_CITY_TO_BRGYS.get(key)||[];
+    selBrgy.disabled = brgys.length===0;
+    selBrgy.innerHTML = '<option value="" disabled selected>Select barangay</option>' + brgys.map(function(b){ return '<option value="'+b+'">'+b+'</option>'; }).join('');
+  }
+
+  function composeFullAddress(){
+    var country = (selCountry&&selCountry.value||'').trim();
+    var region = (selRegion&&selRegion.value||'').trim();
+    var cityVal = (selCity&&selCity.value||'').trim();
+    var barangay = (selBrgy&&selBrgy.value||'').trim();
+    var house = (inHouse&&inHouse.value||'').trim();
+    var street = (inStreet&&inStreet.value||'').trim();
+    var zip = (inZip&&inZip.value||'').trim();
+    var landmark = (inLandmark&&inLandmark.value||'').trim();
+    var parts = [];
+    var line1 = [house, street].filter(Boolean).join(' ');
+    if(line1) parts.push(line1);
+    if(barangay) parts.push(barangay);
+    var cityOut = '';
+    if(cityVal){ var muniEnc = cityVal.split('||')[0]||''; cityOut = decodeURIComponent(muniEnc); }
+    if(cityOut) parts.push(cityOut);
+    if(region) parts.push(region);
+    if(zip) parts.push(zip);
+    if(country) parts.push(country);
+    var full = parts.join(', ');
+    if(landmark) full += ' (Landmark: '+landmark+')';
+    return full;
+  }
+
+  function resetModal(){
+    if(inZip) inZip.value = '';
+    if(inHouse) inHouse.value = '';
+    if(inStreet) inStreet.value = '';
+    if(inLandmark) inLandmark.value = '';
+    if(selCountry) selCountry.value = 'Philippines';
+    if(selRegion) selRegion.value = '';
+    populateCities('');
+  }
+
+  function openModal(){ modal.style.display = 'flex'; }
+  function closeModal(){ modal.style.display = 'none'; }
+
+  async function ensurePhData(){
+    if(PH_READY) return;
+    try{
+      var res = await fetch(PH_JSON_URL, { cache: 'no-store' });
+      if(!res.ok) throw new Error('Failed to load PH data');
+      PH_RAW = await res.json();
+      buildDerivedMaps();
+      populateRegions();
+    }catch(e){ console.error(e); showCustomAlert('error', 'Loading Error', 'Failed to load Philippine address data. Please try again.'); }
+  }
+
+  // Event bindings
+  addrInput.addEventListener('click', function(){ ensurePhData().then(function(){ resetModal(); openModal(); }); });
+  btnClose && btnClose.addEventListener('click', closeModal);
+  btnCancel && btnCancel.addEventListener('click', closeModal);
+  modal.addEventListener('click', function(e){ if(e.target===modal) closeModal(); });
+  selRegion.addEventListener('change', function(){ populateCities(this.value); selCity.value=''; selBrgy.value=''; });
+  selCity.addEventListener('change', function(){ var r = selRegion.value; populateBarangays(r, this.value); selBrgy.value=''; });
+  btnSave.addEventListener('click', function(){
+    var region = (selRegion&&selRegion.value||'').trim();
+    var city = (selCity&&selCity.value||'').trim();
+    var barangay = (selBrgy&&selBrgy.value||'').trim();
+    var house = (inHouse&&inHouse.value||'').trim();
+    var street = (inStreet&&inStreet.value||'').trim();
+    if(!region || !city || !barangay || (!house && !street)){
+      showCustomAlert('error', 'Incomplete Address', 'Please complete region, city/municipality, barangay, and street/house no.');
+      return;
+    }
+    var full = composeFullAddress();
+    addrInput.value = full;
+    closeModal();
+  });
+
+  // Initial paint (shows loading until ensurePhData fills)
+  populateRegions();
+})();
+</script>
+
+
+</body>
+</html>
