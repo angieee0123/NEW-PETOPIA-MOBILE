@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../app_routes.dart';
+import '../widgets/main_bottom_nav.dart';
 
 class RiderDashboardPage extends StatefulWidget {
   const RiderDashboardPage({super.key});
@@ -11,9 +12,6 @@ class RiderDashboardPage extends StatefulWidget {
 
 class _RiderDashboardPageState extends State<RiderDashboardPage> {
   int _currentIndex = 0;
-
-  static const _accent2 = Color(0xFF8BB6FF);
-  static const _muted = Color(0xFF5B6378);
 
   @override
   Widget build(BuildContext context) {
@@ -26,15 +24,12 @@ class _RiderDashboardPageState extends State<RiderDashboardPage> {
 
     return Scaffold(
       body: Stack(children: [const _AuroraBackground(), pages[_currentIndex]]),
-      bottomNavigationBar: BottomNavigationBar(
+      bottomNavigationBar: MainBottomNav(
         currentIndex: _currentIndex,
         onTap: (value) => setState(() => _currentIndex = value),
-        selectedItemColor: _accent2,
-        unselectedItemColor: _muted,
-        type: BottomNavigationBarType.fixed,
         items: const [
           BottomNavigationBarItem(
-            icon: Icon(Icons.dashboard_customize_outlined),
+            icon: Icon(Icons.home_outlined),
             label: 'Home',
           ),
           BottomNavigationBarItem(
@@ -724,7 +719,9 @@ class _RiderProfilePage extends StatelessWidget {
                   subtitle: const Text('Reuse the existing login/profile flow'),
                   trailing: const Icon(Icons.chevron_right_rounded),
                   onTap: () {
-                    Navigator.of(context).pushNamed(AppRoutes.account);
+                    Navigator.of(
+                      context,
+                    ).pushNamed(AppRoutes.shell, arguments: {'tab': 3});
                   },
                 ),
               ],

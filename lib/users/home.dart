@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'account.dart';
 import '../app_routes.dart';
+import 'home_bottom_nav.dart';
 
 void main() {
   runApp(const PetopiaMobileApp());
@@ -29,7 +30,9 @@ class PetopiaMobileApp extends StatelessWidget {
 }
 
 class PetopiaShellPage extends StatefulWidget {
-  const PetopiaShellPage({super.key});
+  const PetopiaShellPage({super.key, this.initialIndex = 0});
+
+  final int initialIndex;
 
   @override
   State<PetopiaShellPage> createState() => _PetopiaShellPageState();
@@ -38,8 +41,11 @@ class PetopiaShellPage extends StatefulWidget {
 class _PetopiaShellPageState extends State<PetopiaShellPage> {
   int _currentIndex = 0;
 
-  static const _accent2 = Color(0xFF8BB6FF);
-  static const _muted = Color(0xFF5B6378);
+  @override
+  void initState() {
+    super.initState();
+    _currentIndex = widget.initialIndex.clamp(0, 3);
+  }
 
   final List<Widget> _pages = const [
     PetopiaHomePage(),
@@ -60,20 +66,66 @@ class _PetopiaShellPageState extends State<PetopiaShellPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       body: _pages[_currentIndex],
-      bottomNavigationBar: BottomNavigationBar(
+      bottomNavigationBar: HomeBottomNav(
         currentIndex: _currentIndex,
-        onTap: (value) => setState(() => _currentIndex = value),
-        selectedItemColor: _accent2,
-        unselectedItemColor: _muted,
-        type: BottomNavigationBarType.fixed,
-        items: const [
-          BottomNavigationBarItem(icon: Icon(Icons.home_outlined), label: 'Home'),
-          BottomNavigationBarItem(icon: Icon(Icons.grid_view_rounded), label: 'Categories'),
-          BottomNavigationBarItem(icon: Icon(Icons.shopping_cart_outlined), label: 'Cart'),
-          BottomNavigationBarItem(icon: Icon(Icons.person_outline_rounded), label: 'Account'),
+        onTap: _onNavTap,
+      ),
+    );
+  }
+
+  Future<void> _onNavTap(int value) async {
+    if (value == 1) {
+      await _showLoginRequiredAlert(
+        title: 'Login required',
+        message: 'Please log in to browse Categories.',
+      );
+      return;
+    }
+
+    if (value == 2) {
+      await _showLoginRequiredAlert(
+        title: 'Login required',
+        message: 'Please log in to access your Cart.',
+      );
+      return;
+    }
+
+    if (!mounted) {
+      return;
+    }
+
+    setState(() => _currentIndex = value);
+  }
+
+  Future<void> _showLoginRequiredAlert({
+    required String title,
+    required String message,
+  }) async {
+    if (!mounted) {
+      return;
+    }
+
+    final goToLogin = await showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: Text(title),
+        content: Text(message),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(false),
+            child: const Text('Cancel'),
+          ),
+          ElevatedButton(
+            onPressed: () => Navigator.of(context).pop(true),
+            child: const Text('Login'),
+          ),
         ],
       ),
     );
+
+    if (goToLogin == true && mounted) {
+      setState(() => _currentIndex = 3);
+    }
   }
 }
 
@@ -185,10 +237,7 @@ class PetopiaHomePage extends StatelessWidget {
             ),
           ),
           SliverToBoxAdapter(
-            child: _SectionTitle(
-              title: 'Flash Sale',
-              onSeeAll: () {},
-            ),
+            child: _SectionTitle(title: 'Flash Sale', onSeeAll: () {}),
           ),
           SliverToBoxAdapter(
             child: SizedBox(
@@ -205,7 +254,8 @@ class PetopiaHomePage extends StatelessWidget {
                         rating: product.rating,
                         discount: product.discount,
                         onTap: () => _showProductModal(context, product),
-                        onAddToCart: () => _showLoginPrompt(context, 'add to cart'),
+                        onAddToCart: () =>
+                            _showLoginPrompt(context, 'add to cart'),
                       ),
                     )
                     .toList(),
@@ -219,10 +269,7 @@ class PetopiaHomePage extends StatelessWidget {
             ),
           ),
           SliverToBoxAdapter(
-            child: _SectionTitle(
-              title: 'Recommended for You',
-              onSeeAll: () {},
-            ),
+            child: _SectionTitle(title: 'Recommended for You', onSeeAll: () {}),
           ),
           SliverToBoxAdapter(
             child: SizedBox(
@@ -239,7 +286,8 @@ class PetopiaHomePage extends StatelessWidget {
                         rating: product.rating,
                         discount: product.discount,
                         onTap: () => _showProductModal(context, product),
-                        onAddToCart: () => _showLoginPrompt(context, 'add to cart'),
+                        onAddToCart: () =>
+                            _showLoginPrompt(context, 'add to cart'),
                       ),
                     )
                     .toList(),
@@ -247,10 +295,7 @@ class PetopiaHomePage extends StatelessWidget {
             ),
           ),
           SliverToBoxAdapter(
-            child: _SectionTitle(
-              title: 'Official Stores',
-              onSeeAll: () {},
-            ),
+            child: _SectionTitle(title: 'Official Stores', onSeeAll: () {}),
           ),
           SliverToBoxAdapter(
             child: SizedBox(
@@ -280,7 +325,9 @@ class PetopiaHomePage extends StatelessWidget {
                             children: [
                               CircleAvatar(
                                 radius: 14,
-                                backgroundColor: _accent2.withValues(alpha: .20),
+                                backgroundColor: _accent2.withValues(
+                                  alpha: .20,
+                                ),
                                 child: const Icon(
                                   Icons.storefront_outlined,
                                   size: 16,
@@ -458,11 +505,7 @@ class PetopiaHomePage extends StatelessWidget {
                 end: Alignment.bottomRight,
               ),
             ),
-            child: const Icon(
-              Icons.pets,
-              size: 44,
-              color: Color(0xFF2E5EA7),
-            ),
+            child: const Icon(Icons.pets, size: 44, color: Color(0xFF2E5EA7)),
           ),
         ],
       ),
@@ -526,7 +569,11 @@ class PetopiaHomePage extends StatelessWidget {
       children: [
         const Text(
           'Vouchers',
-          style: TextStyle(fontSize: 18, fontWeight: FontWeight.w800, color: _text),
+          style: TextStyle(
+            fontSize: 18,
+            fontWeight: FontWeight.w800,
+            color: _text,
+          ),
         ),
         const SizedBox(height: 10),
         ...vouchers.map(
@@ -540,7 +587,11 @@ class PetopiaHomePage extends StatelessWidget {
             ),
             child: Row(
               children: [
-                const Icon(Icons.local_offer_outlined, color: _accent2, size: 18),
+                const Icon(
+                  Icons.local_offer_outlined,
+                  color: _accent2,
+                  size: 18,
+                ),
                 const SizedBox(width: 8),
                 Expanded(
                   child: Text(
@@ -575,9 +626,7 @@ class PetopiaHomePage extends StatelessWidget {
             onPressed: () {
               Navigator.of(context).pop();
               Navigator.of(context).push(
-                MaterialPageRoute<void>(
-                  builder: (_) => const AccountPage(),
-                ),
+                MaterialPageRoute<void>(builder: (_) => const AccountPage()),
               );
             },
             child: const Text('Login'),
@@ -587,7 +636,10 @@ class PetopiaHomePage extends StatelessWidget {
     );
   }
 
-  Future<void> _showProductModal(BuildContext context, _ProductItem product) async {
+  Future<void> _showProductModal(
+    BuildContext context,
+    _ProductItem product,
+  ) async {
     await showModalBottomSheet<void>(
       context: context,
       isScrollControlled: true,
@@ -648,7 +700,11 @@ class PetopiaHomePage extends StatelessWidget {
                     ),
                   ),
                   child: const Center(
-                    child: Icon(Icons.pets_rounded, size: 56, color: Color(0xFF2E5EA7)),
+                    child: Icon(
+                      Icons.pets_rounded,
+                      size: 56,
+                      color: Color(0xFF2E5EA7),
+                    ),
                   ),
                 ),
                 const SizedBox(height: 12),
@@ -688,11 +744,18 @@ class PetopiaHomePage extends StatelessWidget {
                       ),
                     ),
                     const Spacer(),
-                    const Icon(Icons.star_rounded, color: Color(0xFFFFC857), size: 18),
+                    const Icon(
+                      Icons.star_rounded,
+                      color: Color(0xFFFFC857),
+                      size: 18,
+                    ),
                     const SizedBox(width: 4),
                     Text(
                       product.rating,
-                      style: const TextStyle(color: _muted, fontWeight: FontWeight.w700),
+                      style: const TextStyle(
+                        color: _muted,
+                        fontWeight: FontWeight.w700,
+                      ),
                     ),
                   ],
                 ),
@@ -701,7 +764,8 @@ class PetopiaHomePage extends StatelessWidget {
                   children: [
                     Expanded(
                       child: OutlinedButton(
-                        onPressed: () => _showLoginPrompt(context, 'add to cart'),
+                        onPressed: () =>
+                            _showLoginPrompt(context, 'add to cart'),
                         child: const Text('Add to Cart'),
                       ),
                     ),
@@ -746,7 +810,9 @@ class PetopiaHomePage extends StatelessWidget {
   }
 
   void _showInfo(BuildContext context, String message) {
-    ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(message)));
+    ScaffoldMessenger.of(
+      context,
+    ).showSnackBar(SnackBar(content: Text(message)));
   }
 }
 
@@ -771,10 +837,7 @@ class _SectionTitle extends StatelessWidget {
             ),
           ),
           const Spacer(),
-          TextButton(
-            onPressed: onSeeAll,
-            child: const Text('See all'),
-          ),
+          TextButton(onPressed: onSeeAll, child: const Text('See all')),
         ],
       ),
     );
@@ -812,7 +875,9 @@ class _ProductCard extends StatelessWidget {
           color: const Color(0xF4FFFFFF),
           borderRadius: BorderRadius.circular(14),
           border: Border.all(color: const Color(0x120B0F1A)),
-          boxShadow: const [BoxShadow(color: Color(0x10101828), blurRadius: 14)],
+          boxShadow: const [
+            BoxShadow(color: Color(0x10101828), blurRadius: 14),
+          ],
         ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -830,14 +895,21 @@ class _ProductCard extends StatelessWidget {
                     ),
                   ),
                   child: const Center(
-                    child: Icon(Icons.pets_rounded, size: 36, color: Color(0xFF2E5EA7)),
+                    child: Icon(
+                      Icons.pets_rounded,
+                      size: 36,
+                      color: Color(0xFF2E5EA7),
+                    ),
                   ),
                 ),
                 Positioned(
                   top: 8,
                   left: 8,
                   child: Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 8,
+                      vertical: 4,
+                    ),
                     decoration: BoxDecoration(
                       borderRadius: BorderRadius.circular(999),
                       color: const Color(0xFF8BB6FF),
@@ -886,7 +958,11 @@ class _ProductCard extends StatelessWidget {
             const Spacer(),
             Row(
               children: [
-                const Icon(Icons.star_rounded, color: Color(0xFFFFC857), size: 16),
+                const Icon(
+                  Icons.star_rounded,
+                  color: Color(0xFFFFC857),
+                  size: 16,
+                ),
                 const SizedBox(width: 4),
                 Text(
                   rating,
@@ -1022,10 +1098,7 @@ class _ProductItem {
 }
 
 class _StoreItem {
-  const _StoreItem({
-    required this.name,
-    required this.tagline,
-  });
+  const _StoreItem({required this.name, required this.tagline});
 
   final String name;
   final String tagline;

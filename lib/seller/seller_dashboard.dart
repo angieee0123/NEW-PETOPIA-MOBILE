@@ -1,9 +1,12 @@
 import 'package:flutter/material.dart';
 
 import '../app_routes.dart';
+import 'seller_bottom_nav.dart';
 
 class SellerDashboardPage extends StatefulWidget {
-  const SellerDashboardPage({super.key});
+  const SellerDashboardPage({super.key, this.initialIndex = 0});
+
+  final int initialIndex;
 
   @override
   State<SellerDashboardPage> createState() => _SellerDashboardPageState();
@@ -12,44 +15,44 @@ class SellerDashboardPage extends StatefulWidget {
 class _SellerDashboardPageState extends State<SellerDashboardPage> {
   int _currentIndex = 0;
 
-  static const _accent2 = Color(0xFF8BB6FF);
-  static const _muted = Color(0xFF5B6378);
+  @override
+  void initState() {
+    super.initState();
+    _currentIndex = widget.initialIndex;
+    if (_currentIndex == 1 || _currentIndex < 0 || _currentIndex > 3) {
+      _currentIndex = 0;
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
     final pages = <Widget>[
       const _SellerOverviewPage(),
-      const _SellerProductsPage(),
       const _SellerOrdersPage(),
       const _SellerShopPage(),
     ];
 
     return Scaffold(
-      body: Stack(children: [const _AuroraBackground(), pages[_currentIndex]]),
-      bottomNavigationBar: BottomNavigationBar(
-        currentIndex: _currentIndex,
-        onTap: (value) => setState(() => _currentIndex = value),
-        selectedItemColor: _accent2,
-        unselectedItemColor: _muted,
-        type: BottomNavigationBarType.fixed,
-        items: const [
-          BottomNavigationBarItem(
-            icon: Icon(Icons.dashboard_customize_outlined),
-            label: 'Home',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.inventory_2_outlined),
-            label: 'Products',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.receipt_long_outlined),
-            label: 'Orders',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.storefront_outlined),
-            label: 'Shop',
-          ),
+      body: Stack(
+        children: [
+          const _AuroraBackground(),
+          if (_currentIndex == 0)
+            pages[0]
+          else if (_currentIndex == 2)
+            pages[1]
+          else
+            pages[2],
         ],
+      ),
+      bottomNavigationBar: SellerBottomNav(
+        currentIndex: _currentIndex,
+        onTap: (value) {
+          if (value == 1) {
+            Navigator.of(context).pushNamed(AppRoutes.sellerProducts);
+            return;
+          }
+          setState(() => _currentIndex = value);
+        },
       ),
     );
   }
@@ -649,74 +652,6 @@ class _SellerOverviewPage extends StatelessWidget {
   }
 }
 
-class _SellerProductsPage extends StatelessWidget {
-  const _SellerProductsPage();
-
-  @override
-  Widget build(BuildContext context) {
-    return SafeArea(
-      child: ListView(
-        padding: const EdgeInsets.fromLTRB(16, 18, 16, 24),
-        children: [
-          const _SimpleHeader(
-            title: 'My Products',
-            subtitle: 'Manage listings, pricing, and inventory from mobile.',
-          ),
-          const SizedBox(height: 16),
-          Container(
-            padding: const EdgeInsets.all(20),
-            decoration: BoxDecoration(
-              color: const Color(0xECFFFFFF),
-              borderRadius: BorderRadius.circular(22),
-              border: Border.all(color: const Color(0x120B0F1A)),
-            ),
-            child: Column(
-              children: [
-                const Icon(
-                  Icons.inventory_2_outlined,
-                  size: 56,
-                  color: Color(0xFF8BB6FF),
-                ),
-                const SizedBox(height: 12),
-                const Text(
-                  'Seller inventory module ready',
-                  style: TextStyle(
-                    color: Color(0xFF0B0F1A),
-                    fontSize: 20,
-                    fontWeight: FontWeight.w800,
-                  ),
-                ),
-                const SizedBox(height: 8),
-                const Text(
-                  'Connect this page to your seller products web endpoints for listing, stock, image, and price updates.',
-                  textAlign: TextAlign.center,
-                  style: TextStyle(
-                    color: Color(0xFF5B6378),
-                    fontWeight: FontWeight.w600,
-                  ),
-                ),
-                const SizedBox(height: 16),
-                ElevatedButton(
-                  onPressed: () {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(
-                        content: Text(
-                          'Product management integration can be added next.',
-                        ),
-                      ),
-                    );
-                  },
-                  child: const Text('Add Product'),
-                ),
-              ],
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-}
-
 class _SellerOrdersPage extends StatelessWidget {
   const _SellerOrdersPage();
 
@@ -797,7 +732,9 @@ class _SellerShopPage extends StatelessWidget {
                   subtitle: const Text('Reuse the existing login/profile flow'),
                   trailing: const Icon(Icons.chevron_right_rounded),
                   onTap: () {
-                    Navigator.of(context).pushNamed(AppRoutes.account);
+                    Navigator.of(
+                      context,
+                    ).pushNamed(AppRoutes.shell, arguments: {'tab': 3});
                   },
                 ),
               ],

@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import '../app_routes.dart';
+import 'seller_bottom_nav.dart';
 
 class SellerProductsPage extends StatefulWidget {
   const SellerProductsPage({super.key});
@@ -15,6 +17,7 @@ class _SellerProductsPageState extends State<SellerProductsPage> {
   static const _accent2 = Color(0xFF8BB6FF);
 
   final _searchController = TextEditingController();
+  final int _currentIndex = 1;
 
   final List<_Product> _products = [
     const _Product(
@@ -91,6 +94,24 @@ class _SellerProductsPageState extends State<SellerProductsPage> {
           ),
         ],
       ),
+      bottomNavigationBar: SellerBottomNav(
+        currentIndex: _currentIndex,
+        onTap: (value) {
+          if (value == 1) {
+            return;
+          }
+          if (value == 0) {
+            Navigator.of(
+              context,
+            ).pushReplacementNamed(AppRoutes.sellerDashboard);
+            return;
+          }
+          Navigator.of(context).pushReplacementNamed(
+            AppRoutes.sellerDashboard,
+            arguments: {'tab': value},
+          );
+        },
+      ),
     );
   }
 
@@ -153,8 +174,9 @@ class _SellerProductsPageState extends State<SellerProductsPage> {
             ),
           ),
           IconButton(
-            onPressed: () =>
-                _info(context, 'Archived products screen can be added next.'),
+            onPressed: () => Navigator.of(
+              context,
+            ).pushNamed(AppRoutes.sellerArchivedProducts),
             icon: const Icon(Icons.archive_outlined),
             tooltip: 'Archived products',
           ),
@@ -224,151 +246,317 @@ class _SellerProductsPageState extends State<SellerProductsPage> {
       isScrollControlled: true,
       backgroundColor: Colors.transparent,
       builder: (context) {
+        final viewInsets = MediaQuery.of(context).viewInsets;
+        final maxHeight = MediaQuery.of(context).size.height * 0.88;
+
+        InputDecoration inputDecoration({
+          required String label,
+          String? hint,
+          IconData? prefixIcon,
+        }) {
+          return InputDecoration(
+            labelText: label,
+            hintText: hint,
+            filled: true,
+            fillColor: Colors.white,
+            prefixIcon: prefixIcon == null ? null : Icon(prefixIcon),
+            border: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(14),
+              borderSide: const BorderSide(color: Color(0x120B0F1A)),
+            ),
+            enabledBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(14),
+              borderSide: const BorderSide(color: Color(0x120B0F1A)),
+            ),
+            focusedBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(14),
+              borderSide: const BorderSide(color: Color(0xB38BB6FF), width: 2),
+            ),
+            contentPadding: const EdgeInsets.symmetric(
+              horizontal: 14,
+              vertical: 14,
+            ),
+          );
+        }
+
         return StatefulBuilder(
           builder: (context, setSheetState) {
-            return Padding(
+            return AnimatedPadding(
+              duration: const Duration(milliseconds: 180),
+              curve: Curves.easeOut,
               padding: EdgeInsets.only(
                 left: 16,
                 right: 16,
                 top: 12,
-                bottom: 16 + MediaQuery.of(context).viewInsets.bottom,
+                bottom: 16 + viewInsets.bottom,
               ),
-              child: Container(
-                decoration: BoxDecoration(
-                  color: const Color(0xFFF6F8FF),
-                  borderRadius: BorderRadius.circular(20),
-                ),
-                child: SingleChildScrollView(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      const SizedBox(height: 10),
-                      Center(
-                        child: Container(
-                          width: 44,
-                          height: 4,
-                          decoration: BoxDecoration(
-                            color: const Color(0x330B0F1A),
-                            borderRadius: BorderRadius.circular(999),
-                          ),
-                        ),
-                      ),
-                      const SizedBox(height: 12),
-                      const Text(
-                        'Add Product',
-                        style: TextStyle(
-                          color: _text,
-                          fontSize: 18,
-                          fontWeight: FontWeight.w800,
-                        ),
-                      ),
-                      const SizedBox(height: 10),
-                      TextField(
-                        controller: nameController,
-                        decoration: const InputDecoration(
-                          labelText: 'Product name',
-                          border: OutlineInputBorder(),
-                        ),
-                      ),
-                      const SizedBox(height: 10),
-                      DropdownButtonFormField<String>(
-                        initialValue: category,
-                        decoration: const InputDecoration(
-                          labelText: 'Category',
-                          border: OutlineInputBorder(),
-                        ),
-                        items:
-                            const [
-                              'Food & Treats',
-                              'Feeding Supplies',
-                              'Grooming & Hygiene',
-                              'Bedding & Housing',
-                              'Accessories',
-                            ].map((c) {
-                              return DropdownMenuItem(value: c, child: Text(c));
-                            }).toList(),
-                        onChanged: (value) {
-                          if (value == null) return;
-                          setSheetState(() => category = value);
-                        },
-                      ),
-                      const SizedBox(height: 10),
-                      TextField(
-                        controller: priceController,
-                        keyboardType: const TextInputType.numberWithOptions(
-                          decimal: true,
-                        ),
-                        decoration: const InputDecoration(
-                          labelText: 'Price (₱)',
-                          border: OutlineInputBorder(),
-                        ),
-                      ),
-                      const SizedBox(height: 10),
-                      TextField(
-                        controller: stockController,
-                        keyboardType: const TextInputType.numberWithOptions(
-                          decimal: false,
-                        ),
-                        decoration: const InputDecoration(
-                          labelText: 'Stock',
-                          border: OutlineInputBorder(),
-                        ),
-                      ),
-                      const SizedBox(height: 14),
-                      Row(
-                        children: [
-                          Expanded(
-                            child: OutlinedButton(
-                              onPressed: () => Navigator.of(context).pop(),
-                              child: const Text('Cancel'),
+              child: SafeArea(
+                top: false,
+                child: Center(
+                  child: ConstrainedBox(
+                    constraints: const BoxConstraints(maxWidth: 520),
+                    child: Material(
+                      color: Colors.transparent,
+                      child: Container(
+                        constraints: BoxConstraints(maxHeight: maxHeight),
+                        decoration: BoxDecoration(
+                          color: const Color(0xECFFFFFF),
+                          borderRadius: BorderRadius.circular(22),
+                          border: Border.all(color: const Color(0x120B0F1A)),
+                          boxShadow: const [
+                            BoxShadow(
+                              color: Color(0x26101828),
+                              blurRadius: 30,
+                              offset: Offset(0, 14),
                             ),
-                          ),
-                          const SizedBox(width: 10),
-                          Expanded(
-                            child: ElevatedButton(
-                              onPressed: () {
-                                final name = nameController.text.trim();
-                                final priceText = priceController.text.trim();
-                                final stockText = stockController.text.trim();
-                                if (name.isEmpty ||
-                                    priceText.isEmpty ||
-                                    stockText.isEmpty) {
-                                  ScaffoldMessenger.of(context).showSnackBar(
-                                    const SnackBar(
-                                      content: Text(
-                                        'Please fill in name, price, and stock.',
+                          ],
+                        ),
+                        child: Column(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            const SizedBox(height: 10),
+                            Container(
+                              width: 44,
+                              height: 4,
+                              decoration: BoxDecoration(
+                                color: const Color(0x330B0F1A),
+                                borderRadius: BorderRadius.circular(999),
+                              ),
+                            ),
+                            const SizedBox(height: 8),
+                            Padding(
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 14,
+                              ),
+                              child: Row(
+                                children: [
+                                  Container(
+                                    width: 38,
+                                    height: 38,
+                                    decoration: BoxDecoration(
+                                      borderRadius: BorderRadius.circular(12),
+                                      gradient: const LinearGradient(
+                                        colors: [_accent, _accent2],
                                       ),
                                     ),
-                                  );
-                                  return;
-                                }
-                                final stock = int.tryParse(stockText) ?? 0;
-                                final priceValue =
-                                    double.tryParse(priceText) ?? 0;
-                                final product = _Product(
-                                  name: name,
-                                  category: category,
-                                  stock: stock,
-                                  sales: 0,
-                                  price: '₱ ${priceValue.toStringAsFixed(0)}',
-                                  badgeColor: _categoryColor(category),
-                                );
-                                Navigator.of(context).pop(product);
-                              },
-                              style: ElevatedButton.styleFrom(
-                                backgroundColor: _accent,
-                                foregroundColor: const Color(0xFF051014),
-                              ),
-                              child: const Text(
-                                'Save',
-                                style: TextStyle(fontWeight: FontWeight.w800),
+                                    child: const Icon(
+                                      Icons.add_business_rounded,
+                                      color: Color(0xFF051014),
+                                      size: 20,
+                                    ),
+                                  ),
+                                  const SizedBox(width: 10),
+                                  const Expanded(
+                                    child: Column(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
+                                      children: [
+                                        Text(
+                                          'Add Product',
+                                          style: TextStyle(
+                                            color: _text,
+                                            fontSize: 18,
+                                            fontWeight: FontWeight.w800,
+                                          ),
+                                        ),
+                                        SizedBox(height: 2),
+                                        Text(
+                                          'Create a new listing for your shop',
+                                          style: TextStyle(
+                                            color: _muted,
+                                            fontSize: 12,
+                                            fontWeight: FontWeight.w600,
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                  IconButton(
+                                    tooltip: 'Close',
+                                    onPressed: () =>
+                                        Navigator.of(context).pop(),
+                                    icon: const Icon(Icons.close_rounded),
+                                  ),
+                                ],
                               ),
                             ),
-                          ),
-                        ],
+                            const SizedBox(height: 10),
+                            Flexible(
+                              child: ListView(
+                                padding: const EdgeInsets.fromLTRB(
+                                  14,
+                                  0,
+                                  14,
+                                  14,
+                                ),
+                                children: [
+                                  TextField(
+                                    controller: nameController,
+                                    textInputAction: TextInputAction.next,
+                                    decoration: inputDecoration(
+                                      label: 'Product name',
+                                      hint: 'e.g., Premium Dog Food 5kg',
+                                      prefixIcon: Icons.inventory_2_outlined,
+                                    ),
+                                  ),
+                                  const SizedBox(height: 12),
+                                  DropdownButtonFormField<String>(
+                                    initialValue: category,
+                                    decoration: inputDecoration(
+                                      label: 'Category',
+                                      prefixIcon: Icons.category_outlined,
+                                    ),
+                                    items:
+                                        const [
+                                          'Food & Treats',
+                                          'Feeding Supplies',
+                                          'Grooming & Hygiene',
+                                          'Bedding & Housing',
+                                          'Accessories',
+                                        ].map((c) {
+                                          return DropdownMenuItem(
+                                            value: c,
+                                            child: Text(c),
+                                          );
+                                        }).toList(),
+                                    onChanged: (value) {
+                                      if (value == null) {
+                                        return;
+                                      }
+                                      setSheetState(() => category = value);
+                                    },
+                                  ),
+                                  const SizedBox(height: 12),
+                                  Row(
+                                    children: [
+                                      Expanded(
+                                        child: TextField(
+                                          controller: priceController,
+                                          textInputAction: TextInputAction.next,
+                                          keyboardType:
+                                              const TextInputType.numberWithOptions(
+                                                decimal: true,
+                                              ),
+                                          decoration: inputDecoration(
+                                            label: 'Price',
+                                            hint: '₱ 0',
+                                            prefixIcon: Icons.payments_outlined,
+                                          ),
+                                        ),
+                                      ),
+                                      const SizedBox(width: 12),
+                                      Expanded(
+                                        child: TextField(
+                                          controller: stockController,
+                                          textInputAction: TextInputAction.done,
+                                          keyboardType:
+                                              const TextInputType.numberWithOptions(
+                                                decimal: false,
+                                              ),
+                                          decoration: inputDecoration(
+                                            label: 'Stock',
+                                            hint: '0',
+                                            prefixIcon: Icons.numbers_outlined,
+                                          ),
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                  const SizedBox(height: 14),
+                                  Row(
+                                    children: [
+                                      Expanded(
+                                        child: OutlinedButton(
+                                          onPressed: () =>
+                                              Navigator.of(context).pop(),
+                                          style: OutlinedButton.styleFrom(
+                                            padding: const EdgeInsets.symmetric(
+                                              vertical: 12,
+                                            ),
+                                            shape: RoundedRectangleBorder(
+                                              borderRadius:
+                                                  BorderRadius.circular(14),
+                                            ),
+                                            side: const BorderSide(
+                                              color: Color(0x220B0F1A),
+                                            ),
+                                          ),
+                                          child: const Text('Cancel'),
+                                        ),
+                                      ),
+                                      const SizedBox(width: 12),
+                                      Expanded(
+                                        child: ElevatedButton(
+                                          onPressed: () {
+                                            final name = nameController.text
+                                                .trim();
+                                            final priceText = priceController
+                                                .text
+                                                .trim();
+                                            final stockText = stockController
+                                                .text
+                                                .trim();
+                                            if (name.isEmpty ||
+                                                priceText.isEmpty ||
+                                                stockText.isEmpty) {
+                                              ScaffoldMessenger.of(
+                                                context,
+                                              ).showSnackBar(
+                                                const SnackBar(
+                                                  content: Text(
+                                                    'Please fill in name, price, and stock.',
+                                                  ),
+                                                ),
+                                              );
+                                              return;
+                                            }
+                                            final stock =
+                                                int.tryParse(stockText) ?? 0;
+                                            final priceValue =
+                                                double.tryParse(priceText) ?? 0;
+                                            final product = _Product(
+                                              name: name,
+                                              category: category,
+                                              stock: stock,
+                                              sales: 0,
+                                              price:
+                                                  '₱ ${priceValue.toStringAsFixed(0)}',
+                                              badgeColor: _categoryColor(
+                                                category,
+                                              ),
+                                            );
+                                            Navigator.of(context).pop(product);
+                                          },
+                                          style: ElevatedButton.styleFrom(
+                                            backgroundColor: _accent,
+                                            foregroundColor: const Color(
+                                              0xFF051014,
+                                            ),
+                                            padding: const EdgeInsets.symmetric(
+                                              vertical: 12,
+                                            ),
+                                            shape: RoundedRectangleBorder(
+                                              borderRadius:
+                                                  BorderRadius.circular(14),
+                                            ),
+                                          ),
+                                          child: const Text(
+                                            'Save',
+                                            style: TextStyle(
+                                              fontWeight: FontWeight.w800,
+                                            ),
+                                          ),
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ],
+                        ),
                       ),
-                    ],
+                    ),
                   ),
                 ),
               ),
@@ -385,6 +573,352 @@ class _SellerProductsPageState extends State<SellerProductsPage> {
     if (result != null) {
       setState(() {
         _products.insert(0, result);
+      });
+    }
+  }
+
+  Future<void> _openEditProductSheet(int productIndex, _Product product) async {
+    final nameController = TextEditingController(text: product.name);
+    final priceController = TextEditingController(
+      text: product.price.replaceAll('₱', '').trim(),
+    );
+    final stockController = TextEditingController(
+      text: product.stock.toString(),
+    );
+    String category = product.category;
+
+    final result = await showModalBottomSheet<_Product>(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (context) {
+        final viewInsets = MediaQuery.of(context).viewInsets;
+        final maxHeight = MediaQuery.of(context).size.height * 0.88;
+
+        InputDecoration inputDecoration({
+          required String label,
+          String? hint,
+          IconData? prefixIcon,
+        }) {
+          return InputDecoration(
+            labelText: label,
+            hintText: hint,
+            filled: true,
+            fillColor: Colors.white,
+            prefixIcon: prefixIcon == null ? null : Icon(prefixIcon),
+            border: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(14),
+              borderSide: const BorderSide(color: Color(0x120B0F1A)),
+            ),
+            enabledBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(14),
+              borderSide: const BorderSide(color: Color(0x120B0F1A)),
+            ),
+            focusedBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(14),
+              borderSide: const BorderSide(color: Color(0xB38BB6FF), width: 2),
+            ),
+            contentPadding: const EdgeInsets.symmetric(
+              horizontal: 14,
+              vertical: 14,
+            ),
+          );
+        }
+
+        return StatefulBuilder(
+          builder: (context, setSheetState) {
+            return AnimatedPadding(
+              duration: const Duration(milliseconds: 180),
+              curve: Curves.easeOut,
+              padding: EdgeInsets.only(
+                left: 16,
+                right: 16,
+                top: 12,
+                bottom: 16 + viewInsets.bottom,
+              ),
+              child: SafeArea(
+                top: false,
+                child: Center(
+                  child: ConstrainedBox(
+                    constraints: const BoxConstraints(maxWidth: 520),
+                    child: Material(
+                      color: Colors.transparent,
+                      child: Container(
+                        constraints: BoxConstraints(maxHeight: maxHeight),
+                        decoration: BoxDecoration(
+                          color: const Color(0xECFFFFFF),
+                          borderRadius: BorderRadius.circular(22),
+                          border: Border.all(color: const Color(0x120B0F1A)),
+                          boxShadow: const [
+                            BoxShadow(
+                              color: Color(0x26101828),
+                              blurRadius: 30,
+                              offset: Offset(0, 14),
+                            ),
+                          ],
+                        ),
+                        child: Column(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            const SizedBox(height: 10),
+                            Container(
+                              width: 44,
+                              height: 4,
+                              decoration: BoxDecoration(
+                                color: const Color(0x330B0F1A),
+                                borderRadius: BorderRadius.circular(999),
+                              ),
+                            ),
+                            const SizedBox(height: 8),
+                            Padding(
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 14,
+                              ),
+                              child: Row(
+                                children: [
+                                  Container(
+                                    width: 38,
+                                    height: 38,
+                                    decoration: BoxDecoration(
+                                      borderRadius: BorderRadius.circular(12),
+                                      gradient: const LinearGradient(
+                                        colors: [_accent, _accent2],
+                                      ),
+                                    ),
+                                    child: const Icon(
+                                      Icons.edit_rounded,
+                                      color: Color(0xFF051014),
+                                      size: 20,
+                                    ),
+                                  ),
+                                  const SizedBox(width: 10),
+                                  const Expanded(
+                                    child: Column(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
+                                      children: [
+                                        Text(
+                                          'Edit Product',
+                                          style: TextStyle(
+                                            color: _text,
+                                            fontSize: 18,
+                                            fontWeight: FontWeight.w800,
+                                          ),
+                                        ),
+                                        SizedBox(height: 2),
+                                        Text(
+                                          'Update details, pricing, and stock',
+                                          style: TextStyle(
+                                            color: _muted,
+                                            fontSize: 12,
+                                            fontWeight: FontWeight.w600,
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                  IconButton(
+                                    tooltip: 'Close',
+                                    onPressed: () =>
+                                        Navigator.of(context).pop(),
+                                    icon: const Icon(Icons.close_rounded),
+                                  ),
+                                ],
+                              ),
+                            ),
+                            const SizedBox(height: 10),
+                            Flexible(
+                              child: ListView(
+                                padding: const EdgeInsets.fromLTRB(
+                                  14,
+                                  0,
+                                  14,
+                                  14,
+                                ),
+                                children: [
+                                  TextField(
+                                    controller: nameController,
+                                    textInputAction: TextInputAction.next,
+                                    decoration: inputDecoration(
+                                      label: 'Product name',
+                                      hint: 'e.g., Premium Dog Food 5kg',
+                                      prefixIcon: Icons.inventory_2_outlined,
+                                    ),
+                                  ),
+                                  const SizedBox(height: 12),
+                                  DropdownButtonFormField<String>(
+                                    initialValue: category,
+                                    decoration: inputDecoration(
+                                      label: 'Category',
+                                      prefixIcon: Icons.category_outlined,
+                                    ),
+                                    items:
+                                        const [
+                                          'Food & Treats',
+                                          'Feeding Supplies',
+                                          'Grooming & Hygiene',
+                                          'Bedding & Housing',
+                                          'Accessories',
+                                        ].map((c) {
+                                          return DropdownMenuItem(
+                                            value: c,
+                                            child: Text(c),
+                                          );
+                                        }).toList(),
+                                    onChanged: (value) {
+                                      if (value == null) {
+                                        return;
+                                      }
+                                      setSheetState(() => category = value);
+                                    },
+                                  ),
+                                  const SizedBox(height: 12),
+                                  Row(
+                                    children: [
+                                      Expanded(
+                                        child: TextField(
+                                          controller: priceController,
+                                          textInputAction: TextInputAction.next,
+                                          keyboardType:
+                                              const TextInputType.numberWithOptions(
+                                                decimal: true,
+                                              ),
+                                          decoration: inputDecoration(
+                                            label: 'Price',
+                                            hint: '₱ 0',
+                                            prefixIcon: Icons.payments_outlined,
+                                          ),
+                                        ),
+                                      ),
+                                      const SizedBox(width: 12),
+                                      Expanded(
+                                        child: TextField(
+                                          controller: stockController,
+                                          textInputAction: TextInputAction.done,
+                                          keyboardType:
+                                              const TextInputType.numberWithOptions(
+                                                decimal: false,
+                                              ),
+                                          decoration: inputDecoration(
+                                            label: 'Stock',
+                                            hint: '0',
+                                            prefixIcon: Icons.numbers_outlined,
+                                          ),
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                  const SizedBox(height: 14),
+                                  Row(
+                                    children: [
+                                      Expanded(
+                                        child: OutlinedButton(
+                                          onPressed: () =>
+                                              Navigator.of(context).pop(),
+                                          style: OutlinedButton.styleFrom(
+                                            padding: const EdgeInsets.symmetric(
+                                              vertical: 12,
+                                            ),
+                                            shape: RoundedRectangleBorder(
+                                              borderRadius:
+                                                  BorderRadius.circular(14),
+                                            ),
+                                            side: const BorderSide(
+                                              color: Color(0x220B0F1A),
+                                            ),
+                                          ),
+                                          child: const Text('Cancel'),
+                                        ),
+                                      ),
+                                      const SizedBox(width: 12),
+                                      Expanded(
+                                        child: ElevatedButton(
+                                          onPressed: () {
+                                            final name = nameController.text
+                                                .trim();
+                                            final priceText = priceController
+                                                .text
+                                                .trim();
+                                            final stockText = stockController
+                                                .text
+                                                .trim();
+                                            if (name.isEmpty ||
+                                                priceText.isEmpty ||
+                                                stockText.isEmpty) {
+                                              ScaffoldMessenger.of(
+                                                context,
+                                              ).showSnackBar(
+                                                const SnackBar(
+                                                  content: Text(
+                                                    'Please fill in name, price, and stock.',
+                                                  ),
+                                                ),
+                                              );
+                                              return;
+                                            }
+                                            final stock =
+                                                int.tryParse(stockText) ?? 0;
+                                            final priceValue =
+                                                double.tryParse(priceText) ?? 0;
+                                            final updated = _Product(
+                                              name: name,
+                                              category: category,
+                                              stock: stock,
+                                              sales: product.sales,
+                                              price:
+                                                  '₱ ${priceValue.toStringAsFixed(0)}',
+                                              badgeColor: _categoryColor(
+                                                category,
+                                              ),
+                                            );
+                                            Navigator.of(context).pop(updated);
+                                          },
+                                          style: ElevatedButton.styleFrom(
+                                            backgroundColor: _accent,
+                                            foregroundColor: const Color(
+                                              0xFF051014,
+                                            ),
+                                            padding: const EdgeInsets.symmetric(
+                                              vertical: 12,
+                                            ),
+                                            shape: RoundedRectangleBorder(
+                                              borderRadius:
+                                                  BorderRadius.circular(14),
+                                            ),
+                                          ),
+                                          child: const Text(
+                                            'Save Changes',
+                                            style: TextStyle(
+                                              fontWeight: FontWeight.w800,
+                                            ),
+                                          ),
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+            );
+          },
+        );
+      },
+    );
+
+    nameController.dispose();
+    priceController.dispose();
+    stockController.dispose();
+
+    if (result != null && mounted) {
+      setState(() {
+        _products[productIndex] = result;
       });
     }
   }
@@ -441,10 +975,7 @@ class _SellerProductsPageState extends State<SellerProductsPage> {
               child: _ProductRow(
                 index: entry.key + 1,
                 product: entry.value,
-                onEdit: () => _info(
-                  context,
-                  'Edit Product can open a full-screen editor inspired by the web modal.',
-                ),
+                onEdit: () => _openEditProductSheet(entry.key, entry.value),
                 onArchive: () => _info(
                   context,
                   'Archive Product will move this to Archived products.',

@@ -334,9 +334,11 @@ class _AdminAllUsersPageState extends State<AdminAllUsersPage> {
     );
 
     if (shouldLogout == true && mounted) {
-      Navigator.of(
-        context,
-      ).pushNamedAndRemoveUntil(AppRoutes.account, (route) => false);
+      Navigator.of(context).pushNamedAndRemoveUntil(
+        AppRoutes.shell,
+        (route) => false,
+        arguments: {'tab': 3},
+      );
     }
   }
 

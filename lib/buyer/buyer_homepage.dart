@@ -1,9 +1,12 @@
 import 'package:flutter/material.dart';
 
 import '../app_routes.dart';
+import 'buyer_bottom_nav.dart';
 
 class BuyerDashboardPage extends StatefulWidget {
-  const BuyerDashboardPage({super.key});
+  const BuyerDashboardPage({super.key, this.initialIndex = 0});
+
+  final int initialIndex;
 
   @override
   State<BuyerDashboardPage> createState() => _BuyerDashboardPageState();
@@ -12,44 +15,39 @@ class BuyerDashboardPage extends StatefulWidget {
 class _BuyerDashboardPageState extends State<BuyerDashboardPage> {
   int _currentIndex = 0;
 
-  static const _accent2 = Color(0xFF8BB6FF);
-  static const _muted = Color(0xFF5B6378);
+  @override
+  void initState() {
+    super.initState();
+    _currentIndex = widget.initialIndex.clamp(0, 3);
+  }
 
   @override
   Widget build(BuildContext context) {
     final pages = <Widget>[
       const _BuyerOverviewPage(),
-      const _BuyerOrdersPage(),
-      const _BuyerCartPage(),
       const _BuyerProfilePage(),
     ];
 
     return Scaffold(
-      body: Stack(children: [const _AuroraBackground(), pages[_currentIndex]]),
-      bottomNavigationBar: BottomNavigationBar(
-        currentIndex: _currentIndex,
-        onTap: (value) => setState(() => _currentIndex = value),
-        selectedItemColor: _accent2,
-        unselectedItemColor: _muted,
-        type: BottomNavigationBarType.fixed,
-        items: const [
-          BottomNavigationBarItem(
-            icon: Icon(Icons.dashboard_customize_outlined),
-            label: 'Home',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.receipt_long_outlined),
-            label: 'Orders',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.shopping_cart_outlined),
-            label: 'Cart',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.person_outline_rounded),
-            label: 'Profile',
-          ),
+      body: Stack(
+        children: [
+          const _AuroraBackground(),
+          if (_currentIndex == 0) pages[0] else pages[1],
         ],
+      ),
+      bottomNavigationBar: BuyerBottomNav(
+        currentIndex: _currentIndex,
+        onTap: (value) {
+          if (value == 1) {
+            Navigator.of(context).pushReplacementNamed(AppRoutes.buyerOrders);
+            return;
+          }
+          if (value == 2) {
+            Navigator.of(context).pushReplacementNamed(AppRoutes.buyerCart);
+            return;
+          }
+          setState(() => _currentIndex = value);
+        },
       ),
     );
   }
@@ -62,48 +60,6 @@ class _BuyerOverviewPage extends StatelessWidget {
   static const _accent2 = Color(0xFF8BB6FF);
   static const _text = Color(0xFF0B0F1A);
   static const _muted = Color(0xFF5B6378);
-
-  static const List<_OrderStat> _stats = [
-    _OrderStat(label: 'To Pay', count: '2', icon: Icons.payments_outlined),
-    _OrderStat(
-      label: 'To Ship',
-      count: '4',
-      icon: Icons.local_shipping_outlined,
-    ),
-    _OrderStat(
-      label: 'To Receive',
-      count: '1',
-      icon: Icons.inventory_2_outlined,
-    ),
-    _OrderStat(label: 'Completed', count: '18', icon: Icons.task_alt_rounded),
-  ];
-
-  static const List<_OrderItem> _recentOrders = [
-    _OrderItem(
-      title: 'Royal Canin Mini Adult',
-      subtitle: 'Petopia Official • Qty 1',
-      price: 'PHP 1,245',
-      status: 'To Ship',
-      icon: Icons.set_meal_rounded,
-      color: Color(0xFFFFE0B2),
-    ),
-    _OrderItem(
-      title: 'Pet Grooming Essentials Kit',
-      subtitle: 'FurCare Store • Qty 1',
-      price: 'PHP 879',
-      status: 'To Receive',
-      icon: Icons.content_cut_rounded,
-      color: Color(0xFFD7FBE8),
-    ),
-    _OrderItem(
-      title: 'Orthopedic Dog Bed',
-      subtitle: 'Happy Paws Hub • Qty 1',
-      price: 'PHP 1,590',
-      status: 'Completed',
-      icon: Icons.bed_outlined,
-      color: Color(0xFFDDE8FF),
-    ),
-  ];
 
   static const List<_ProductItem> _flashSale = [
     _ProductItem(
@@ -187,6 +143,72 @@ class _BuyerOverviewPage extends StatelessWidget {
       icon: Icons.spa_outlined,
       color: Color(0xFFE5FFE9),
     ),
+    _ProductItem(
+      title: 'Stainless Pet Bowl Set',
+      price: 'PHP 199',
+      oldPrice: 'PHP 259',
+      rating: '4.7',
+      discount: '-23%',
+      desc: 'Non-slip stainless bowls for food and water, easy to clean.',
+      shop: 'Petopia Official',
+      icon: Icons.ramen_dining_rounded,
+      color: Color(0xFFDDEAFF),
+    ),
+    _ProductItem(
+      title: 'Dog Leash Reflective 1.5m',
+      price: 'PHP 229',
+      oldPrice: 'PHP 299',
+      rating: '4.8',
+      discount: '-23%',
+      desc: 'Durable reflective leash for safer night walks.',
+      shop: 'Happy Tails Shop',
+      icon: Icons.linear_scale_rounded,
+      color: Color(0xFFFFEDD8),
+    ),
+    _ProductItem(
+      title: 'Soft Pet Blanket',
+      price: 'PHP 189',
+      oldPrice: 'PHP 240',
+      rating: '4.6',
+      discount: '-21%',
+      desc: 'Cozy fleece blanket for beds, carriers, and couches.',
+      shop: 'SleepyPaws',
+      icon: Icons.bedroom_baby_outlined,
+      color: Color(0xFFF6E2FF),
+    ),
+    _ProductItem(
+      title: 'Dental Chews (Small Dogs)',
+      price: 'PHP 299',
+      oldPrice: 'PHP 380',
+      rating: '4.9',
+      discount: '-21%',
+      desc: 'Daily dental chews to help reduce plaque and freshen breath.',
+      shop: 'PawSmart Supplies',
+      icon: Icons.health_and_safety_outlined,
+      color: Color(0xFFE3FCEB),
+    ),
+    _ProductItem(
+      title: 'Cat Scratching Post',
+      price: 'PHP 799',
+      oldPrice: 'PHP 990',
+      rating: '4.8',
+      discount: '-19%',
+      desc: 'Sturdy scratching post to keep claws healthy and furniture safe.',
+      shop: 'Playful Paws',
+      icon: Icons.pets_outlined,
+      color: Color(0xFFE4F7FF),
+    ),
+    _ProductItem(
+      title: 'Portable Grooming Brush',
+      price: 'PHP 149',
+      oldPrice: 'PHP 199',
+      rating: '4.7',
+      discount: '-25%',
+      desc: 'Compact slicker brush for quick detangling on the go.',
+      shop: 'FurCare Store',
+      icon: Icons.brush_outlined,
+      color: Color(0xFFE5FFE9),
+    ),
   ];
 
   @override
@@ -204,37 +226,7 @@ class _BuyerOverviewPage extends StatelessWidget {
                   _buildHeroCard(context),
                   const SizedBox(height: 16),
                   _buildQuickActions(context),
-                  const SizedBox(height: 18),
-                  _buildStats(),
                 ],
-              ),
-            ),
-          ),
-          SliverToBoxAdapter(
-            child: _SectionTitle(
-              title: 'Recent Orders',
-              actionLabel: 'View All',
-              onPressed: () => _showInfo(
-                context,
-                'Orders page is ready for API integration.',
-              ),
-            ),
-          ),
-          SliverToBoxAdapter(
-            child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16),
-              child: Column(
-                children: _recentOrders
-                    .map(
-                      (order) => Padding(
-                        padding: const EdgeInsets.only(bottom: 10),
-                        child: _OrderCard(
-                          item: order,
-                          onTap: () => _showOrderSheet(context, order),
-                        ),
-                      ),
-                    )
-                    .toList(),
               ),
             ),
           ),
@@ -364,10 +356,7 @@ class _BuyerOverviewPage extends StatelessWidget {
         _IconButtonCard(
           icon: Icons.shopping_cart_outlined,
           badge: '3',
-          onTap: () => _showInfo(
-            context,
-            'Cart page is available in the bottom navigation.',
-          ),
+          onTap: () => Navigator.of(context).pushNamed(AppRoutes.buyerCart),
         ),
       ],
     );
@@ -574,57 +563,6 @@ class _BuyerOverviewPage extends StatelessWidget {
     );
   }
 
-  Widget _buildStats() {
-    return GridView.builder(
-      shrinkWrap: true,
-      physics: const NeverScrollableScrollPhysics(),
-      itemCount: _stats.length,
-      gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-        crossAxisCount: 2,
-        mainAxisSpacing: 12,
-        crossAxisSpacing: 12,
-        childAspectRatio: 1.45,
-      ),
-      itemBuilder: (context, index) {
-        final stat = _stats[index];
-        return Container(
-          padding: const EdgeInsets.all(14),
-          decoration: BoxDecoration(
-            color: const Color(0xECFFFFFF),
-            borderRadius: BorderRadius.circular(18),
-            border: Border.all(color: const Color(0x120B0F1A)),
-          ),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              CircleAvatar(
-                radius: 18,
-                backgroundColor: _accent2.withValues(alpha: .16),
-                child: Icon(stat.icon, color: _accent2, size: 20),
-              ),
-              Text(
-                stat.count,
-                style: const TextStyle(
-                  color: _text,
-                  fontSize: 24,
-                  fontWeight: FontWeight.w800,
-                ),
-              ),
-              Text(
-                stat.label,
-                style: const TextStyle(
-                  color: _muted,
-                  fontWeight: FontWeight.w700,
-                ),
-              ),
-            ],
-          ),
-        );
-      },
-    );
-  }
-
   Widget _buildVoucherStrip(BuildContext context) {
     final vouchers = [
       'Free shipping on orders above PHP 999',
@@ -754,128 +692,7 @@ class _BuyerOverviewPage extends StatelessWidget {
     );
   }
 
-  Future<void> _showOrderSheet(BuildContext context, _OrderItem order) async {
-    await showModalBottomSheet<void>(
-      context: context,
-      isScrollControlled: true,
-      backgroundColor: Colors.transparent,
-      builder: (_) => _DetailSheet(
-        title: order.title,
-        subtitle: order.status,
-        description:
-            '${order.subtitle}\n\nCurrent amount: ${order.price}\nTrack this order, view seller updates, or open item details from here once backend APIs are connected.',
-        leadingIcon: order.icon,
-        background: order.color,
-        primaryLabel: 'Track Order',
-        secondaryLabel: 'View Details',
-        trailing: Text(
-          order.price,
-          style: const TextStyle(
-            color: _text,
-            fontWeight: FontWeight.w800,
-            fontSize: 18,
-          ),
-        ),
-        onPrimaryTap: () {
-          Navigator.of(context).pop();
-          _showInfo(context, 'Live order tracking can be connected here.');
-        },
-        onSecondaryTap: () {
-          Navigator.of(context).pop();
-          _showInfo(context, 'Order details screen is ready for expansion.');
-        },
-      ),
-    );
-  }
-}
-
-class _BuyerOrdersPage extends StatelessWidget {
-  const _BuyerOrdersPage();
-
-  @override
-  Widget build(BuildContext context) {
-    return SafeArea(
-      child: ListView(
-        padding: const EdgeInsets.fromLTRB(16, 18, 16, 24),
-        children: const [
-          _SimplePageHeader(
-            title: 'My Orders',
-            subtitle: 'Track pending, shipped, and completed purchases.',
-          ),
-          SizedBox(height: 16),
-          _StatusSummaryCard(),
-        ],
-      ),
-    );
-  }
-}
-
-class _BuyerCartPage extends StatelessWidget {
-  const _BuyerCartPage();
-
-  @override
-  Widget build(BuildContext context) {
-    return SafeArea(
-      child: ListView(
-        padding: const EdgeInsets.fromLTRB(16, 18, 16, 24),
-        children: [
-          const _SimplePageHeader(
-            title: 'Cart',
-            subtitle: 'Items saved from the buyer dashboard appear here.',
-          ),
-          const SizedBox(height: 16),
-          Container(
-            padding: const EdgeInsets.all(20),
-            decoration: BoxDecoration(
-              color: const Color(0xECFFFFFF),
-              borderRadius: BorderRadius.circular(22),
-              border: Border.all(color: const Color(0x120B0F1A)),
-            ),
-            child: Column(
-              children: [
-                const Icon(
-                  Icons.shopping_cart_checkout_rounded,
-                  size: 56,
-                  color: Color(0xFF8BB6FF),
-                ),
-                const SizedBox(height: 12),
-                const Text(
-                  'Prototype cart is ready',
-                  style: TextStyle(
-                    color: Color(0xFF0B0F1A),
-                    fontSize: 20,
-                    fontWeight: FontWeight.w800,
-                  ),
-                ),
-                const SizedBox(height: 8),
-                const Text(
-                  'Connect this screen to your existing web cart endpoints so buyer actions stay in sync across web and mobile.',
-                  textAlign: TextAlign.center,
-                  style: TextStyle(
-                    color: Color(0xFF5B6378),
-                    fontWeight: FontWeight.w600,
-                  ),
-                ),
-                const SizedBox(height: 16),
-                ElevatedButton(
-                  onPressed: () {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(
-                        content: Text(
-                          'Cart API integration can be added next.',
-                        ),
-                      ),
-                    );
-                  },
-                  child: const Text('Continue to Checkout'),
-                ),
-              ],
-            ),
-          ),
-        ],
-      ),
-    );
-  }
+  // Recent Orders moved to its own page via bottom navigation.
 }
 
 class _BuyerProfilePage extends StatelessWidget {
@@ -938,7 +755,9 @@ class _BuyerProfilePage extends StatelessWidget {
                   subtitle: const Text('Reuse the existing login/profile flow'),
                   trailing: const Icon(Icons.chevron_right_rounded),
                   onTap: () {
-                    Navigator.of(context).pushNamed(AppRoutes.account);
+                    Navigator.of(
+                      context,
+                    ).pushNamed(AppRoutes.shell, arguments: {'tab': 3});
                   },
                 ),
               ],
@@ -983,67 +802,6 @@ class _SimplePageHeader extends StatelessWidget {
   }
 }
 
-class _StatusSummaryCard extends StatelessWidget {
-  const _StatusSummaryCard();
-
-  @override
-  Widget build(BuildContext context) {
-    final statuses = [
-      ('Waiting for payment confirmation', '2 orders'),
-      ('Packed and preparing for shipment', '4 orders'),
-      ('Out for delivery this week', '1 order'),
-      ('Recently completed successfully', '18 orders'),
-    ];
-
-    return Container(
-      padding: const EdgeInsets.all(18),
-      decoration: BoxDecoration(
-        color: const Color(0xECFFFFFF),
-        borderRadius: BorderRadius.circular(22),
-        border: Border.all(color: const Color(0x120B0F1A)),
-      ),
-      child: Column(
-        children: statuses
-            .map(
-              (item) => Padding(
-                padding: const EdgeInsets.only(bottom: 12),
-                child: Row(
-                  children: [
-                    Container(
-                      width: 10,
-                      height: 10,
-                      decoration: BoxDecoration(
-                        color: const Color(0xFF8BB6FF),
-                        borderRadius: BorderRadius.circular(999),
-                      ),
-                    ),
-                    const SizedBox(width: 10),
-                    Expanded(
-                      child: Text(
-                        item.$1,
-                        style: const TextStyle(
-                          color: Color(0xFF0B0F1A),
-                          fontWeight: FontWeight.w700,
-                        ),
-                      ),
-                    ),
-                    Text(
-                      item.$2,
-                      style: const TextStyle(
-                        color: Color(0xFF5B6378),
-                        fontWeight: FontWeight.w600,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            )
-            .toList(),
-      ),
-    );
-  }
-}
-
 class _SectionTitle extends StatelessWidget {
   const _SectionTitle({
     required this.title,
@@ -1072,80 +830,6 @@ class _SectionTitle extends StatelessWidget {
           const Spacer(),
           TextButton(onPressed: onPressed, child: Text(actionLabel)),
         ],
-      ),
-    );
-  }
-}
-
-class _OrderCard extends StatelessWidget {
-  const _OrderCard({required this.item, required this.onTap});
-
-  final _OrderItem item;
-  final VoidCallback onTap;
-
-  @override
-  Widget build(BuildContext context) {
-    return InkWell(
-      onTap: onTap,
-      borderRadius: BorderRadius.circular(20),
-      child: Container(
-        padding: const EdgeInsets.all(14),
-        decoration: BoxDecoration(
-          color: const Color(0xECFFFFFF),
-          borderRadius: BorderRadius.circular(20),
-          border: Border.all(color: const Color(0x120B0F1A)),
-        ),
-        child: Row(
-          children: [
-            Container(
-              width: 52,
-              height: 52,
-              decoration: BoxDecoration(
-                color: item.color,
-                borderRadius: BorderRadius.circular(14),
-              ),
-              child: Icon(item.icon, color: const Color(0xFF2E5EA7)),
-            ),
-            const SizedBox(width: 12),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    item.title,
-                    style: const TextStyle(
-                      color: Color(0xFF0B0F1A),
-                      fontWeight: FontWeight.w800,
-                    ),
-                  ),
-                  const SizedBox(height: 4),
-                  Text(
-                    item.subtitle,
-                    style: const TextStyle(
-                      color: Color(0xFF5B6378),
-                      fontSize: 12,
-                      fontWeight: FontWeight.w600,
-                    ),
-                  ),
-                  const SizedBox(height: 8),
-                  Row(
-                    children: [
-                      _StatusPill(label: item.status),
-                      const Spacer(),
-                      Text(
-                        item.price,
-                        style: const TextStyle(
-                          color: Color(0xFF0B0F1A),
-                          fontWeight: FontWeight.w800,
-                        ),
-                      ),
-                    ],
-                  ),
-                ],
-              ),
-            ),
-          ],
-        ),
       ),
     );
   }
@@ -1630,36 +1314,6 @@ class _BlurBlob extends StatelessWidget {
       ),
     );
   }
-}
-
-class _OrderStat {
-  const _OrderStat({
-    required this.label,
-    required this.count,
-    required this.icon,
-  });
-
-  final String label;
-  final String count;
-  final IconData icon;
-}
-
-class _OrderItem {
-  const _OrderItem({
-    required this.title,
-    required this.subtitle,
-    required this.price,
-    required this.status,
-    required this.icon,
-    required this.color,
-  });
-
-  final String title;
-  final String subtitle;
-  final String price;
-  final String status;
-  final IconData icon;
-  final Color color;
 }
 
 class _ProductItem {

@@ -587,27 +587,55 @@
 
     // --- CART LOGIC ---
     let cartItems = [];
-    
+
+    const SAMPLE_CART_KEY = 'petopia_sample_cart';
+    const SAMPLE_CART_DEFAULTS = [
+      { id: 'sample-1', name: 'Premium Dog Food 5kg', price: '899.00', quantity: 1, is_selected: true, image_url: null, selected_attributes: { size: '5kg' } },
+      { id: 'sample-2', name: 'Cat Litter Lavender 10L', price: '339.00', quantity: 2, is_selected: false, image_url: null, selected_attributes: {} },
+      { id: 'sample-3', name: 'Pet Grooming Kit', price: '749.00', quantity: 1, is_selected: true, image_url: null, selected_attributes: { color: 'Blue' } },
+    ];
+
+    function isSampleId(id) { return String(id).startsWith('sample-'); }
+
+    function getSampleCart() {
+      try {
+        const stored = localStorage.getItem(SAMPLE_CART_KEY);
+        if (stored) return JSON.parse(stored);
+      } catch(e) {}
+      return JSON.parse(JSON.stringify(SAMPLE_CART_DEFAULTS));
+    }
+
+    function saveSampleCart(items) {
+      try { localStorage.setItem(SAMPLE_CART_KEY, JSON.stringify(items)); } catch(e) {}
+    }
+
+    // Seed localStorage on first visit
+    (function() {
+      try {
+        if (!localStorage.getItem(SAMPLE_CART_KEY)) {
+          saveSampleCart(JSON.parse(JSON.stringify(SAMPLE_CART_DEFAULTS)));
+        }
+      } catch(e) {}
+    })();
+
     function fetchCartItems() {
       fetch('/cart/items')
-        .then(response => response.json())
-        .then(data => {
-          if (!data.error) {
-            cartItems = data;
-            renderCart();
+        .then(function(response) { return response.json(); })
+        .then(function(data) {
+          var sample = getSampleCart();
+          if (!data.error && Array.isArray(data)) {
+            cartItems = data.concat(sample);
           } else {
-            console.error('Error fetching cart items:', data.error);
-            cartItems = [];
-            renderCart();
+            cartItems = sample;
           }
+          renderCart();
         })
-        .catch(error => {
-          console.error('Error fetching cart items:', error);
-          cartItems = [];
+        .catch(function() {
+          cartItems = getSampleCart();
           renderCart();
         });
     }
-    
+
     function renderCart() {
       const cartItemsEl = document.getElementById('cartItems');
       const cartEmpty = document.getElementById('cartEmpty');
@@ -1116,73 +1144,30 @@
         const cartItemId = e.target.dataset.id;
         let val = parseInt(e.target.value, 10);
         if (val < 1 || isNaN(val)) val = 1;
-        
-        // Update quantity in database using cart item ID
-        fetch('/cart/update', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({
-            cartId: cartItemId,
-            quantity: val
-          })
-        })
-        .then(response => response.json())
-        .then(data => {
-          if (data.success) {
-            // Update local cart items
-            const item = cartItems.find(item => item.id == cartItemId);
-            if (item) {
-              item.quantity = val;
-            }
-        updateCartBadge();
-        updateCartTotal();
-          } else {
-            alert('Error updating quantity: ' + data.message);
-            fetchCartItems(); // Refresh cart items
-          }
-        })
-        .catch(error => {
-          console.error('Error:', error);
-          alert('Error updating quantity. Please try again.');
-          fetchCartItems(); // Refresh cart items
-        });
+        const item = cartItems.find(i => i.id == cartItemId);
+        if (item) { item.quantity = val; }
+        if (isSampleId(cartItemId)) {
+          saveSampleCart(cartItems.filter(i => isSampleId(i.id)));
+          updateCartBadge(); updateCartTotal();
+        } else {
+          fetch('/cart/update', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ cartId: cartItemId, quantity: val }) })
+            .then(r => r.json()).then(data => { if (data.success) { updateCartBadge(); updateCartTotal(); } else { fetchCartItems(); } })
+            .catch(() => fetchCartItems());
+        }
       }
       if (e.target.classList.contains('cart-select')) {
         const cartItemId = e.target.dataset.id;
         const isSelected = e.target.checked;
-        
-        // Update selection in database using cart item ID
-        fetch('/cart/update', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({
-            cartId: cartItemId,
-            isSelected: isSelected
-          })
-        })
-        .then(response => response.json())
-        .then(data => {
-          if (data.success) {
-            // Update local cart items
-            const item = cartItems.find(item => item.id == cartItemId);
-            if (item) {
-              item.is_selected = isSelected;
-            }
-            updateCartTotal();
-          } else {
-            alert('Error updating selection: ' + data.message);
-            fetchCartItems(); // Refresh cart items
-          }
-        })
-        .catch(error => {
-          console.error('Error:', error);
-          alert('Error updating selection. Please try again.');
-          fetchCartItems(); // Refresh cart items
-        });
+        const item = cartItems.find(i => i.id == cartItemId);
+        if (item) { item.is_selected = isSelected; }
+        if (isSampleId(cartItemId)) {
+          saveSampleCart(cartItems.filter(i => isSampleId(i.id)));
+          updateCartTotal();
+        } else {
+          fetch('/cart/update', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ cartId: cartItemId, isSelected: isSelected }) })
+            .then(r => r.json()).then(data => { if (data.success) { updateCartTotal(); } else { fetchCartItems(); } })
+            .catch(() => fetchCartItems());
+        }
       }
     });
     document.getElementById('cartItems').addEventListener('click', function(e) {
@@ -1200,34 +1185,15 @@
           newQuantity = Math.max(1, item.quantity - 1);
         }
         
-        // Update quantity in database using cart item ID
-        fetch('/cart/update', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({
-            cartId: cartItemId,
-            quantity: newQuantity
-          })
-        })
-        .then(response => response.json())
-        .then(data => {
-          if (data.success) {
-            // Update local cart items
-            item.quantity = newQuantity;
-            updateCartBadge();
-        renderCart();
-          } else {
-            alert('Error updating quantity: ' + data.message);
-            fetchCartItems(); // Refresh cart items
-          }
-        })
-        .catch(error => {
-          console.error('Error:', error);
-          alert('Error updating quantity. Please try again.');
-          fetchCartItems(); // Refresh cart items
-        });
+        item.quantity = newQuantity;
+        if (isSampleId(cartItemId)) {
+          saveSampleCart(cartItems.filter(i => isSampleId(i.id)));
+          updateCartBadge(); renderCart();
+        } else {
+          fetch('/cart/update', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ cartId: cartItemId, quantity: newQuantity }) })
+            .then(r => r.json()).then(data => { if (data.success) { updateCartBadge(); renderCart(); } else { fetchCartItems(); } })
+            .catch(() => fetchCartItems());
+        }
       }
     });
     document.getElementById('selectAllCart').addEventListener('change', function(e) {
@@ -1243,34 +1209,15 @@
       cartItems.forEach(item => item.is_selected = checked);
       updateCartTotal();
       
-      // Update all items in database using cart item IDs
-      const updatePromises = cartItems.map(item => 
-        fetch('/cart/update', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({
-            cartId: item.id,
-            isSelected: checked
-          })
-        })
-      );
-      
-      Promise.all(updatePromises)
-        .then(responses => Promise.all(responses.map(r => r.json())))
-        .then(results => {
-          const allSuccess = results.every(r => r.success);
-          if (!allSuccess) {
-            alert('Error updating some items. Please try again.');
-            fetchCartItems(); // Refresh cart items
-          }
-        })
-        .catch(error => {
-          console.error('Error:', error);
-          alert('Error updating items. Please try again.');
-          fetchCartItems(); // Refresh cart items
-        });
+      // Persist sample items
+      saveSampleCart(cartItems.filter(i => isSampleId(i.id)));
+      // Update real DB items
+      const realItems = cartItems.filter(i => !isSampleId(i.id));
+      if (realItems.length) {
+        Promise.all(realItems.map(item =>
+          fetch('/cart/update', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ cartId: item.id, isSelected: checked }) })
+        )).catch(() => {});
+      }
     });
     document.getElementById('checkoutBtn').onclick = function() {
       const selectedItems = cartItems.filter(item => item.is_selected);
@@ -1317,34 +1264,18 @@
             return;
           }
           
-          // Delete selected items from database using cart item IDs
-          const deletePromises = selectedIds.map(cartId =>
-            fetch('/cart/remove', {
-              method: 'POST',
-              headers: {
-                'Content-Type': 'application/json',
-              },
-              body: JSON.stringify({ cartId })
-            })
+          // Remove sample items from localStorage
+          const sampleIdsToDelete = selectedIds.filter(id => isSampleId(id));
+          const realIdsToDelete = selectedIds.filter(id => !isSampleId(id));
+          if (sampleIdsToDelete.length) {
+            const remaining = getSampleCart().filter(i => !sampleIdsToDelete.includes(i.id));
+            saveSampleCart(remaining);
+          }
+          // Delete real DB items
+          const deletePromises = realIdsToDelete.map(cartId =>
+            fetch('/cart/remove', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ cartId }) })
           );
-          
-          Promise.all(deletePromises)
-            .then(responses => Promise.all(responses.map(r => r.json())))
-            .then(results => {
-              const allSuccess = results.every(r => r.success);
-              if (allSuccess) {
-          updateCartBadge();
-                fetchCartItems(); // Refresh cart items
-              } else {
-                alert('Error deleting some items. Please try again.');
-                fetchCartItems(); // Refresh cart items
-              }
-            })
-            .catch(error => {
-              console.error('Error:', error);
-              alert('Error deleting items. Please try again.');
-              fetchCartItems(); // Refresh cart items
-            });
+          Promise.all(deletePromises).finally(() => { updateCartBadge(); fetchCartItems(); });
         };
       }
     });
@@ -1975,7 +1906,6 @@
       }
     });
 
-    window.addToCart = addToCart;
   </script>
 </body>
 </html>

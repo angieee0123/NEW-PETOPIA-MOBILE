@@ -383,9 +383,11 @@ class _AdminArchivedUsersPageState extends State<AdminArchivedUsersPage> {
     );
 
     if (shouldLogout == true && mounted) {
-      Navigator.of(
-        context,
-      ).pushNamedAndRemoveUntil(AppRoutes.account, (route) => false);
+      Navigator.of(context).pushNamedAndRemoveUntil(
+        AppRoutes.shell,
+        (route) => false,
+        arguments: {'tab': 3},
+      );
     }
   }
 

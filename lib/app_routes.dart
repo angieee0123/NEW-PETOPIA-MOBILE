@@ -6,10 +6,14 @@ import 'admin/admin_dashboard.dart';
 import 'admin/admin_rider_request.dart';
 import 'admin/admin_seller_request.dart';
 import 'buyer/buyer_homepage.dart';
+import 'buyer/buyer_cart.dart';
+import 'buyer/buyer_checkout.dart';
+import 'buyer/buyer_orders.dart';
 import 'buyer/signup_buyer.dart';
 import 'rider/rider_dashboard.dart';
 import 'rider/signup_rider.dart';
 import 'seller/seller_dashboard.dart';
+import 'seller/seller_archived_products.dart';
 import 'seller/seller_products.dart';
 import 'seller/signup_seller.dart';
 import 'users/account.dart';
@@ -34,8 +38,12 @@ class AppRoutes {
   static const resetPassword = '/auth/reset-password';
 
   static const buyerDashboard = '/dash/buyer';
+  static const buyerOrders = '/dash/buyer/orders';
+  static const buyerCart = '/dash/buyer/cart';
+  static const buyerCheckout = '/dash/buyer/checkout';
   static const sellerDashboard = '/dash/seller';
   static const sellerProducts = '/dash/seller/products';
+  static const sellerArchivedProducts = '/dash/seller/products/archived';
   static const riderDashboard = '/dash/rider';
   static const adminDashboard = '/dash/admin';
   static const adminAllUsers = '/dash/admin/users';
@@ -46,10 +54,15 @@ class AppRoutes {
   static Route<dynamic> onGenerateRoute(RouteSettings settings) {
     switch (settings.name) {
       case shell:
-        return MaterialPageRoute<void>(
-          settings: settings,
-          builder: (_) => const PetopiaShellPage(),
-        );
+        {
+          final args =
+              (settings.arguments as Map?)?.cast<String, dynamic>() ?? const {};
+          final tab = (args['tab'] as int?) ?? 0;
+          return MaterialPageRoute<void>(
+            settings: settings,
+            builder: (_) => PetopiaShellPage(initialIndex: tab),
+          );
+        }
       case account:
         return MaterialPageRoute<void>(
           settings: settings,
@@ -111,19 +124,57 @@ class AppRoutes {
           builder: (_) => const LoginResetPasswordPage(),
         );
       case buyerDashboard:
+        {
+          final args =
+              (settings.arguments as Map?)?.cast<String, dynamic>() ?? const {};
+          final tab = (args['tab'] as int?) ?? 0;
+          return MaterialPageRoute<void>(
+            settings: settings,
+            builder: (_) => BuyerDashboardPage(initialIndex: tab),
+          );
+        }
+      case buyerCart:
         return MaterialPageRoute<void>(
           settings: settings,
-          builder: (_) => const BuyerDashboardPage(),
+          builder: (_) => const BuyerCartPage(),
         );
+      case buyerOrders:
+        return MaterialPageRoute<void>(
+          settings: settings,
+          builder: (_) => const BuyerOrdersPage(),
+        );
+      case buyerCheckout:
+        {
+          final args =
+              (settings.arguments as Map?)?.cast<String, dynamic>() ?? const {};
+          final itemsRaw = (args['items'] as List?) ?? const [];
+          final items = itemsRaw
+              .map((e) => (e as Map).cast<String, dynamic>())
+              .toList();
+          return MaterialPageRoute<void>(
+            settings: settings,
+            builder: (_) => BuyerCheckoutPage(items: items),
+          );
+        }
       case sellerDashboard:
-        return MaterialPageRoute<void>(
-          settings: settings,
-          builder: (_) => const SellerDashboardPage(),
-        );
+        {
+          final args =
+              (settings.arguments as Map?)?.cast<String, dynamic>() ?? const {};
+          final tab = (args['tab'] as int?) ?? 0;
+          return MaterialPageRoute<void>(
+            settings: settings,
+            builder: (_) => SellerDashboardPage(initialIndex: tab),
+          );
+        }
       case sellerProducts:
         return MaterialPageRoute<void>(
           settings: settings,
           builder: (_) => const SellerProductsPage(),
+        );
+      case sellerArchivedProducts:
+        return MaterialPageRoute<void>(
+          settings: settings,
+          builder: (_) => const SellerArchivedProductsPage(),
         );
       case riderDashboard:
         return MaterialPageRoute<void>(
