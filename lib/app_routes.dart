@@ -9,6 +9,7 @@ import 'buyer/buyer_homepage.dart';
 import 'buyer/buyer_cart.dart';
 import 'buyer/buyer_checkout.dart';
 import 'buyer/buyer_orders.dart';
+import 'buyer/buyer_customer_service.dart';
 import 'buyer/signup_buyer.dart';
 import 'rider/rider_dashboard.dart';
 import 'rider/signup_rider.dart';
@@ -41,6 +42,7 @@ class AppRoutes {
   static const buyerOrders = '/dash/buyer/orders';
   static const buyerCart = '/dash/buyer/cart';
   static const buyerCheckout = '/dash/buyer/checkout';
+  static const buyerCustomerService = '/dash/buyer/support';
   static const sellerDashboard = '/dash/seller';
   static const sellerProducts = '/dash/seller/products';
   static const sellerArchivedProducts = '/dash/seller/products/archived';
@@ -156,6 +158,11 @@ class AppRoutes {
             builder: (_) => BuyerCheckoutPage(items: items),
           );
         }
+      case buyerCustomerService:
+        return MaterialPageRoute<void>(
+          settings: settings,
+          builder: (_) => const BuyerCustomerServicePage(),
+        );
       case sellerDashboard:
         {
           final args =
