@@ -55,6 +55,10 @@ class _SellerDashboardPageState extends State<SellerDashboardPage> {
             Navigator.of(context).pushNamed(AppRoutes.sellerOrders);
             return;
           }
+          if (value == 3) {
+            Navigator.of(context).pushNamed(AppRoutes.sellerShopPublicView);
+            return;
+          }
           setState(() => _currentIndex = value);
         },
       ),

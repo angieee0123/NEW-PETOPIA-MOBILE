@@ -10,9 +10,14 @@ import 'buyer/buyer_cart.dart';
 import 'buyer/buyer_checkout.dart';
 import 'buyer/buyer_orders.dart';
 import 'buyer/buyer_customer_service.dart';
+import 'buyer/buyer_profile.dart';
 import 'buyer/signup_buyer.dart';
 import 'rider/rider_dashboard.dart';
 import 'rider/rider_customer_service.dart';
+import 'rider/rider_deliveries.dart';
+import 'rider/rider_earnings.dart';
+import 'rider/rider_history.dart';
+import 'rider/rider_profile.dart';
 import 'rider/signup_rider.dart';
 import 'seller/seller_dashboard.dart';
 import 'seller/seller_archived_products.dart';
@@ -21,6 +26,8 @@ import 'seller/seller_orders.dart';
 import 'seller/seller_earnings.dart';
 import 'seller/seller_promotion.dart';
 import 'seller/seller_reports.dart';
+import 'seller/seller_shop_public_view.dart';
+import 'seller/seller_profile.dart';
 import 'seller/seller_products.dart';
 import 'seller/signup_seller.dart';
 import 'users/account.dart';
@@ -49,6 +56,7 @@ class AppRoutes {
   static const buyerCart = '/dash/buyer/cart';
   static const buyerCheckout = '/dash/buyer/checkout';
   static const buyerCustomerService = '/dash/buyer/support';
+  static const buyerProfile = '/dash/buyer/profile';
   static const sellerDashboard = '/dash/seller';
   static const sellerProducts = '/dash/seller/products';
   static const sellerArchivedProducts = '/dash/seller/products/archived';
@@ -57,7 +65,13 @@ class AppRoutes {
   static const sellerEarnings = '/dash/seller/earnings';
   static const sellerPromotions = '/dash/seller/promotions';
   static const sellerReports = '/dash/seller/reports';
+  static const sellerShopPublicView = '/dash/seller/shop-public';
+  static const sellerProfile = '/dash/seller/profile';
   static const riderDashboard = '/dash/rider';
+  static const riderDeliveries = '/dash/rider/deliveries';
+  static const riderEarnings = '/dash/rider/earnings';
+  static const riderHistory = '/dash/rider/history';
+  static const riderProfile = '/dash/rider/profile';
   static const riderCustomerService = '/dash/rider/support';
   static const adminDashboard = '/dash/admin';
   static const adminAllUsers = '/dash/admin/users';
@@ -175,6 +189,11 @@ class AppRoutes {
           settings: settings,
           builder: (_) => const BuyerCustomerServicePage(),
         );
+      case buyerProfile:
+        return MaterialPageRoute<void>(
+          settings: settings,
+          builder: (_) => const BuyerProfilePage(),
+        );
       case sellerDashboard:
         {
           final args =
@@ -220,10 +239,45 @@ class AppRoutes {
           settings: settings,
           builder: (_) => const SellerReportsPage(),
         );
-      case riderDashboard:
+      case sellerShopPublicView:
         return MaterialPageRoute<void>(
           settings: settings,
-          builder: (_) => const RiderDashboardPage(),
+          builder: (_) => const SellerShopPublicViewPage(),
+        );
+      case sellerProfile:
+        return MaterialPageRoute<void>(
+          settings: settings,
+          builder: (_) => const SellerProfilePage(),
+        );
+      case riderDashboard:
+        {
+          final args =
+              (settings.arguments as Map?)?.cast<String, dynamic>() ?? const {};
+          final tab = (args['tab'] as int?) ?? 0;
+          return MaterialPageRoute<void>(
+            settings: settings,
+            builder: (_) => RiderDashboardPage(initialIndex: tab),
+          );
+        }
+      case riderDeliveries:
+        return MaterialPageRoute<void>(
+          settings: settings,
+          builder: (_) => const RiderDeliveriesPage(),
+        );
+      case riderEarnings:
+        return MaterialPageRoute<void>(
+          settings: settings,
+          builder: (_) => const RiderEarningsPage(),
+        );
+      case riderHistory:
+        return MaterialPageRoute<void>(
+          settings: settings,
+          builder: (_) => const RiderHistoryPage(),
+        );
+      case riderProfile:
+        return MaterialPageRoute<void>(
+          settings: settings,
+          builder: (_) => const RiderProfilePage(),
         );
       case riderCustomerService:
         return MaterialPageRoute<void>(

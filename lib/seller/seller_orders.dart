@@ -207,6 +207,12 @@ class _SellerOrdersPageState extends State<SellerOrdersPage> {
             Navigator.of(context).pushReplacementNamed(AppRoutes.sellerProducts);
             return;
           }
+          if (value == 3) {
+            Navigator.of(
+              context,
+            ).pushReplacementNamed(AppRoutes.sellerShopPublicView);
+            return;
+          }
           Navigator.of(context).pushReplacementNamed(
             AppRoutes.sellerDashboard,
             arguments: {'tab': value},

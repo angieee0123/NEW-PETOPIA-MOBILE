@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
 
 import '../app_routes.dart';
-import '../widgets/main_bottom_nav.dart';
+import 'rider_bottom_nav.dart';
 
 class RiderDashboardPage extends StatefulWidget {
-  const RiderDashboardPage({super.key});
+  const RiderDashboardPage({super.key, this.initialIndex = 0});
+
+  final int initialIndex;
 
   @override
   State<RiderDashboardPage> createState() => _RiderDashboardPageState();
@@ -12,6 +14,12 @@ class RiderDashboardPage extends StatefulWidget {
 
 class _RiderDashboardPageState extends State<RiderDashboardPage> {
   int _currentIndex = 0;
+
+  @override
+  void initState() {
+    super.initState();
+    _currentIndex = widget.initialIndex.clamp(0, 3);
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -24,27 +32,23 @@ class _RiderDashboardPageState extends State<RiderDashboardPage> {
 
     return Scaffold(
       body: Stack(children: [const _AuroraBackground(), pages[_currentIndex]]),
-      bottomNavigationBar: MainBottomNav(
+      bottomNavigationBar: RiderBottomNav(
         currentIndex: _currentIndex,
-        onTap: (value) => setState(() => _currentIndex = value),
-        items: const [
-          BottomNavigationBarItem(
-            icon: Icon(Icons.home_outlined),
-            label: 'Home',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.local_shipping_outlined),
-            label: 'Deliveries',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.payments_outlined),
-            label: 'Earnings',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.person_outline_rounded),
-            label: 'Profile',
-          ),
-        ],
+        onTap: (value) {
+          if (value == 1) {
+            Navigator.of(context).pushReplacementNamed(AppRoutes.riderDeliveries);
+            return;
+          }
+          if (value == 2) {
+            Navigator.of(context).pushReplacementNamed(AppRoutes.riderEarnings);
+            return;
+          }
+          if (value == 3) {
+            Navigator.of(context).pushReplacementNamed(AppRoutes.riderProfile);
+            return;
+          }
+          setState(() => _currentIndex = value);
+        },
       ),
     );
   }

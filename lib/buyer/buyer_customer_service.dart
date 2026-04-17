@@ -55,6 +55,10 @@ class BuyerCustomerServicePage extends StatelessWidget {
             Navigator.of(context).pushReplacementNamed(AppRoutes.buyerCart);
             return;
           }
+          if (value == 3) {
+            Navigator.of(context).pushReplacementNamed(AppRoutes.buyerProfile);
+            return;
+          }
           Navigator.of(context).pushReplacementNamed(
             AppRoutes.buyerDashboard,
             arguments: {'tab': value},

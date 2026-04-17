@@ -46,6 +46,10 @@ class _BuyerDashboardPageState extends State<BuyerDashboardPage> {
             Navigator.of(context).pushReplacementNamed(AppRoutes.buyerCart);
             return;
           }
+          if (value == 3) {
+            Navigator.of(context).pushReplacementNamed(AppRoutes.buyerProfile);
+            return;
+          }
           setState(() => _currentIndex = value);
         },
       ),

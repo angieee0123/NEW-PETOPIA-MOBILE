@@ -155,6 +155,12 @@ class _SellerReportsPageState extends State<SellerReportsPage> {
             Navigator.of(context).pushReplacementNamed(AppRoutes.sellerOrders);
             return;
           }
+          if (value == 3) {
+            Navigator.of(
+              context,
+            ).pushReplacementNamed(AppRoutes.sellerShopPublicView);
+            return;
+          }
           Navigator.of(context).pushReplacementNamed(
             AppRoutes.sellerDashboard,
             arguments: {'tab': value},

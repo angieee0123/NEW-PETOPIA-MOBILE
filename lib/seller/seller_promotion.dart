@@ -272,6 +272,12 @@ class _SellerPromotionPageState extends State<SellerPromotionPage> {
             Navigator.of(context).pushReplacementNamed(AppRoutes.sellerOrders);
             return;
           }
+          if (value == 3) {
+            Navigator.of(
+              context,
+            ).pushReplacementNamed(AppRoutes.sellerShopPublicView);
+            return;
+          }
           Navigator.of(context).pushReplacementNamed(
             AppRoutes.sellerDashboard,
             arguments: {'tab': value},
