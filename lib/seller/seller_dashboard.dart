@@ -746,18 +746,12 @@ class _SellerOverviewPage extends StatelessWidget {
       _QuickAction(
         title: 'My Products',
         icon: Icons.inventory_2_outlined,
-        onTap: () => _showInfo(
-          context,
-          'Products page is ready for real inventory data.',
-        ),
+        onTap: () => Navigator.of(context).pushNamed(AppRoutes.sellerProducts),
       ),
       _QuickAction(
         title: 'Orders',
         icon: Icons.receipt_long_outlined,
-        onTap: () => _showInfo(
-          context,
-          'Orders page can be linked to seller order updates.',
-        ),
+        onTap: () => Navigator.of(context).pushNamed(AppRoutes.sellerOrders),
       ),
       _QuickAction(
         title: 'Earnings',
@@ -767,18 +761,12 @@ class _SellerOverviewPage extends StatelessWidget {
       _QuickAction(
         title: 'Promotions',
         icon: Icons.campaign_outlined,
-        onTap: () => _showInfo(
-          context,
-          'Promotions (vouchers, flash sales) can be managed here.',
-        ),
+        onTap: () => Navigator.of(context).pushNamed(AppRoutes.sellerPromotions),
       ),
       _QuickAction(
         title: 'Reports',
         icon: Icons.pie_chart_outline_rounded,
-        onTap: () => _showInfo(
-          context,
-          'Reports and analytics can be added from the web module.',
-        ),
+        onTap: () => Navigator.of(context).pushNamed(AppRoutes.sellerReports),
       ),
     ];
 

@@ -19,6 +19,8 @@ import 'seller/seller_archived_products.dart';
 import 'seller/seller_customer_service.dart';
 import 'seller/seller_orders.dart';
 import 'seller/seller_earnings.dart';
+import 'seller/seller_promotion.dart';
+import 'seller/seller_reports.dart';
 import 'seller/seller_products.dart';
 import 'seller/signup_seller.dart';
 import 'users/account.dart';
@@ -53,6 +55,8 @@ class AppRoutes {
   static const sellerCustomerService = '/dash/seller/support';
   static const sellerOrders = '/dash/seller/orders';
   static const sellerEarnings = '/dash/seller/earnings';
+  static const sellerPromotions = '/dash/seller/promotions';
+  static const sellerReports = '/dash/seller/reports';
   static const riderDashboard = '/dash/rider';
   static const riderCustomerService = '/dash/rider/support';
   static const adminDashboard = '/dash/admin';
@@ -205,6 +209,16 @@ class AppRoutes {
         return MaterialPageRoute<void>(
           settings: settings,
           builder: (_) => const SellerEarningsPage(),
+        );
+      case sellerPromotions:
+        return MaterialPageRoute<void>(
+          settings: settings,
+          builder: (_) => const SellerPromotionPage(),
+        );
+      case sellerReports:
+        return MaterialPageRoute<void>(
+          settings: settings,
+          builder: (_) => const SellerReportsPage(),
         );
       case riderDashboard:
         return MaterialPageRoute<void>(
