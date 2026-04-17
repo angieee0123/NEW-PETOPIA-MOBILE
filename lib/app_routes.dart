@@ -12,9 +12,13 @@ import 'buyer/buyer_orders.dart';
 import 'buyer/buyer_customer_service.dart';
 import 'buyer/signup_buyer.dart';
 import 'rider/rider_dashboard.dart';
+import 'rider/rider_customer_service.dart';
 import 'rider/signup_rider.dart';
 import 'seller/seller_dashboard.dart';
 import 'seller/seller_archived_products.dart';
+import 'seller/seller_customer_service.dart';
+import 'seller/seller_orders.dart';
+import 'seller/seller_earnings.dart';
 import 'seller/seller_products.dart';
 import 'seller/signup_seller.dart';
 import 'users/account.dart';
@@ -46,7 +50,11 @@ class AppRoutes {
   static const sellerDashboard = '/dash/seller';
   static const sellerProducts = '/dash/seller/products';
   static const sellerArchivedProducts = '/dash/seller/products/archived';
+  static const sellerCustomerService = '/dash/seller/support';
+  static const sellerOrders = '/dash/seller/orders';
+  static const sellerEarnings = '/dash/seller/earnings';
   static const riderDashboard = '/dash/rider';
+  static const riderCustomerService = '/dash/rider/support';
   static const adminDashboard = '/dash/admin';
   static const adminAllUsers = '/dash/admin/users';
   static const adminArchivedUsers = '/dash/admin/users/archived';
@@ -183,10 +191,30 @@ class AppRoutes {
           settings: settings,
           builder: (_) => const SellerArchivedProductsPage(),
         );
+      case sellerCustomerService:
+        return MaterialPageRoute<void>(
+          settings: settings,
+          builder: (_) => const SellerCustomerServicePage(),
+        );
+      case sellerOrders:
+        return MaterialPageRoute<void>(
+          settings: settings,
+          builder: (_) => const SellerOrdersPage(),
+        );
+      case sellerEarnings:
+        return MaterialPageRoute<void>(
+          settings: settings,
+          builder: (_) => const SellerEarningsPage(),
+        );
       case riderDashboard:
         return MaterialPageRoute<void>(
           settings: settings,
           builder: (_) => const RiderDashboardPage(),
+        );
+      case riderCustomerService:
+        return MaterialPageRoute<void>(
+          settings: settings,
+          builder: (_) => const RiderCustomerServicePage(),
         );
       case adminDashboard:
         return MaterialPageRoute<void>(

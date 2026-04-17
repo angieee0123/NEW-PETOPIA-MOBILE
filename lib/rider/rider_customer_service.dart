@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 
 import '../app_routes.dart';
-import 'seller_bottom_nav.dart';
+import '../widgets/main_bottom_nav.dart';
 
-class SellerCustomerServicePage extends StatelessWidget {
-  const SellerCustomerServicePage({super.key});
+class RiderCustomerServicePage extends StatelessWidget {
+  const RiderCustomerServicePage({super.key});
 
   static const _bg = Color(0xFFF6F8FF);
   static const _text = Color(0xFF0B0F1A);
@@ -31,7 +31,7 @@ class SellerCustomerServicePage extends StatelessWidget {
                 const SizedBox(height: 12),
                 const Center(
                   child: Text(
-                    '© 2025 Petopia — Seller Support',
+                    '© 2025 Petopia — Rider Support',
                     style: TextStyle(
                       color: _muted,
                       fontSize: 12,
@@ -44,18 +44,29 @@ class SellerCustomerServicePage extends StatelessWidget {
           ),
         ],
       ),
-      bottomNavigationBar: SellerBottomNav(
+      bottomNavigationBar: MainBottomNav(
         currentIndex: 0,
-        onTap: (value) {
-          if (value == 1) {
-            Navigator.of(context).pushReplacementNamed(AppRoutes.sellerProducts);
-            return;
-          }
-          Navigator.of(context).pushReplacementNamed(
-            AppRoutes.sellerDashboard,
-            arguments: {'tab': value},
-          );
-        },
+        onTap: (_) => Navigator.of(context).pushReplacementNamed(
+          AppRoutes.riderDashboard,
+        ),
+        items: const [
+          BottomNavigationBarItem(
+            icon: Icon(Icons.home_outlined),
+            label: 'Home',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.local_shipping_outlined),
+            label: 'Deliveries',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.payments_outlined),
+            label: 'Earnings',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.person_outline_rounded),
+            label: 'Profile',
+          ),
+        ],
       ),
     );
   }
@@ -97,7 +108,7 @@ class SellerCustomerServicePage extends StatelessWidget {
                 ),
                 SizedBox(height: 2),
                 Text(
-                  'Seller support for disputes, payouts, and policies',
+                  'Rider support for payouts, delivery issues, and policies',
                   style: TextStyle(
                     color: _muted,
                     fontSize: 12,
@@ -108,7 +119,7 @@ class SellerCustomerServicePage extends StatelessWidget {
             ),
           ),
           IconButton(
-            tooltip: 'Back',
+            tooltip: 'Close',
             onPressed: () => Navigator.of(context).pop(),
             icon: const Icon(Icons.close_rounded),
           ),
@@ -121,23 +132,23 @@ class SellerCustomerServicePage extends StatelessWidget {
     final options = [
       (
         Icons.report_problem_outlined,
-        'Disputes & Reports',
-        'Report issues or respond to disputes',
+        'Delivery Issue',
+        'Report delays, incidents, or cancellations',
       ),
       (
         Icons.account_balance_wallet_outlined,
-        'Payouts & Billing',
-        'Commission, payouts, and invoices',
+        'Payouts & Earnings',
+        'Payout schedule and earnings breakdown',
       ),
       (
-        Icons.verified_outlined,
-        'Shop Verification',
-        'Requirements and account status',
+        Icons.badge_outlined,
+        'Rider Account',
+        'Verification, profile, and requirements',
       ),
       (
         Icons.policy_outlined,
         'Policies',
-        'Seller policies and guidelines',
+        'Rider guidelines and rules',
       ),
     ];
 
@@ -239,7 +250,7 @@ class SellerCustomerServicePage extends StatelessWidget {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        'Petopia Seller Support',
+                        'Petopia Rider Support',
                         style: TextStyle(
                           color: _text,
                           fontWeight: FontWeight.w800,
@@ -247,7 +258,7 @@ class SellerCustomerServicePage extends StatelessWidget {
                       ),
                       SizedBox(height: 3),
                       Text(
-                        'Hi! How can we help your shop today?',
+                        'Hi! How can we help with your deliveries?',
                         style: TextStyle(
                           color: _muted,
                           fontWeight: FontWeight.w600,

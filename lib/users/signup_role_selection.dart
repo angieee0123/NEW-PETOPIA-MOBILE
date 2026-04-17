@@ -139,12 +139,6 @@ class SignupRoleSelectionPage extends StatelessWidget {
       ),
     );
   }
-
-  void _onRoleSelected(BuildContext context, String role) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text('$role sign up flow coming next.')),
-    );
-  }
 }
 
 class _RoleButton extends StatelessWidget {

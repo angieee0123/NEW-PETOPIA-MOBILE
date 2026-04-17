@@ -106,6 +106,10 @@ class _SellerProductsPageState extends State<SellerProductsPage> {
             ).pushReplacementNamed(AppRoutes.sellerDashboard);
             return;
           }
+          if (value == 2) {
+            Navigator.of(context).pushReplacementNamed(AppRoutes.sellerOrders);
+            return;
+          }
           Navigator.of(context).pushReplacementNamed(
             AppRoutes.sellerDashboard,
             arguments: {'tab': value},

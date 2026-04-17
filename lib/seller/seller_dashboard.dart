@@ -51,6 +51,10 @@ class _SellerDashboardPageState extends State<SellerDashboardPage> {
             Navigator.of(context).pushNamed(AppRoutes.sellerProducts);
             return;
           }
+          if (value == 2) {
+            Navigator.of(context).pushNamed(AppRoutes.sellerOrders);
+            return;
+          }
           setState(() => _currentIndex = value);
         },
       ),
@@ -324,12 +328,14 @@ class _SellerOverviewPage extends StatelessWidget {
   }
 
   Future<void> _openMessagesModal(BuildContext context) async {
+    final parentContext = context;
     final threads = <_MessageThread>[
       const _MessageThread(
         title: 'Petopia Customer Service',
         subtitle: 'Support • Help center, disputes, and payouts',
         icon: Icons.support_agent_rounded,
         badge: '1',
+        isCustomerService: true,
       ),
       const _MessageThread(
         title: 'Angelica Cuevas',
@@ -493,8 +499,14 @@ class _SellerOverviewPage extends StatelessWidget {
                             borderRadius: BorderRadius.circular(16),
                             onTap: () {
                               Navigator.of(context).pop();
+                              if (t.isCustomerService) {
+                                Navigator.of(parentContext).pushNamed(
+                                  AppRoutes.sellerCustomerService,
+                                );
+                                return;
+                              }
                               _showInfo(
-                                context,
+                                parentContext,
                                 'Open chat with "${t.title}" (prototype).',
                               );
                             },
@@ -750,10 +762,7 @@ class _SellerOverviewPage extends StatelessWidget {
       _QuickAction(
         title: 'Earnings',
         icon: Icons.savings_outlined,
-        onTap: () => _showInfo(
-          context,
-          'Earnings and commission data can be synced here.',
-        ),
+        onTap: () => Navigator.of(context).pushNamed(AppRoutes.sellerEarnings),
       ),
       _QuickAction(
         title: 'Promotions',
@@ -937,12 +946,14 @@ class _MessageThread {
     required this.subtitle,
     required this.icon,
     this.badge,
+    this.isCustomerService = false,
   });
 
   final String title;
   final String subtitle;
   final IconData icon;
   final String? badge;
+  final bool isCustomerService;
 }
 
 class _SellerOrdersPage extends StatelessWidget {
