@@ -517,19 +517,23 @@ class _AdminSellerRequestPageState extends State<AdminSellerRequestPage> {
         ).pushReplacementNamed(AppRoutes.adminRiderRequests);
         return;
       case AdminSection.products:
-        _info('Product Management page is the next integration step.');
+        Navigator.of(
+          context,
+        ).pushReplacementNamed(AppRoutes.adminProductManagement);
         return;
       case AdminSection.orders:
-        _info('Order Management page is the next integration step.');
+        Navigator.of(
+          context,
+        ).pushReplacementNamed(AppRoutes.adminOrderManagement);
         return;
       case AdminSection.commission:
-        _info('Commission Tracking page is the next integration step.');
+        Navigator.of(context).pushReplacementNamed(AppRoutes.adminCommission);
         return;
       case AdminSection.offenses:
-        _info('Offenses & Violations page is the next integration step.');
+        Navigator.of(context).pushReplacementNamed(AppRoutes.adminOffenses);
         return;
       case AdminSection.reports:
-        _info('Reports & Analytics page is the next integration step.');
+        Navigator.of(context).pushReplacementNamed(AppRoutes.adminReports);
         return;
     }
   }

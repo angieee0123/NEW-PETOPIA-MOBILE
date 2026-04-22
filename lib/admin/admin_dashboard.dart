@@ -86,6 +86,27 @@ class _AdminDashboardPageState extends State<AdminDashboardPage> {
     ),
   ];
 
+  final List<_AdminMessageThread> _messageThreads = const [
+    _AdminMessageThread(
+      title: 'Customer Service',
+      subtitle: 'New escalation from buyer (Order #10291)',
+      unreadCount: 2,
+      icon: Icons.support_agent_rounded,
+    ),
+    _AdminMessageThread(
+      title: 'Seller Support • PawSmart',
+      subtitle: 'Requested review for flagged listing',
+      unreadCount: 1,
+      icon: Icons.storefront_outlined,
+    ),
+    _AdminMessageThread(
+      title: 'Rider Operations',
+      subtitle: 'Route dispute requires admin decision',
+      unreadCount: 0,
+      icon: Icons.two_wheeler_outlined,
+    ),
+  ];
+
   @override
   void dispose() {
     _searchController.dispose();
@@ -197,11 +218,141 @@ class _AdminDashboardPageState extends State<AdminDashboardPage> {
             icon: const Icon(Icons.notifications_none_rounded),
           ),
           IconButton(
-            onPressed: () => _info('Messages panel is prototype-only.'),
+            onPressed: _openMessagesModal,
             icon: const Icon(Icons.mail_outline_rounded),
+            tooltip: 'Messages',
           ),
         ],
       ),
+    );
+  }
+
+  Future<void> _openMessagesModal() async {
+    await showModalBottomSheet<void>(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (context) {
+        return DraggableScrollableSheet(
+          initialChildSize: 0.7,
+          minChildSize: 0.45,
+          maxChildSize: 0.9,
+          expand: false,
+          builder: (context, controller) {
+            return Container(
+              decoration: const BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.vertical(top: Radius.circular(22)),
+              ),
+              child: Column(
+                children: [
+                  const SizedBox(height: 10),
+                  Container(
+                    width: 44,
+                    height: 5,
+                    decoration: BoxDecoration(
+                      color: const Color(0x220B0F1A),
+                      borderRadius: BorderRadius.circular(99),
+                    ),
+                  ),
+                  const SizedBox(height: 12),
+                  const Padding(
+                    padding: EdgeInsets.symmetric(horizontal: 16),
+                    child: Row(
+                      children: [
+                        Text(
+                          'Admin Messages',
+                          style: TextStyle(
+                            color: _text,
+                            fontSize: 18,
+                            fontWeight: FontWeight.w900,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  const SizedBox(height: 6),
+                  Expanded(
+                    child: ListView.separated(
+                      controller: controller,
+                      padding: const EdgeInsets.fromLTRB(14, 8, 14, 14),
+                      itemCount: _messageThreads.length,
+                      separatorBuilder: (_, index) =>
+                          const SizedBox(height: 8),
+                      itemBuilder: (context, index) {
+                        final thread = _messageThreads[index];
+                        return Container(
+                          decoration: BoxDecoration(
+                            color: const Color(0xFFF8FAFF),
+                            borderRadius: BorderRadius.circular(14),
+                            border: Border.all(color: const Color(0x140B0F1A)),
+                          ),
+                          child: ListTile(
+                            leading: Container(
+                              width: 38,
+                              height: 38,
+                              decoration: BoxDecoration(
+                                borderRadius: BorderRadius.circular(10),
+                                color: const Color(0x1F8BB6FF),
+                              ),
+                              child: Icon(
+                                thread.icon,
+                                color: const Color(0xFF2E5EA7),
+                              ),
+                            ),
+                            title: Text(
+                              thread.title,
+                              style: const TextStyle(
+                                color: _text,
+                                fontWeight: FontWeight.w800,
+                                fontSize: 13,
+                              ),
+                            ),
+                            subtitle: Text(
+                              thread.subtitle,
+                              style: const TextStyle(
+                                color: _muted,
+                                fontWeight: FontWeight.w600,
+                                fontSize: 12,
+                              ),
+                            ),
+                            trailing: thread.unreadCount > 0
+                                ? Container(
+                                    padding: const EdgeInsets.symmetric(
+                                      horizontal: 8,
+                                      vertical: 4,
+                                    ),
+                                    decoration: BoxDecoration(
+                                      color: const Color(0xFF2E5EA7),
+                                      borderRadius: BorderRadius.circular(999),
+                                    ),
+                                    child: Text(
+                                      '${thread.unreadCount}',
+                                      style: const TextStyle(
+                                        color: Colors.white,
+                                        fontWeight: FontWeight.w800,
+                                        fontSize: 11,
+                                      ),
+                                    ),
+                                  )
+                                : const Icon(
+                                    Icons.chevron_right_rounded,
+                                    color: _muted,
+                                  ),
+                            onTap: () => _info(
+                              'Opened ${thread.title} (prototype chat).',
+                            ),
+                          ),
+                        );
+                      },
+                    ),
+                  ),
+                ],
+              ),
+            );
+          },
+        );
+      },
     );
   }
 
@@ -227,19 +378,23 @@ class _AdminDashboardPageState extends State<AdminDashboardPage> {
         ).pushReplacementNamed(AppRoutes.adminRiderRequests);
         return;
       case AdminSection.products:
-        _info('Product Management screen is the next integration step.');
+        Navigator.of(
+          context,
+        ).pushReplacementNamed(AppRoutes.adminProductManagement);
         return;
       case AdminSection.orders:
-        _info('Order Management screen is the next integration step.');
+        Navigator.of(
+          context,
+        ).pushReplacementNamed(AppRoutes.adminOrderManagement);
         return;
       case AdminSection.commission:
-        _info('Commission Tracking screen is the next integration step.');
+        Navigator.of(context).pushReplacementNamed(AppRoutes.adminCommission);
         return;
       case AdminSection.offenses:
-        _info('Offenses & Violations screen is the next integration step.');
+        Navigator.of(context).pushReplacementNamed(AppRoutes.adminOffenses);
         return;
       case AdminSection.reports:
-        _info('Reports & Analytics screen is the next integration step.');
+        Navigator.of(context).pushReplacementNamed(AppRoutes.adminReports);
         return;
     }
   }
@@ -544,6 +699,20 @@ class _OrderItem {
   final String customer;
   final String status;
   final String date;
+}
+
+class _AdminMessageThread {
+  const _AdminMessageThread({
+    required this.title,
+    required this.subtitle,
+    required this.unreadCount,
+    required this.icon,
+  });
+
+  final String title;
+  final String subtitle;
+  final int unreadCount;
+  final IconData icon;
 }
 
 class _CommissionRow extends StatelessWidget {

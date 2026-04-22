@@ -295,19 +295,23 @@ class _AdminAllUsersPageState extends State<AdminAllUsersPage> {
         ).pushReplacementNamed(AppRoutes.adminRiderRequests);
         return;
       case AdminSection.products:
-        _info('Product Management screen is the next integration step.');
+        Navigator.of(
+          context,
+        ).pushReplacementNamed(AppRoutes.adminProductManagement);
         return;
       case AdminSection.orders:
-        _info('Order Management screen is the next integration step.');
+        Navigator.of(
+          context,
+        ).pushReplacementNamed(AppRoutes.adminOrderManagement);
         return;
       case AdminSection.commission:
-        _info('Commission Tracking screen is the next integration step.');
+        Navigator.of(context).pushReplacementNamed(AppRoutes.adminCommission);
         return;
       case AdminSection.offenses:
-        _info('Offenses & Violations screen is the next integration step.');
+        Navigator.of(context).pushReplacementNamed(AppRoutes.adminOffenses);
         return;
       case AdminSection.reports:
-        _info('Reports & Analytics screen is the next integration step.');
+        Navigator.of(context).pushReplacementNamed(AppRoutes.adminReports);
         return;
     }
   }

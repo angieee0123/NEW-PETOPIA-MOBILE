@@ -1,8 +1,14 @@
 import 'package:flutter/material.dart';
 
 import 'admin/admin_all_users.dart';
+import 'admin/admin_archived_products.dart';
 import 'admin/admin_archived_users.dart';
 import 'admin/admin_dashboard.dart';
+import 'admin/admin_commission.dart';
+import 'admin/admin_offenses.dart';
+import 'admin/admin_order_management.dart';
+import 'admin/admin_product_management.dart';
+import 'admin/admin_reports.dart';
 import 'admin/admin_rider_request.dart';
 import 'admin/admin_seller_request.dart';
 import 'buyer/buyer_homepage.dart';
@@ -78,6 +84,12 @@ class AppRoutes {
   static const adminArchivedUsers = '/dash/admin/users/archived';
   static const adminSellerRequests = '/dash/admin/seller-requests';
   static const adminRiderRequests = '/dash/admin/rider-requests';
+  static const adminProductManagement = '/dash/admin/products';
+  static const adminArchivedProducts = '/dash/admin/products/archived';
+  static const adminOrderManagement = '/dash/admin/orders';
+  static const adminCommission = '/dash/admin/commission';
+  static const adminOffenses = '/dash/admin/offenses';
+  static const adminReports = '/dash/admin/reports';
 
   static Route<dynamic> onGenerateRoute(RouteSettings settings) {
     switch (settings.name) {
@@ -308,6 +320,36 @@ class AppRoutes {
         return MaterialPageRoute<void>(
           settings: settings,
           builder: (_) => const AdminRiderRequestPage(),
+        );
+      case adminProductManagement:
+        return MaterialPageRoute<void>(
+          settings: settings,
+          builder: (_) => const AdminProductManagementPage(),
+        );
+      case adminArchivedProducts:
+        return MaterialPageRoute<void>(
+          settings: settings,
+          builder: (_) => const AdminArchivedProductsPage(),
+        );
+      case adminOrderManagement:
+        return MaterialPageRoute<void>(
+          settings: settings,
+          builder: (_) => const AdminOrderManagementPage(),
+        );
+      case adminCommission:
+        return MaterialPageRoute<void>(
+          settings: settings,
+          builder: (_) => const AdminCommissionPage(),
+        );
+      case adminOffenses:
+        return MaterialPageRoute<void>(
+          settings: settings,
+          builder: (_) => const AdminOffensesPage(),
+        );
+      case adminReports:
+        return MaterialPageRoute<void>(
+          settings: settings,
+          builder: (_) => const AdminReportsPage(),
         );
       default:
         return MaterialPageRoute<void>(
